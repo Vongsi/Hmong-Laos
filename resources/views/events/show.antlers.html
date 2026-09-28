@@ -1,0 +1,32 @@
+<div class="evt-layout">
+    <div class="stack" style="gap:18px">
+        {{ if cover }}{{ cover }}<img class="cover" style="aspect-ratio:21/9" src="{{ glide:url width='1400' height='600' fit='crop_focal' }}" alt="{{ alt ?? '' }}">{{ /cover }}{{ else }}<div class="ph b" style="aspect-ratio:21/9"></div>{{ /if }}
+        <div class="stack" style="gap:8px">
+            {{ provinces }}<span class="eyebrow">{{ title }}</span>{{ /provinces }}
+            <h1 style="font-size:clamp(28px,4vw,40px)">{{ title }}</h1>
+            {{ if summary }}<p class="muted">{{ summary }}</p>{{ /if }}
+        </div>
+        <div class="prose">{{ content }}</div>
+        {{ if schedule }}
+            <div class="panel">
+                <h3>{{ trans key="site.events.schedule" }}</h3>
+                <div class="schedule">
+                    {{ schedule }}<div class="slot"><time>{{ when }}</time><span>{{ what }}</span></div>{{ /schedule }}
+                </div>
+            </div>
+        {{ /if }}
+        {{ livewire:comments :entry-id="id" }}
+    </div>
+    <aside class="side">
+        <div class="panel">
+            <dl class="facts">
+                <dt>{{ trans key="site.events.when" }}</dt><dd>{{ start_date format="j M Y, H:i" }}{{ if end_date }} – {{ end_date format="j M Y, H:i" }}{{ /if }}</dd>
+                {{ if venue }}<dt>{{ trans key="site.events.where" }}</dt><dd>{{ venue }}</dd>{{ /if }}
+                <dt>{{ trans key="site.events.entry" }}</dt><dd>{{ entry_fee ?? trans:site.events.free }}</dd>
+                {{ if contact_phone }}<dt>{{ trans key="site.events.contact" }}</dt><dd style="user-select:all">{{ contact_phone }}</dd>{{ /if }}
+            </dl>
+            {{ if rsvp_enabled }}{{ livewire:event-rsvp-box :entry-id="id" :ask-volunteers="volunteers_needed" }}{{ /if }}
+            {{ if map_url }}<a class="btn ghost" href="{{ map_url }}" target="_blank" rel="noopener">{{ trans key="site.events.map" }}</a>{{ /if }}
+        </div>
+    </aside>
+</div>

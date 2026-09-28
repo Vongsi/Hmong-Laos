@@ -1,0 +1,7 @@
+<a class="card evt" href="{{ url }}">
+    <div class="date"><span>{{ start_date format="M" }}</span><b>{{ start_date format="d" }}</b></div>
+    <div class="stack" style="gap:4px">
+        <h3>{{ title }}</h3>
+        <p class="muted">{{ start_date format="D H:i" }}{{ if venue }} · {{ venue }}{{ /if }}{{ provinces }} · {{ title }}{{ /provinces }}</p>
+    </div>
+</a>

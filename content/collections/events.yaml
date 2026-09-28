@@ -1,0 +1,9 @@
+title: Events
+route: '/events/{slug}'
+sort_by: start_date
+sort_direction: asc
+taxonomies: [provinces]
+sites: [hm, lo, en]
+propagate: false
+template: events/show
+layout: layout

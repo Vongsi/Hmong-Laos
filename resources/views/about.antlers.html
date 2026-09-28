@@ -1,0 +1,30 @@
+<div class="about">
+    <div class="stack" style="gap:14px">
+        <span class="eyebrow">{{ trans key="site.nav.about" }}</span>
+        <h1>{{ title }}</h1>
+        {{ if intro }}<p class="lede" style="max-width:60ch">{{ intro }}</p>{{ /if }}
+    </div>
+    <div class="prose">{{ content }}</div>
+
+    <section class="contact-sec" id="contact">
+        <div class="stack" style="gap:10px">
+            <span class="eyebrow">{{ trans key="site.contact.eyebrow" }}</span>
+            <h2>{{ trans key="site.contact.title" }}</h2>
+            <p class="muted" style="max-width:52ch">{{ trans key="site.contact.body" }}</p>
+            <dl class="contact">
+                {{ settings:contact_email }}<dt>{{ trans key="site.contact.email" }}</dt><dd>{{ settings:contact_email }}</dd>{{ /settings:contact_email }}
+                {{ if settings:contact_phone }}<dt>{{ trans key="site.contact.phone" }}</dt><dd>{{ settings:contact_phone }}</dd>{{ /if }}
+                {{ if settings:facebook_url }}<dt>Facebook</dt><dd><a href="{{ settings:facebook_url }}" target="_blank" rel="noopener">{{ settings:facebook_url }}</a></dd>{{ /if }}
+            </dl>
+        </div>
+        {{ form:contact class="stack" attr:style="gap:12px" }}
+            {{ if success }}<p class="flash" role="status">{{ trans key="site.contact.sent" }}</p>{{ /if }}
+            {{ if errors }}<div class="flash">{{ errors }}<p class="error small">{{ value }}</p>{{ /errors }}</div>{{ /if }}
+            {{ fields }}
+                <label class="field" for="{{ id }}">{{ display }}{{ field }}</label>
+            {{ /fields }}
+            <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off">
+            <button class="btn red" type="submit">{{ trans key="site.contact.send" }}</button>
+        {{ /form:contact }}
+    </section>
+</div>

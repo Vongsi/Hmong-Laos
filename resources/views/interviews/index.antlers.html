@@ -1,0 +1,23 @@
+{{ base = site:url | ensure_right('/') }}
+{{ list_url = url }}
+<div class="stack" style="gap:24px">
+    <div class="stack" style="gap:8px">
+        <span class="eyebrow">{{ trans key="site.nav.inspire" }}</span>
+        <h1>{{ trans key="site.inspire.title" }}</h1>
+        <p class="muted" style="max-width:60ch;font-size:16px">{{ trans key="site.inspire.intro" }}</p>
+    </div>
+    <nav class="chips">
+        <a class="chip" href="{{ url }}" {{ if !get:topic }}aria-current="true"{{ /if }}>{{ trans key="site.inspire.all" }}</a>
+        {{ taxonomy:topics }}<a class="chip" href="{{ list_url }}?topic={{ slug }}" {{ if get:topic == slug }}aria-current="true"{{ /if }}>{{ title }}</a>{{ /taxonomy:topics }}
+    </nav>
+    <div class="grid3">
+        {{ collection:interviews :taxonomy:topics="get:topic" }}
+            {{ partial:interview_card }}
+            {{ if no_results }}<p class="muted">{{ trans key="site.feed.empty" }}</p>{{ /if }}
+        {{ /collection:interviews }}
+    </div>
+    <div class="panel" style="flex-direction:row;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px">
+        <div class="stack" style="gap:4px"><h3>{{ trans key="site.inspire.suggest_title" }}</h3><p class="muted small">{{ trans key="site.inspire.suggest_body" }}</p></div>
+        <a class="btn ghost" href="{{ base }}about#contact">{{ trans key="site.inspire.suggest" }}</a>
+    </div>
+</div>

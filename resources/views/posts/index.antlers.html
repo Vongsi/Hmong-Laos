@@ -1,0 +1,50 @@
+{{ base = site:url | ensure_right('/') }}
+{{ list_url = url }}
+<div class="feed-layout">
+    <div class="stack" style="gap:16px">
+        <h1 style="font-size:32px">{{ trans key="site.nav.feed" }}</h1>
+        <form class="chips" method="get" action="{{ url }}">
+            <label class="prov"><span class="sr">{{ trans key="site.feed.province" }}</span>
+                <select name="province" data-filter-select>
+                    <option value="">{{ trans key="site.feed.all_provinces" }}</option>
+                    {{ taxonomy:provinces sort="title" }}<option value="{{ slug }}" {{ if get:province == slug }}selected{{ /if }}>{{ title }}</option>{{ /taxonomy:provinces }}
+                </select>
+            </label>
+            {{ if get:category }}<input type="hidden" name="category" value="{{ get:category | sanitize }}">{{ /if }}
+            <a class="chip" href="{{ url }}{{ if get:province }}?province={{ get:province | urlencode }}{{ /if }}" {{ if !get:category }}aria-current="true"{{ /if }}>{{ trans key="site.feed.all" }}</a>
+            {{ taxonomy:categories }}
+                <a class="chip" href="{{ list_url }}?category={{ slug }}{{ if get:province }}&province={{ get:province | urlencode }}{{ /if }}" {{ if get:category == slug }}aria-current="true"{{ /if }}>{{ title }}</a>
+            {{ /taxonomy:categories }}
+        </form>
+
+        <div class="stack" style="gap:16px">
+            {{ collection:posts paginate="10" as="posts" :taxonomy:categories="get:category" :taxonomy:provinces="get:province" }}
+                {{ posts }}
+                    {{ partial:post_card }}
+                {{ /posts }}
+                {{ if no_results }}<p class="muted">{{ trans key="site.feed.empty" }}</p>{{ /if }}
+                {{ paginate }}
+                    {{ if total_pages > 1 }}
+                        <nav class="pagination">
+                            {{ if prev_page }}<a class="btn ghost" href="{{ prev_page }}">←</a>{{ /if }}
+                            <span class="muted">{{ current_page }} / {{ total_pages }}</span>
+                            {{ if next_page }}<a class="btn ghost" href="{{ next_page }}">→</a>{{ /if }}
+                        </nav>
+                    {{ /if }}
+                {{ /paginate }}
+            {{ /collection:posts }}
+        </div>
+    </div>
+    <aside class="side">
+        <div class="panel">
+            <h3>{{ trans key="site.home.upcoming" }}</h3>
+            {{ collection:events limit="4" start_date:is_after="now" }}
+                <div class="mini"><a href="{{ url }}">{{ title }}</a><span class="muted">{{ start_date format="j M" }}</span></div>
+            {{ /collection:events }}
+        </div>
+        <div class="panel">
+            <h3>{{ trans key="site.nav.rules" }}</h3>
+            <a class="link" href="{{ base }}rules">{{ trans key="site.nav.rules" }} →</a>
+        </div>
+    </aside>
+</div>

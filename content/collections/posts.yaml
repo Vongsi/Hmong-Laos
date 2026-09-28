@@ -1,0 +1,13 @@
+title: 'Xov Xwm'
+route: '/xov-xwm/{slug}'
+date: true
+sort_direction: desc
+date_behavior:
+  past: public
+  future: private
+taxonomies: [categories, provinces]
+sites: [hm, lo, en]
+propagate: false
+template: posts/show
+layout: layout
+revisions: false

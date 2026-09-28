@@ -1,0 +1,19 @@
+<div class="stack" style="gap:18px">
+    <div class="sec-head">
+        <h1 style="font-size:32px">{{ trans key="site.events.title" }}</h1>
+        <form method="get" action="{{ url }}">
+            <label class="prov"><span class="sr">{{ trans key="site.feed.province" }}</span>
+                <select name="province" data-filter-select>
+                    <option value="">{{ trans key="site.feed.all_provinces" }}</option>
+                    {{ taxonomy:provinces sort="title" }}<option value="{{ slug }}" {{ if get:province == slug }}selected{{ /if }}>{{ title }}</option>{{ /taxonomy:provinces }}
+                </select>
+            </label>
+        </form>
+    </div>
+    <div class="grid3">
+        {{ collection:events start_date:is_after="now" :taxonomy:provinces="get:province" }}
+            {{ partial:event_card }}
+            {{ if no_results }}<p class="muted">{{ trans key="site.events.empty" }}</p>{{ /if }}
+        {{ /collection:events }}
+    </div>
+</div>

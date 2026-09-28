@@ -1,0 +1,27 @@
+title: Suggest a person
+fields:
+- handle: name
+  field:
+    type: text
+    display: Your name
+    validate:
+    - required
+- handle: reach
+  field:
+    type: text
+    display: Phone or email
+    validate:
+    - required
+- handle: person
+  field:
+    type: text
+    display: Who should we interview?
+    validate:
+    - required
+- handle: why
+  field:
+    type: textarea
+    display: Why do they inspire you?
+    validate:
+    - required
+    - max:3000

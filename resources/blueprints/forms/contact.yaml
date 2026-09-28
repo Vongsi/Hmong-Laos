@@ -1,0 +1,31 @@
+title: Contact
+fields:
+- handle: name
+  field:
+    type: text
+    display: Your name
+    validate:
+    - required
+- handle: reach
+  field:
+    type: text
+    display: Phone or email
+    validate:
+    - required
+- handle: topic
+  field:
+    type: select
+    display: Topic
+    options:
+      question: General question
+      story: Suggest a story or event
+      volunteer: Volunteer
+      problem: Report a problem
+    default: question
+- handle: message
+  field:
+    type: textarea
+    display: Message
+    validate:
+    - required
+    - max:3000

@@ -1,0 +1,14 @@
+<article class="post">
+    <div class="post-head">
+        <div class="avatar" style="background:var(--indigo)">{{ author:name | substr(0, 2) | upper ?? 'HL' }}</div>
+        <div class="who"><b>{{ author:name ?? trans:site.brand }}</b><span>{{ date format="j M Y" }}{{ provinces }} · {{ title }}{{ /provinces }}</span></div>
+        {{ categories }}<span class="tag {{ slug }}" style="margin-left:auto">{{ title }}</span>{{ /categories }}
+    </div>
+    <h3><a href="{{ url }}" style="color:inherit;text-decoration:none">{{ title }}</a></h3>
+    {{ if excerpt }}<p>{{ excerpt }}</p>{{ /if }}
+    {{ if image }}<a href="{{ url }}">{{ image }}<img class="cover" src="{{ glide:url width='900' height='560' fit='crop_focal' }}" alt="{{ alt ?? '' }}" loading="lazy">{{ /image }}</a>{{ /if }}
+    <div class="post-actions">
+        {{ livewire:like-button :entry-id="id" :key="id" }}
+        <a class="like" href="{{ url }}#comments">💬 {{ trans key="site.feed.comments" }}</a>
+    </div>
+</article>

@@ -1,0 +1,22 @@
+{{ base = site:url | ensure_right('/') }}
+<div class="join">
+    <div class="join-card">
+        {{ if logged_in }}
+            <h2>{{ trans key="site.join.title" }}</h2>
+            <p>{{ trans key="site.join.signed_in" :name="current_user:name" }}</p>
+            <a class="btn" href="{{ base }}xov-xwm">{{ trans key="site.hero.cta_feed" }}</a>
+        {{ else }}
+            <h2>{{ trans key="site.join.title" }}</h2>
+            <p class="muted">{{ trans key="site.join.body" }}</p>
+            <a class="sso" href="{{ oauth:facebook redirect='/xov-xwm' }}"><span class="ico" style="background:#1877F2">f</span><span>{{ trans key="site.join.facebook" }}</span><span class="rec">{{ trans key="site.join.recommended" }}</span></a>
+            <a class="sso" href="{{ oauth:google redirect='/xov-xwm' }}"><span class="ico" style="background:#DB4437">G</span><span>{{ trans key="site.join.google" }}</span></a>
+            <div class="or">{{ trans key="site.join.or" }}</div>
+            {{ user:login_form redirect="/xov-xwm" class="stack" attr:style="gap:10px" }}
+                {{ if errors }}<div class="flash">{{ errors }}<p class="error small">{{ value }}</p>{{ /errors }}</div>{{ /if }}
+                <label class="field" for="login-email">Email<input id="login-email" type="email" name="email" value="{{ old:email }}" required></label>
+                <label class="field" for="login-password">Password<input id="login-password" type="password" name="password" required></label>
+                <button class="btn ghost" type="submit">{{ trans key="site.join.email" }}</button>
+            {{ /user:login_form }}
+        {{ /if }}
+    </div>
+</div>

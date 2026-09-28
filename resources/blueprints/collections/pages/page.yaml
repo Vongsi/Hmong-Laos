@@ -1,0 +1,49 @@
+title: Page
+tabs:
+  main:
+    display: Main
+    sections:
+    - fields:
+      - handle: title
+        field:
+          type: text
+          display: Title
+          required: true
+          localizable: true
+      - handle: intro
+        field:
+          type: textarea
+          display: Intro
+          localizable: true
+      - handle: content
+        field:
+          type: bard
+          display: Content
+          localizable: true
+          buttons:
+          - h2
+          - h3
+          - bold
+          - italic
+          - unorderedlist
+          - orderedlist
+          - quote
+          - link
+          - image
+          container: assets
+          save_html: false
+  sidebar:
+    display: Sidebar
+    sections:
+    - fields:
+      - handle: slug
+        field:
+          type: slug
+          display: Slug
+          localizable: true
+          validate: max:200
+      - handle: template
+        field:
+          type: template
+          display: Template
+          localizable: true

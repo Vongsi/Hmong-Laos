@@ -1,0 +1,122 @@
+title: Event
+tabs:
+  main:
+    display: Main
+    sections:
+    - fields:
+      - handle: title
+        field:
+          type: text
+          display: Title
+          required: true
+          localizable: true
+      - handle: cover
+        field:
+          type: assets
+          display: Cover photo
+          container: assets
+          max_files: 1
+          localizable: true
+      - handle: summary
+        field:
+          type: textarea
+          display: Summary
+          localizable: true
+      - handle: content
+        field:
+          type: bard
+          display: Content
+          localizable: true
+          buttons:
+          - h2
+          - h3
+          - bold
+          - italic
+          - unorderedlist
+          - orderedlist
+          - quote
+          - link
+          - image
+          container: assets
+          save_html: false
+      - handle: schedule
+        field:
+          type: grid
+          display: Schedule
+          localizable: true
+          add_row: Add item
+          fields:
+          - handle: when
+            field:
+              type: text
+              display: When (e.g. Day 1, 09:00)
+          - handle: what
+            field:
+              type: text
+              display: What happens
+  sidebar:
+    display: Sidebar
+    sections:
+    - fields:
+      - handle: slug
+        field:
+          type: slug
+          display: Slug
+          localizable: true
+          validate: max:200
+      - handle: start_date
+        field:
+          type: date
+          display: Starts
+          required: true
+          time_enabled: true
+          localizable: true
+      - handle: end_date
+        field:
+          type: date
+          display: Ends
+          time_enabled: true
+          localizable: true
+      - handle: venue
+        field:
+          type: text
+          display: Venue
+          localizable: true
+      - handle: provinces
+        field:
+          type: terms
+          display: Province
+          taxonomies:
+          - provinces
+          create: false
+          max_items: 1
+          mode: select
+          localizable: true
+      - handle: map_url
+        field:
+          type: text
+          display: Map link
+          input_type: url
+          localizable: true
+      - handle: contact_phone
+        field:
+          type: text
+          display: Contact phone
+          localizable: true
+      - handle: entry_fee
+        field:
+          type: text
+          display: Entry fee
+          placeholder: Free
+          localizable: true
+      - handle: rsvp_enabled
+        field:
+          type: toggle
+          display: Allow RSVP
+          default: true
+          localizable: true
+      - handle: volunteers_needed
+        field:
+          type: toggle
+          display: Ask for volunteers
+          localizable: true

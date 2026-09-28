@@ -1,0 +1,84 @@
+title: Post
+tabs:
+  main:
+    display: Main
+    sections:
+    - fields:
+      - handle: title
+        field:
+          type: text
+          display: Title
+          required: true
+          localizable: true
+      - handle: excerpt
+        field:
+          type: textarea
+          display: Short summary
+          localizable: true
+          instructions: Shown in the feed and on the homepage.
+      - handle: image
+        field:
+          type: assets
+          display: Photo
+          container: assets
+          max_files: 1
+          localizable: true
+      - handle: content
+        field:
+          type: bard
+          display: Content
+          localizable: true
+          buttons:
+          - h2
+          - h3
+          - bold
+          - italic
+          - unorderedlist
+          - orderedlist
+          - quote
+          - link
+          - image
+          container: assets
+          save_html: false
+  sidebar:
+    display: Sidebar
+    sections:
+    - fields:
+      - handle: slug
+        field:
+          type: slug
+          display: Slug
+          localizable: true
+          validate: max:200
+      - handle: categories
+        field:
+          type: terms
+          display: Category
+          taxonomies:
+          - categories
+          create: false
+          max_items: 1
+          mode: select
+          localizable: true
+      - handle: provinces
+        field:
+          type: terms
+          display: Province
+          taxonomies:
+          - provinces
+          create: false
+          max_items: 1
+          mode: select
+          localizable: true
+      - handle: pinned
+        field:
+          type: toggle
+          display: Pin to homepage
+          localizable: true
+      - handle: author
+        field:
+          type: users
+          display: Author
+          default: current
+          max_items: 1
+          localizable: true

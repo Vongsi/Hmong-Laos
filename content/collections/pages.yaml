@@ -1,0 +1,8 @@
+title: Pages
+structure:
+  root: true
+route: '{parent_uri}/{slug}'
+sites: [hm, lo, en]
+propagate: true
+template: default
+layout: layout

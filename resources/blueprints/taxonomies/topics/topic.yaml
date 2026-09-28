@@ -1,0 +1,18 @@
+title: Topic
+tabs:
+  main:
+    display: Main
+    sections:
+    - fields:
+      - handle: title
+        field:
+          type: text
+          display: Title
+          required: true
+          localizable: true
+      - handle: slug
+        field:
+          type: slug
+          display: Slug
+          localizable: true
+          validate: max:200

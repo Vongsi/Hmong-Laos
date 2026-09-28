@@ -1,0 +1,30 @@
+title: Site settings
+fields:
+- handle: contact_email
+  field:
+    type: text
+    display: Contact email
+    input_type: email
+    localizable: true
+- handle: contact_phone
+  field:
+    type: text
+    display: Contact phone
+    localizable: true
+- handle: facebook_url
+  field:
+    type: text
+    display: Facebook page
+    input_type: url
+    localizable: true
+- handle: tiktok_url
+  field:
+    type: text
+    display: TikTok
+    input_type: url
+    localizable: true
+- handle: footer_note
+  field:
+    type: text
+    display: Footer note
+    localizable: true

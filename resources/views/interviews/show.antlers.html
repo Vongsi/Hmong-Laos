@@ -1,0 +1,21 @@
+{{ base = site:url | ensure_right('/') }}
+<article class="article">
+    <a class="link" href="{{ base }}inspire">← {{ trans key="site.inspire.back" }}</a>
+    {{ topics }}<span class="tag">{{ title }}</span>{{ /topics }}
+    <h1 style="font-size:clamp(28px,4.5vw,42px)">{{ title }}</h1>
+    <div class="interview-head">
+        <div class="portrait p1" style="aspect-ratio:1;width:96px;border-radius:50%">{{ portrait }}<img src="{{ glide:url width='200' height='200' fit='crop_focal' }}" alt="">{{ /portrait }}</div>
+        <div class="stack" style="gap:2px"><b style="font-size:17px">{{ person_name }}</b>{{ if person_role }}<span class="muted">{{ person_role }}</span>{{ /if }}</div>
+    </div>
+    {{ if intro }}<p class="lede">{{ intro }}</p>{{ /if }}
+    {{ if video_url }}<p><a class="btn ghost" href="{{ video_url }}" target="_blank" rel="noopener">▶ Video</a></p>{{ /if }}
+    <div class="qa">
+        {{ qa }}
+            {{ if type == 'question_answer' }}<p class="q">{{ question }}</p><p>{{ answer | nl2br }}</p>{{ /if }}
+            {{ if type == 'pull_quote' }}<blockquote class="pull">“{{ quote }}”</blockquote>{{ /if }}
+            {{ if type == 'photo' }}{{ photo }}<figure><img class="cover" src="{{ glide:url width='1000' }}" alt="{{ alt ?? '' }}"><figcaption class="muted small">{{ caption }}</figcaption></figure>{{ /photo }}{{ /if }}
+        {{ /qa }}
+    </div>
+    <div class="post-actions">{{ livewire:like-button :entry-id="id" }}</div>
+    {{ livewire:comments :entry-id="id" }}
+</article>

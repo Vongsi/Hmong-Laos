@@ -1,0 +1,6 @@
+<a class="card" href="{{ url }}">
+    <div class="portrait p{{ index | mod(4) | add(1) }}">{{ portrait }}<img src="{{ glide:url width='600' height='450' fit='crop_focal' }}" alt="{{ alt ?? '' }}" loading="lazy">{{ /portrait }}</div>
+    {{ topics }}<span class="tag">{{ title }}</span>{{ /topics }}
+    <h3>{{ title }}</h3>
+    <p class="muted">{{ person_name }}{{ if person_role }} · {{ person_role }}{{ /if }}</p>
+</a>

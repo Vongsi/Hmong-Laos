@@ -1,0 +1,116 @@
+title: Interview
+tabs:
+  main:
+    display: Main
+    sections:
+    - fields:
+      - handle: title
+        field:
+          type: text
+          display: Title
+          required: true
+          localizable: true
+      - handle: person_name
+        field:
+          type: text
+          display: Person
+          required: true
+          localizable: true
+      - handle: person_role
+        field:
+          type: text
+          display: Role and place
+          placeholder: Doctor, Vientiane
+          localizable: true
+      - handle: portrait
+        field:
+          type: assets
+          display: Portrait
+          container: assets
+          max_files: 1
+          localizable: true
+      - handle: intro
+        field:
+          type: textarea
+          display: Intro
+          localizable: true
+      - handle: video_url
+        field:
+          type: video
+          display: Video
+          localizable: true
+      - handle: qa
+        field:
+          type: replicator
+          display: Interview
+          localizable: true
+          sets:
+            main:
+              display: Blocks
+              sets:
+                question_answer:
+                  display: Question and answer
+                  fields:
+                  - handle: question
+                    field:
+                      type: text
+                      display: Question
+                  - handle: answer
+                    field:
+                      type: textarea
+                      display: Answer
+                pull_quote:
+                  display: Highlighted quote
+                  fields:
+                  - handle: quote
+                    field:
+                      type: textarea
+                      display: Quote
+                photo:
+                  display: Photo
+                  fields:
+                  - handle: photo
+                    field:
+                      type: assets
+                      display: Photo
+                      container: assets
+                      max_files: 1
+                  - handle: caption
+                    field:
+                      type: text
+                      display: Caption
+  sidebar:
+    display: Sidebar
+    sections:
+    - fields:
+      - handle: slug
+        field:
+          type: slug
+          display: Slug
+          localizable: true
+          validate: max:200
+      - handle: topics
+        field:
+          type: terms
+          display: Topic
+          taxonomies:
+          - topics
+          create: false
+          max_items: 1
+          mode: select
+          localizable: true
+      - handle: provinces
+        field:
+          type: terms
+          display: Province
+          taxonomies:
+          - provinces
+          create: false
+          max_items: 1
+          mode: select
+          localizable: true
+      - handle: featured
+        field:
+          type: toggle
+          display: Feature on Inspire page
+          localizable: true

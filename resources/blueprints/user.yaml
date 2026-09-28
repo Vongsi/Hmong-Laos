@@ -1,0 +1,57 @@
+title: User
+fields:
+  -
+    handle: name
+    field:
+      type: text
+      display: Name
+  -
+    handle: email
+    field:
+      type: text
+      input: email
+      display: Email Address
+  -
+    handle: roles
+    field:
+      type: user_roles
+      width: 50
+  -
+    handle: groups
+    field:
+      type: user_groups
+      width: 50
+  -
+    handle: avatar
+    field:
+      type: assets
+      max_files: 1
+      container: assets
+  -
+    handle: province
+    field:
+      type: text
+      display: Province
+      width: 50
+  -
+    handle: clan
+    field:
+      type: text
+      display: 'Clan (xeem)'
+      width: 50
+  -
+    handle: area
+    field:
+      type: text
+      display: 'District or village'
+      width: 50
+  -
+    handle: preferred_lang
+    field:
+      type: select
+      display: 'Site language'
+      width: 50
+      options:
+        hm: Hmoob
+        lo: ລາວ
+        en: English

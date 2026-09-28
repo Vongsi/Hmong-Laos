@@ -1,0 +1,17 @@
+{{ base = site:url | ensure_right('/') }}
+<article class="article">
+    <a class="link" href="{{ base }}xov-xwm">← {{ trans key="site.feed.back" }}</a>
+    {{ categories }}<span class="tag {{ slug }}">{{ title }}</span>{{ /categories }}
+    <h1 style="font-size:clamp(28px,4.5vw,42px)">{{ title }}</h1>
+    <div class="post-head">
+        <div class="avatar" style="background:var(--red)">{{ author:name | substr(0, 2) | upper ?? 'HL' }}</div>
+        <div class="who"><b>{{ author:name ?? trans:site.brand }}</b><span>{{ date format="j M Y" }}{{ provinces }} · {{ title }}{{ /provinces }}</span></div>
+    </div>
+    {{ if excerpt }}<p class="lede">{{ excerpt }}</p>{{ /if }}
+    {{ image }}<img class="cover" src="{{ glide:url width='1200' height='700' fit='crop_focal' }}" alt="{{ alt ?? '' }}">{{ /image }}
+    <div class="prose">{{ content }}</div>
+    <div class="post-actions">
+        {{ livewire:like-button :entry-id="id" }}
+    </div>
+    {{ livewire:comments :entry-id="id" }}
+</article>

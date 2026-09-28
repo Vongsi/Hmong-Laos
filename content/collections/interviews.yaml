@@ -1,0 +1,9 @@
+title: Inspire
+route: '/inspire/{slug}'
+date: true
+sort_direction: desc
+taxonomies: [topics, provinces]
+sites: [hm, lo, en]
+propagate: false
+template: interviews/show
+layout: layout

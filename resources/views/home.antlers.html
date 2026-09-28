@@ -1,0 +1,57 @@
+{{ base = site:url | ensure_right('/') }}
+<section class="hero">
+    <div class="hero-copy">
+        <span class="eyebrow">{{ trans key="site.hero.eyebrow" }}</span>
+        <h1>{{ trans key="site.hero.title" }}</h1>
+        <p>{{ trans key="site.hero.body" }}</p>
+        <div class="hero-ctas">
+            <a class="btn red" href="{{ base }}xov-xwm">{{ trans key="site.hero.cta_feed" }}</a>
+            <a class="btn ghost" href="{{ base }}events">{{ trans key="site.hero.cta_events" }}</a>
+        </div>
+    </div>
+    {{ collection:events limit="1" start_date:is_after="now" }}
+        <a class="hero-card" href="{{ url }}" style="text-decoration:none">
+            <span class="eyebrow">{{ start_date format="j M Y" }}</span>
+            <h3>{{ title }}</h3>
+            {{ if summary }}<p style="opacity:.85">{{ summary }}</p>{{ /if }}
+            <span class="btn" style="background:#fff;color:#1E2656;align-self:flex-start">{{ trans key="site.home.all_events" }}</span>
+        </a>
+    {{ /collection:events }}
+</section>
+
+<section class="sec">
+    <div class="sec-head"><h2>{{ trans key="site.home.upcoming" }}</h2><a class="link" href="{{ base }}events">{{ trans key="site.home.all_events" }}</a></div>
+    <div class="grid3">
+        {{ collection:events limit="3" start_date:is_after="now" }}
+            {{ partial:event_card }}
+        {{ /collection:events }}
+    </div>
+</section>
+
+<section class="sec">
+    <div class="sec-head"><h2>{{ trans key="site.home.latest" }}</h2><a class="link" href="{{ base }}xov-xwm">{{ trans key="site.home.open_feed" }}</a></div>
+    <div class="grid3">
+        {{ collection:posts limit="3" }}
+            <a class="card" href="{{ url }}">
+                {{ if image }}{{ image }}<img class="cover" src="{{ glide:url width='600' height='375' fit='crop_focal' }}" alt="{{ alt ?? '' }}" loading="lazy">{{ /image }}{{ else }}<div class="ph b"></div>{{ /if }}
+                {{ categories }}<span class="tag {{ slug }}">{{ title }}</span>{{ /categories }}
+                <h3>{{ title }}</h3>
+                <p class="muted">{{ date format="j M Y" }}{{ provinces }} · {{ title }}{{ /provinces }}</p>
+            </a>
+        {{ /collection:posts }}
+    </div>
+</section>
+
+{{ collection:interviews limit="1" featured:is="true" }}
+<section class="sec">
+    <div class="sec-head"><h2>{{ trans key="site.home.inspire" }}</h2><a class="link" href="{{ base }}inspire">{{ trans key="site.home.all_interviews" }}</a></div>
+    <a class="feature" href="{{ url }}" style="text-decoration:none;color:inherit">
+        <div class="portrait p1">{{ portrait }}<img src="{{ glide:url width='520' height='650' fit='crop_focal' }}" alt="{{ alt ?? '' }}">{{ /portrait }}</div>
+        <div class="stack" style="gap:8px">
+            {{ topics }}<span class="tag">{{ title }}</span>{{ /topics }}
+            <h3 style="font-size:22px">{{ title }}</h3>
+            {{ if intro }}<p class="muted">{{ intro }}</p>{{ /if }}
+        </div>
+    </a>
+</section>
+{{ /collection:interviews }}
