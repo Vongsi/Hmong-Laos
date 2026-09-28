@@ -10,7 +10,7 @@ Built with Statamic 6 (Pro) on Laravel 13, Livewire 4 and MySQL/MariaDB.
 | --- | --- |
 | Entries (posts, events, interviews, pages) | Collection and taxonomy definitions (`content/collections`, `content/taxonomies`) |
 | Taxonomy terms, global values, navigation trees | Blueprints and fieldsets (`resources/blueprints`) |
-| Users, roles, password resets, passkeys | Sites / languages (`resources/sites.yaml`) |
+| Users, password resets, passkeys | Sites / languages (`resources/sites.yaml`), role and group definitions (`resources/users`) |
 | Form submissions, revisions, asset metadata | Form definitions (`resources/forms`) |
 | Comments, likes, event RSVPs, comment reports | Templates, CSS, JS, translations (`resources/views`, `public`, `lang`) |
 
