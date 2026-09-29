@@ -275,7 +275,8 @@ footer{border-top:1px solid var(--line);background:var(--surface)}
   .head-actions{margin-left:auto;gap:8px}
   .lang select{padding:6px 26px 6px 30px}
   .pajntaub{height:8px;background-size:8px 8px}
-  main{padding-top:18px;padding-bottom:96px}
+  main{padding-top:18px;padding-bottom:32px}
+  footer{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   h1{font-size:28px}
   .hero-copy p{font-size:16px}
   .sec{margin-top:32px}
