@@ -84,5 +84,20 @@
 </footer>
 <script src="/js/site.js?v=1"></script>
 {{ livewire:scripts }}
+{{ if logged_in }}
+<script>
+window.HL_LIVE = {
+    key: "{{ config:broadcasting.connections.reverb.key }}",
+    host: "{{ config:broadcasting.connections.reverb.options.host }}",
+    port: {{ config:broadcasting.connections.reverb.options.port ?? 443 }},
+    scheme: "{{ config:broadcasting.connections.reverb.options.scheme ?? 'https' }}",
+    csrf: "{{ csrf_token }}",
+    userId: {{ current_user:id | to_json }}
+};
+</script>
+<script src="/js/vendor/pusher-8.6.0.min.js"></script>
+<script src="/js/vendor/echo-2.5.0.js"></script>
+<script src="/js/live.js?v=1"></script>
+{{ /if }}
 </body>
 </html>

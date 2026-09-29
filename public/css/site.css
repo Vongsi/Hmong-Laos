@@ -329,3 +329,4 @@ a.btn{text-decoration:none;display:inline-block}
 .chip[aria-current="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .foot-in a{color:var(--ink-2)}
 .sso{text-decoration:none;color:inherit}
+.typing{min-height:1.4em;margin:4px 0 0;font-style:italic}
