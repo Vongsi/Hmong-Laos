@@ -60,6 +60,7 @@ class Comments extends Component
         ]);
 
         $this->reset('body', 'replyTo');
+        $this->dispatch('comment-posted', entryId: $this->entryId);
     }
 
     public function report(int $commentId): void

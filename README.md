@@ -39,6 +39,7 @@ php artisan migrate
 php artisan db:seed --class=SampleContentSeeder   # optional sample content, all titled "(sample)"
 php please make:user                               # answer "yes" to super user
 php artisan serve
+php artisan reverb:start   # in a second terminal, for the typing indicator
 ```
 
 Site: http://localhost:8000 (Hmong), `/lo/` (Lao), `/en/` (English). Control panel: http://localhost:8000/cp.
@@ -55,6 +56,8 @@ Apple and TikTok need the `socialiteproviders/apple` and `socialiteproviders/tik
 - `app/Livewire/LikeButton.php`: likes on posts and interviews.
 - `app/Livewire/EventRsvpBox.php`: Going / Interested and volunteer sign-up on events.
 
+- `public/js/live.js`: live "Name is typing…" line under the comment box, and the comment list refreshes when someone posts. It uses Laravel Reverb (presence channel `comments.{entryId}`, authorised in `routes/channels.php`) and is only loaded for signed-in members. Only members see who is typing, and only members' typing is shown. If Reverb is not running, comments still work without the live parts.
+
 They are used in Antlers templates with `{{ livewire:comments :entry-id="id" }}` and similar.
 
 ## Languages
@@ -65,4 +68,5 @@ UI strings are in `lang/hmn`, `lang/lo` and `lang/en`. The Hmong and Lao files o
 
 - Statamic Pro licence is required (multisite, users, OAuth). Buy it at statamic.com and set `STATAMIC_LICENSE_KEY`.
 - Planned hosting: Singapore region. Use `CACHE_STORE=redis` or `database`, and run `php artisan optimize` and `php please stache:warm` on deploy.
-- Chat (planned for a later phase) can use Laravel Reverb.
+- Run Reverb as a long-lived process (Supervisor or Forge daemon) behind the web server with TLS; set `REVERB_HOST` to the public host and `REVERB_SCHEME=https`, `REVERB_PORT=443`. See https://laravel.com/docs/reverb#production.
+- Chat (planned for a later phase) can reuse the same Reverb setup.

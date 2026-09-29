@@ -1,4 +1,4 @@
-<section class="stack comments-box" id="comments">
+<section class="stack comments-box" id="comments" data-live-comments="{{ $entryId }}">
     <h2 class="h-sm">{{ __('site.comments.title') }} ({{ $count }})</h2>
 
     @if (session('comments.status'))
@@ -14,6 +14,10 @@
                 @endif
                 <label for="cmt-body" class="muted small">{{ __('site.comments.label') }}</label>
                 <textarea id="cmt-body" wire:model="body" rows="3" maxlength="2000"></textarea>
+                <p class="typing muted small" wire:ignore aria-live="polite"
+                   data-typing-one="{{ __('site.comments.typing_one') }}"
+                   data-typing-two="{{ __('site.comments.typing_two') }}"
+                   data-typing-many="{{ __('site.comments.typing_many') }}"></p>
                 @error('body') <p class="error small">{{ $message }}</p> @enderror
                 <div class="row">
                     <span class="muted small">{{ __('site.comments.be_kind') }}</span>

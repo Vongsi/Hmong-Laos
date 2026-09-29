@@ -86,6 +86,9 @@ return [
         'confirm_delete' => 'Delete this comment?',
         'member' => 'Member',
         'too_fast' => 'You are commenting too fast. Wait a minute and try again.',
+        'typing_one' => ':name is typing…',
+        'typing_two' => ':a and :b are typing…',
+        'typing_many' => 'Several people are typing…',
     ],
     'join' => [
         'title' => 'Join Hmong Laos',
