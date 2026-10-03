@@ -67,6 +67,15 @@ They are used in Antlers templates with `{{ livewire:comments :entry-id="id" }}`
 - **Auto-post to the Page:** editors tick "Also post to our Facebook Page" in the entry's sidebar. When the entry is live, the site posts its link and title/summary to the Page once (recorded in the `facebook_posts` table). Entries with a future date, or whose post failed, are picked up by `php artisan facebook:post-pending`, which the scheduler runs every 10 minutes, so production needs the usual `* * * * * php artisan schedule:run` cron.
 - Setup: create a Meta app, add the Page, request `pages_manage_posts` and `pages_read_engagement` (Meta reviews this), generate a long-lived Page access token, and set `FACEBOOK_PAGE_ID` and `FACEBOOK_PAGE_TOKEN` in `.env`. With them empty, the tick box does nothing and a warning is logged.
 
+## Phone app (installable website)
+
+The site can be installed on a phone's home screen and opens like an app, with no app store needed. Visitors see a "Get … on your phone" box on the home page.
+
+- **Install:** Android and desktop Chrome/Edge show an Install button. On iPhone the box explains Safari's Share → "Add to Home Screen". Each language has its own manifest (`/manifest/{hm|lo|en}.webmanifest`, `app/Http/Controllers/PwaController.php`), so the app opens in the language it was installed from. Icons are in `public/icons`.
+- **Offline reading:** `public/sw.js` keeps the last 40 pages and 80 photos a visitor opened, so they can still be read without internet. Pages always load fresh when online. Unvisited pages show `public/offline.html`. The control panel, Livewire, login and push routes are never cached. Bump `VERSION` in `sw.js` when you change it.
+- **Notifications:** signed-in members tap "Turn on notifications". Editors tick "Send a phone notification" in the sidebar of a post, event or interview; once it is live, members who turned notifications on and whose site language matches the entry's get one notification (members with no language set count as Hmong). Each entry is sent once, recorded in `push_broadcasts`. Entries with a future date are sent by `php artisan push:send-pending`, which the scheduler runs every 10 minutes. On iPhone (iOS 16.4+) notifications only work in the installed app.
+- **Setup:** run `php artisan webpush:vapid` once and copy `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` (a `mailto:` address) into the production `.env`. Never change the keys afterwards. The site must be served over HTTPS for install and notifications to work.
+
 ## Languages
 
 UI strings are in `lang/hmn`, `lang/lo` and `lang/en`. The Hmong and Lao files only contain wording agreed so far; missing strings fall back to English. Hmong wording should be checked by the team, not machine-generated.

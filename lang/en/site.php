@@ -117,4 +117,17 @@ return [
     'footer' => [
         'project' => 'Community project',
     ],
+    'app' => [
+        'title' => 'Get :brand on your phone',
+        'body' => 'Add the site to your home screen to open it like an app, read pages you visited even without internet, and get a notification when a new event or announcement is posted.',
+        'install' => 'Install the app',
+        'ios_hint' => 'On iPhone: tap the Share button in Safari, then "Add to Home Screen".',
+        'installed' => 'You are using the installed app.',
+        'notify_on' => 'Turn on notifications',
+        'notify_off' => 'Turn off notifications',
+        'join_for_alerts' => 'Join to get notifications',
+        'push_ios' => 'On iPhone, notifications work after you add the site to your home screen and open it from there.',
+        'push_denied' => 'Notifications are blocked for this site. You can allow them in your browser settings.',
+        'push_error' => 'Something went wrong. Please try again.',
+    ],
 ];

@@ -1,0 +1,24 @@
+{{# "Get the app" panel: install button, iPhone hint and phone notifications. Driven by public/js/app.js. #}}
+<section class="sec app-panel" data-app-panel>
+    <div class="app-icon" aria-hidden="true"><img src="/icons/icon-192.png" alt="" width="56" height="56"></div>
+    <div class="app-copy">
+        {{ brand_name = 'site.brand' | trans }}
+        <h2 class="h-sm">{{ trans key="site.app.title" :brand="brand_name" }}</h2>
+        <p class="muted">{{ trans key="site.app.body" }}</p>
+        <div class="row-wrap">
+            <button class="btn red" type="button" data-app-install hidden>{{ trans key="site.app.install" }}</button>
+            {{ if logged_in }}
+                <button class="btn ghost" type="button" data-push-toggle hidden aria-pressed="false"
+                        data-label-on="{{ trans key='site.app.notify_on' }}"
+                        data-label-off="{{ trans key='site.app.notify_off' }}">{{ trans key="site.app.notify_on" }}</button>
+            {{ else }}
+                <a class="btn ghost" href="{{ base }}join">{{ trans key="site.app.join_for_alerts" }}</a>
+            {{ /if }}
+        </div>
+        <p class="small muted" data-app-ios hidden>{{ trans key="site.app.ios_hint" }}</p>
+        <p class="small muted" data-app-installed hidden>{{ trans key="site.app.installed" }}</p>
+        <p class="small muted" data-push-ios hidden>{{ trans key="site.app.push_ios" }}</p>
+        <p class="small error" data-push-denied hidden>{{ trans key="site.app.push_denied" }}</p>
+        <p class="small error" data-push-error hidden>{{ trans key="site.app.push_error" }}</p>
+    </div>
+</section>
