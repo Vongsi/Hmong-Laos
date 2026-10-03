@@ -1,16 +1,32 @@
 {{ base = site:url | ensure_right('/') }}
+{{ meta_desc = excerpt ?: summary ?: intro }}
 <!doctype html>
 <html lang="{{ site:lang }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>{{ if title && segment_1 != '' && !(is_homepage) }}{{ title | sanitize }} · {{ /if }}{{ trans key="site.brand" }}</title>
-    <meta name="description" content="{{ (excerpt ?? summary ?? intro ?? trans:site.tagline) | strip_tags | safe_truncate(160) | sanitize }}">
+    <meta name="description" content="{{ if meta_desc }}{{ meta_desc | strip_tags | safe_truncate(160) | sanitize }}{{ else }}{{ trans key='site.tagline' }}{{ /if }}">
+    {{# Link preview for Facebook, WhatsApp and others #}}
+    <meta property="og:site_name" content="{{ trans key='site.brand' }}">
+    <meta property="og:type" content="{{ if collection && collection:handle != 'pages' }}article{{ else }}website{{ /if }}">
+    <meta property="og:url" content="{{ permalink ?? current_url }}">
+    <meta property="og:title" content="{{ if is_homepage }}{{ trans key='site.brand' }} · {{ trans key='site.tagline' }}{{ else }}{{ title | sanitize }}{{ /if }}">
+    <meta property="og:description" content="{{ if meta_desc }}{{ meta_desc | strip_tags | safe_truncate(200) | sanitize }}{{ else }}{{ trans key='site.tagline' }}{{ /if }}">
+    <meta property="og:locale" content="{{ site:locale }}">
+    {{ if image }}{{ image }}<meta property="og:image" content="{{ glide:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /image }}
+    {{ elseif cover }}{{ cover }}<meta property="og:image" content="{{ glide:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /cover }}
+    {{ elseif portrait }}{{ portrait }}<meta property="og:image" content="{{ glide:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /portrait }}
+    {{ else }}<meta property="og:image" content="{{ config:app.url }}/images/og-default.png">
+    {{ /if }}
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
     <script>try{var t=localStorage.getItem('hl-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&family=Figtree:wght@400;500;600;700&family=Noto+Sans+Lao:wght@400;600;700&display=swap">
-    <link rel="stylesheet" href="/css/site.css?v=1">
+    <link rel="stylesheet" href="/css/site.css?v=2">
     {{ livewire:styles }}
 </head>
 <body>
@@ -82,7 +98,7 @@
         </span>
     </div>
 </footer>
-<script src="/js/site.js?v=1"></script>
+<script src="/js/site.js?v=2"></script>
 {{ livewire:scripts }}
 {{ if logged_in }}
 <script>

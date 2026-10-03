@@ -41,6 +41,13 @@ return [
         'redirect' => env('APP_URL').'/oauth/facebook/callback',
     ],
 
+    // The community's Facebook Page, for "Also post to our Facebook Page" on posts, events and interviews.
+    'facebook_page' => [
+        'page_id' => env('FACEBOOK_PAGE_ID'),
+        'token' => env('FACEBOOK_PAGE_TOKEN'),
+        'graph_version' => env('FACEBOOK_GRAPH_VERSION', 'v23.0'),
+    ],
+
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),

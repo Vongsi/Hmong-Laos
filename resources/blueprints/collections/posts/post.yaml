@@ -82,3 +82,13 @@ tabs:
           default: current
           max_items: 1
           localizable: true
+    - display: Facebook
+      fields:
+      - handle: facebook_share
+        field:
+          type: toggle
+          display: Also post to our Facebook Page
+          instructions: Posts a link to this page on the Hmong Laos Facebook Page
+            once it is published, one time only. Each language is posted separately.
+          localizable: true
+          default: false
