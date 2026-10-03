@@ -92,3 +92,11 @@ tabs:
             once it is published, one time only. Each language is posted separately.
           localizable: true
           default: false
+      - handle: push_notify
+        field:
+          type: toggle
+          display: Send a phone notification
+          instructions: Sends a notification to members who turned on notifications
+            and use this language, once it is published, one time only.
+          localizable: true
+          default: false

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Listeners\NotifyEntryByPush;
 use App\Listeners\ShareEntryToFacebook;
 use App\Services\FacebookPage;
 use Illuminate\Support\Facades\Event;
@@ -28,5 +29,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Event::listen(EntrySaved::class, ShareEntryToFacebook::class);
+        Event::listen(EntrySaved::class, NotifyEntryByPush::class);
     }
 }
