@@ -330,3 +330,8 @@ a.btn{text-decoration:none;display:inline-block}
 .foot-in a{color:var(--ink-2)}
 .sso{text-decoration:none;color:inherit}
 .typing{min-height:1.4em;margin:4px 0 0;font-style:italic}
+.share{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.share-btn{display:inline-flex;align-items:center;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer}
+.share-btn:hover{border-color:var(--indigo)}
+.share-btn.fb{background:#1877F2;border-color:#1877F2;color:#fff}
+.share-btn.wa{background:#25D366;border-color:#25D366;color:#0B3D20}

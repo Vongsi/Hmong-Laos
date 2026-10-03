@@ -60,6 +60,13 @@ Apple and TikTok need the `socialiteproviders/apple` and `socialiteproviders/tik
 
 They are used in Antlers templates with `{{ livewire:comments :entry-id="id" }}` and similar.
 
+## Sharing to Facebook
+
+- Every page has link-preview tags (Open Graph), so a shared link shows the photo, title and summary. Posts use their photo, events their cover and interviews the portrait; anything else uses `public/images/og-default.png`. Facebook caches previews: after changing a photo, re-scrape the link at https://developers.facebook.com/tools/debug/.
+- Posts, events and interviews have Facebook, WhatsApp and Copy link buttons (`resources/views/partials/share.antlers.html`).
+- **Auto-post to the Page:** editors tick "Also post to our Facebook Page" in the entry's sidebar. When the entry is live, the site posts its link and title/summary to the Page once (recorded in the `facebook_posts` table). Entries with a future date, or whose post failed, are picked up by `php artisan facebook:post-pending`, which the scheduler runs every 10 minutes, so production needs the usual `* * * * * php artisan schedule:run` cron.
+- Setup: create a Meta app, add the Page, request `pages_manage_posts` and `pages_read_engagement` (Meta reviews this), generate a long-lived Page access token, and set `FACEBOOK_PAGE_ID` and `FACEBOOK_PAGE_TOKEN` in `.env`. With them empty, the tick box does nothing and a warning is logged.
+
 ## Languages
 
 UI strings are in `lang/hmn`, `lang/lo` and `lang/en`. The Hmong and Lao files only contain wording agreed so far; missing strings fall back to English. Hmong wording should be checked by the team, not machine-generated.

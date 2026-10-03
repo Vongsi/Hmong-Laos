@@ -17,6 +17,17 @@
     }
   });
 
+  // Share: "Copy link" buttons.
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-copy]');
+    if (!btn) return;
+    var url = btn.getAttribute('data-copy');
+    var label = btn.textContent;
+    function done() { btn.textContent = btn.getAttribute('data-done'); setTimeout(function () { btn.textContent = label; }, 2000); }
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(url).then(done, function () { window.prompt('', url); });
+    else window.prompt('', url);
+  });
+
   // Language dropdown: each option's value is the same page in that language.
   document.addEventListener('change', function (e) {
     if (e.target.id === 'lang-select' && e.target.value) window.location.href = e.target.value;

@@ -1,0 +1,6 @@
+<div class="share">
+    <span class="muted small">{{ trans key="site.share.label" }}</span>
+    <a class="share-btn fb" href="https://www.facebook.com/sharer/sharer.php?u={{ permalink | urlencode }}" target="_blank" rel="noopener">Facebook</a>
+    <a class="share-btn wa" href="https://wa.me/?text={{ title | urlencode }}%20{{ permalink | urlencode }}" target="_blank" rel="noopener">WhatsApp</a>
+    <button class="share-btn" type="button" data-copy="{{ permalink }}" data-done="{{ trans key='site.share.copied' }}">{{ trans key="site.share.copy" }}</button>
+</div>

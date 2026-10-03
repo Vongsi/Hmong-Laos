@@ -34,6 +34,11 @@ return [
         'inspire' => 'Inspire',
         'all_interviews' => 'All interviews',
     ],
+    'share' => [
+        'label' => 'Share',
+        'copy' => 'Copy link',
+        'copied' => 'Link copied',
+    ],
     'feed' => [
         'all' => 'All',
         'all_provinces' => 'All of Laos',

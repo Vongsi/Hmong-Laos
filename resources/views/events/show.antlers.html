@@ -27,6 +27,7 @@
             </dl>
             {{ if rsvp_enabled }}{{ livewire:event-rsvp-box :entry-id="id" :ask-volunteers="volunteers_needed" }}{{ /if }}
             {{ if map_url }}<a class="btn ghost" href="{{ map_url }}" target="_blank" rel="noopener">{{ trans key="site.events.map" }}</a>{{ /if }}
+            {{ partial:share }}
         </div>
     </aside>
 </div>
