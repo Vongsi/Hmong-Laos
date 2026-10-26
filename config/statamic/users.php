@@ -85,7 +85,7 @@ return [
     |
     */
 
-    'registration_form_honeypot_field' => null,
+    'registration_form_honeypot_field' => 'website',
 
     /*
     |--------------------------------------------------------------------------

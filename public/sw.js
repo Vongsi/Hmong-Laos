@@ -1,6 +1,6 @@
-// Hmong Laos service worker: offline reading of pages already visited, fast repeat visits,
+// Daim Av Hlub service worker: offline reading of pages already visited, fast repeat visits,
 // and push notifications for new events and announcements.
-const VERSION = 'hl-v1';
+const VERSION = 'hl-v2';
 const STATIC = VERSION + '-static';
 const PAGES = VERSION + '-pages';
 const IMAGES = VERSION + '-images';
@@ -78,7 +78,7 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', (event) => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch (e) { data = { title: event.data && event.data.text() }; }
-  const title = data.title || 'Hmong Laos';
+  const title = data.title || 'Daim Av Hlub';
   event.waitUntil(self.registration.showNotification(title, {
     body: data.body || '',
     icon: data.icon || '/icons/icon-192.png',

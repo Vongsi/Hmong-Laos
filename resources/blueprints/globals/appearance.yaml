@@ -1,0 +1,59 @@
+title: Appearance
+fields:
+- handle: background_image
+  field:
+    type: assets
+    display: Page background
+    instructions: Shown behind every page when no season below is running. Use a wide photo, at least 1920 pixels across, and set its focal point (click the photo, then "Set focal point") so phones show the important part. Leave empty for a plain background.
+    container: assets
+    folder: backgrounds
+    max_files: 1
+    localizable: false
+- handle: background_strength
+  field:
+    type: button_group
+    display: How visible
+    instructions: The photo is always softened with the page colour, so text stays easy to read with any of the three. "Strong" shows the most of the photo.
+    options:
+      subtle: Subtle
+      medium: Medium
+      strong: Strong
+    default: subtle
+    localizable: false
+- handle: seasonal_backgrounds
+  field:
+    type: grid
+    display: Seasonal backgrounds
+    instructions: Plan these ahead. From the first day to the last day (Laos time, both days included) the season's photo is shown instead of the page background above. If two seasons overlap, the higher one in the list wins.
+    mode: stacked
+    add_row: Add a season
+    localizable: false
+    fields:
+    - handle: name
+      field:
+        type: text
+        display: Season
+        instructions: For example "Hmong New Year" or "Rainy season". Only for the team.
+    - handle: image
+      field:
+        type: assets
+        display: Photo
+        container: assets
+        folder: backgrounds
+        max_files: 1
+        validate:
+        - required
+    - handle: from
+      field:
+        type: date
+        display: First day
+        width: 50
+        validate:
+        - required
+    - handle: until
+      field:
+        type: date
+        display: Last day
+        width: 50
+        validate:
+        - required

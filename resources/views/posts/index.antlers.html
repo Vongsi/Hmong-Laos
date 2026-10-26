@@ -2,7 +2,10 @@
 {{ list_url = url }}
 <div class="feed-layout">
     <div class="stack" style="gap:16px">
-        <h1 style="font-size:32px">{{ trans key="site.nav.feed" }}</h1>
+        <div class="page-actions">
+            <h1 style="font-size:32px">{{ trans key="site.nav.feed" }}</h1>
+            <a class="btn red" href="{{ base }}share?type=post">+ {{ trans key="site.contribute.feed_button" }}</a>
+        </div>
         <form class="chips" method="get" action="{{ url }}">
             <label class="prov"><span class="sr">{{ trans key="site.feed.province" }}</span>
                 <select name="province" data-filter-select>

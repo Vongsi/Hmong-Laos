@@ -2,3 +2,56 @@
 #   title: Administrator
 #   permissions:
 #     - super
+
+# Reviews and publishes what members send through "Sell with us" (products) and "Share" (news, events,
+# stories), and manages those. Cannot see orders, customers, users, pages or settings.
+# Assign it under Users → (member) → Roles.
+moderator:
+  title: Moderator
+  permissions:
+    - access cp
+    - access hm site
+    - access lo site
+    - access en site
+    - view products entries
+    - edit products entries
+    - create products entries
+    - delete products entries
+    - publish products entries
+    - view product_categories terms
+    - edit product_categories terms
+    - create product_categories terms
+    - view colours terms
+    - edit colours terms
+    - create colours terms
+    - view provinces terms
+    - view posts entries
+    - edit posts entries
+    - create posts entries
+    - delete posts entries
+    - publish posts entries
+    # News posts have an author (the member who sent it), so these are needed to review them.
+    - edit other authors posts entries
+    - publish other authors posts entries
+    - delete other authors posts entries
+    - view events entries
+    - edit events entries
+    - create events entries
+    - delete events entries
+    - publish events entries
+    - view interviews entries
+    - edit interviews entries
+    - create interviews entries
+    - delete interviews entries
+    - publish interviews entries
+    - view categories terms
+    - view topics terms
+    - view suggest_person form submissions
+    - view assets assets
+    - upload assets assets
+    - edit assets folders
+    - edit assets assets
+    - move assets assets
+    - rename assets assets
+    - delete assets assets
+    - view suggest_product form submissions

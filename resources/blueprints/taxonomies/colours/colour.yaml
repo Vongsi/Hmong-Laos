@@ -1,0 +1,25 @@
+title: 'Product colour'
+tabs:
+  main:
+    display: Main
+    sections:
+    - fields:
+      - handle: title
+        field:
+          type: text
+          display: Name
+          instructions: The colour's name in this language, as buyers see it.
+          required: true
+          localizable: true
+      - handle: swatch
+        field:
+          type: color
+          display: Swatch
+          instructions: The dot shown next to the name.
+          localizable: false
+      - handle: slug
+        field:
+          type: slug
+          display: Slug
+          localizable: false
+          validate: max:200

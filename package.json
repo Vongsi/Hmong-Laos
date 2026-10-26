@@ -5,11 +5,18 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "watch": "vite"
+        "watch": "vite",
+        "build:editor": "esbuild resources/js/vendor/tiptap.js --bundle --minify --format=iife --target=es2019 --legal-comments=eof --outfile=public/js/vendor/tiptap-3.32.0.min.js"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.6",
+        "@tiptap/core": "^3.32.0",
+        "@tiptap/extension-bubble-menu": "^3.32.0",
+        "@tiptap/extension-image": "^3.32.0",
+        "@tiptap/pm": "^3.32.0",
+        "@tiptap/starter-kit": "^3.32.0",
         "concurrently": "^10.0.3",
+        "esbuild": "^0.28.2",
         "laravel-vite-plugin": "^3.1",
         "tailwindcss": "^4.0.6",
         "vite": "^8.0.0"

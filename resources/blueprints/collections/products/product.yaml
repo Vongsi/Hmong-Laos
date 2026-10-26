@@ -1,0 +1,192 @@
+title: Product
+tabs:
+  main:
+    display: Main
+    sections:
+    - fields:
+      - handle: title
+        field:
+          type: text
+          display: Name
+          required: true
+          localizable: true
+      - handle: summary
+        field:
+          type: textarea
+          display: Short description
+          instructions: One or two sentences, shown on product cards and when shared.
+          localizable: true
+      - handle: images
+        field:
+          type: assets
+          display: Photos
+          instructions: The first photo is the main one. Square photos look best.
+          container: assets
+          folder: products
+          max_files: 8
+          localizable: false
+      - handle: colour_options
+        field:
+          type: grid
+          display: Colours
+          instructions: One row per colour the buyer can choose. Add a photo of that colour and it shows when the buyer picks it. Leave empty if there is only one colour. New colours are added under Taxonomies → Product colours.
+          mode: table
+          add_row: Add a colour
+          localizable: false
+          fields:
+          - handle: colour
+            field:
+              type: terms
+              display: Colour
+              taxonomies:
+              - colours
+              max_items: 1
+              mode: select
+              create: false
+              validate:
+              - required
+          - handle: photo
+            field:
+              type: assets
+              display: Photo of this colour
+              container: assets
+              folder: products
+              max_files: 1
+      - handle: description
+        field:
+          type: bard
+          display: Description
+          localizable: true
+          buttons:
+          - h2
+          - h3
+          - bold
+          - italic
+          - unorderedlist
+          - orderedlist
+          - link
+          save_html: false
+  sidebar:
+    display: Sidebar
+    sections:
+    - display: From a member
+      instructions: Sent by a member through "Sell with us". Check the photos, price and texts (translate them if needed), then switch Published on and save. To ask for changes instead, write a message to the seller and save while it is still a draft.
+      fields:
+      - handle: submitted_by
+        field:
+          type: users
+          display: Sent by (account)
+          max_items: 1
+          visibility: hidden
+          localizable: false
+      - handle: submitted_by_name
+        field:
+          type: text
+          display: Sent by
+          visibility: read_only
+          listable: true
+          localizable: false
+          if:
+            submitted_by: not empty
+      - handle: review_note
+        field:
+          type: textarea
+          display: Message to the seller
+          instructions: What to change. The seller gets an email and sees it on their Sell with us page. They update the product and send it again.
+          localizable: false
+          if:
+            submitted_by: not empty
+    - fields:
+      - handle: date
+        field:
+          type: date
+          display: Date
+          required: true
+          default: now
+      - handle: slug
+        field:
+          type: slug
+          display: Slug
+          localizable: true
+          validate: max:200
+      - handle: price
+        field:
+          type: integer
+          display: Price (Kip)
+          required: true
+          localizable: false
+          listable: true
+          validate:
+          - min:0
+      - handle: stock
+        field:
+          type: integer
+          display: In stock
+          instructions: How many can be sold. Leave empty for items made to order. 0 shows "Sold out".
+          localizable: false
+          listable: true
+          validate:
+          - nullable
+          - min:0
+      - handle: sizes
+        field:
+          type: list
+          display: Sizes
+          instructions: One size per line (for example S, M, L, or Child, Adult). Leave empty if there are no sizes.
+          localizable: false
+      - handle: product_categories
+        field:
+          type: terms
+          display: Category
+          taxonomies:
+          - product_categories
+          create: false
+          max_items: 1
+          mode: select
+          localizable: false
+          listable: true
+      - handle: provinces
+        field:
+          type: terms
+          display: Province
+          taxonomies:
+          - provinces
+          create: false
+          max_items: 1
+          mode: select
+          localizable: false
+      - handle: maker
+        field:
+          type: text
+          display: Made by
+          instructions: Shown on the product page, for example the maker's name and village.
+          localizable: false
+      - handle: maker_contact
+        field:
+          type: text
+          display: Maker's contact
+          instructions: For the team only. Never shown on the site.
+          localizable: false
+      - handle: featured
+        field:
+          type: toggle
+          display: Show on the home page
+          localizable: false
+    - display: Facebook
+      fields:
+      - handle: facebook_share
+        field:
+          type: toggle
+          display: Also post to our Facebook Page
+          instructions: Posts a link to this page on our Facebook Page
+            once it is published, one time only. Each language is posted separately.
+          localizable: true
+          default: false
+      - handle: push_notify
+        field:
+          type: toggle
+          display: Send a phone notification
+          instructions: Sends a notification to members who turned on notifications
+            and use this language, once it is published, one time only.
+          localizable: true
+          default: false

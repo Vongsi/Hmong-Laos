@@ -1,0 +1,10 @@
+{{# Rich text boxes on this page only: rich-text.js must run before Livewire starts Alpine; the editor can follow. #}}
+<script src="/js/rich-text.js?v=5"></script>
+<script src="/js/vendor/tiptap-3.32.0.min.js?v=3" defer></script>
+<section class="join share-page">
+    <div class="stack" style="gap:6px;text-align:center">
+        <h1 style="font-size:clamp(26px,4vw,34px)">{{ title }}</h1>
+        <p class="muted">{{ trans key="site.contribute.intro" }}</p>
+    </div>
+    {{ livewire:member-posts }}
+</section>

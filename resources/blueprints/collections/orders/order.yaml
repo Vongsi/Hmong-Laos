@@ -1,0 +1,223 @@
+title: Order
+tabs:
+  main:
+    display: Order
+    sections:
+    - display: What was ordered
+      fields:
+      - handle: title
+        field:
+          type: text
+          display: Order number
+          visibility: read_only
+          listable: true
+      - handle: items
+        field:
+          type: grid
+          display: Items
+          visibility: read_only
+          mode: table
+          fields:
+          - handle: product
+            field:
+              type: text
+              display: Product
+          - handle: size
+            field:
+              type: text
+              display: Size
+          - handle: colour
+            field:
+              type: text
+              display: Colour
+          - handle: quantity
+            field:
+              type: integer
+              display: Qty
+          - handle: unit_price
+            field:
+              type: integer
+              display: Price (Kip)
+          - handle: line_total
+            field:
+              type: integer
+              display: Line total (Kip)
+          - handle: product_id
+            field:
+              type: text
+              display: Product id
+      - handle: subtotal
+        field:
+          type: integer
+          display: Subtotal (Kip)
+          visibility: read_only
+          width: 33
+      - handle: delivery_fee
+        field:
+          type: integer
+          display: Delivery (Kip)
+          visibility: read_only
+          width: 33
+      - handle: total
+        field:
+          type: integer
+          display: Total (Kip)
+          visibility: read_only
+          listable: true
+          width: 33
+    - display: Customer
+      fields:
+      - handle: customer_name
+        field:
+          type: text
+          display: Name
+          visibility: read_only
+          listable: true
+          width: 50
+      - handle: customer_phone
+        field:
+          type: text
+          display: Phone / WhatsApp
+          visibility: read_only
+          listable: true
+          width: 50
+      - handle: customer_email
+        field:
+          type: text
+          display: Email
+          visibility: read_only
+          width: 50
+      - handle: delivery
+        field:
+          type: select
+          display: Delivery
+          visibility: read_only
+          options:
+            pickup: Pick up
+            delivery: Delivery
+          width: 50
+      - handle: address
+        field:
+          type: textarea
+          display: Delivery address
+          visibility: read_only
+      - handle: note
+        field:
+          type: textarea
+          display: Customer's note
+          visibility: read_only
+      - handle: customer
+        field:
+          type: users
+          display: Member account
+          visibility: read_only
+          max_items: 1
+      - handle: customer_site
+        field:
+          type: text
+          display: Ordered on site
+          visibility: read_only
+      - handle: token
+        field:
+          type: hidden
+    - display: Delivery
+      instructions: Fill this in when you hand the parcel to the courier, then set the order status to "Sent / ready to pick up". The customer sees it on their order page.
+      fields:
+      - handle: courier
+        field:
+          type: select
+          display: Courier
+          clearable: true
+          listable: true
+          options:
+            anousith: Anousith Express
+            other: Other courier
+            own: Our own delivery
+          width: 50
+      - handle: courier_name
+        field:
+          type: text
+          display: Courier name
+          width: 50
+          if:
+            courier: 'equals other'
+      - handle: tracking_number
+        field:
+          type: text
+          display: Tracking number
+          instructions: From the Anousith app (or the other courier) after you hand over the parcel.
+          listable: true
+          width: 50
+      - handle: cod_amount
+        field:
+          type: integer
+          display: Cash to collect on delivery (Kip)
+          instructions: For cash orders sent by courier. Enter this as the COD amount in the Anousith app.
+          visibility: read_only
+          width: 50
+      - handle: delivery_message
+        field:
+          type: textarea
+          display: Note for the customer
+          instructions: Shown on their order page, for example "Collect it at the Anousith branch in Phonsavan."
+  sidebar:
+    display: Sidebar
+    sections:
+    - fields:
+      - handle: status
+        field:
+          type: select
+          display: Order status
+          instructions: 'The first time you set "Sent / ready to pick up", the customer gets an email (if they gave one) and you get an email with a ready-made WhatsApp message for them.'
+          listable: true
+          default: new
+          options:
+            new: New
+            confirmed: Confirmed
+            shipped: Sent / ready to pick up
+            completed: Completed
+            cancelled: Cancelled
+      - handle: payment_status
+        field:
+          type: select
+          display: Payment
+          instructions: '"Customer says paid" means they reported a transfer: check your bank before setting Paid.'
+          listable: true
+          default: pending
+          options:
+            pending: Not paid yet
+            reported: Customer says paid
+            paid: Paid
+            refunded: Refunded
+      - handle: payment_method
+        field:
+          type: select
+          display: Payment method
+          visibility: read_only
+          listable: true
+          options:
+            transfer: Bank transfer / QR
+            cash: Cash on delivery or pick-up
+      - handle: payment_note
+        field:
+          type: textarea
+          display: Customer's payment message
+          visibility: read_only
+      - handle: paid_at
+        field:
+          type: date
+          display: Paid
+          time_enabled: true
+          visibility: read_only
+      - handle: shipped_at
+        field:
+          type: date
+          display: Sent / ready
+          time_enabled: true
+          visibility: read_only
+      - handle: delivered_at
+        field:
+          type: date
+          display: Completed
+          time_enabled: true
+          visibility: read_only

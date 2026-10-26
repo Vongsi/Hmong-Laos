@@ -1,6 +1,8 @@
+{{ base = site:url | ensure_right('/') }}
 <div class="stack" style="gap:18px">
     <div class="sec-head">
         <h1 style="font-size:32px">{{ trans key="site.events.title" }}</h1>
+        <a class="btn red" href="{{ base }}share?type=event">+ {{ trans key="site.contribute.events_button" }}</a>
         <form method="get" action="{{ url }}">
             <label class="prov"><span class="sr">{{ trans key="site.feed.province" }}</span>
                 <select name="province" data-filter-select>

@@ -1,4 +1,5 @@
 {{ base = site:url | ensure_right('/') }}
+{{ partial:home_popup }}
 <section class="hero">
     <div class="hero-copy">
         <span class="eyebrow">{{ trans key="site.hero.eyebrow" }}</span>
@@ -43,6 +44,17 @@
         {{ /collection:posts }}
     </div>
 </section>
+
+{{ collection:products limit="4" featured:is="true" as="products" }}
+    {{ if products }}
+    <section class="sec">
+        <div class="sec-head"><h2>{{ trans key="site.shop.home_title" }}</h2><a class="link" href="{{ base }}products">{{ trans key="site.shop.all_products" }}</a></div>
+        <div class="product-grid">
+            {{ products }}{{ partial:product_card }}{{ /products }}
+        </div>
+    </section>
+    {{ /if }}
+{{ /collection:products }}
 
 {{ collection:interviews limit="1" featured:is="true" }}
 <section class="sec">

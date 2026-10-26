@@ -53,7 +53,8 @@ return [
     */
 
     'widgets' => [
-        //
+        // What members sent that a moderator still has to check (app/Widgets/WaitingForReview.php).
+        ['type' => 'waiting_for_review', 'width' => 100, 'can' => ['edit products entries', 'edit posts entries', 'edit events entries', 'edit interviews entries']],
     ],
 
     /*

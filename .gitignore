@@ -27,3 +27,6 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+# Photos uploaded through the site (control panel, Share, Sell with us) are content, not code.
+/public/assets/*
+!/public/assets/.gitkeep

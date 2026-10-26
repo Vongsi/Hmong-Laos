@@ -17,6 +17,7 @@
     {{ if image }}{{ image }}<meta property="og:image" content="{{ glide:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /image }}
     {{ elseif cover }}{{ cover }}<meta property="og:image" content="{{ glide:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /cover }}
     {{ elseif portrait }}{{ portrait }}<meta property="og:image" content="{{ glide:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /portrait }}
+    {{ elseif images }}{{ images limit="1" }}<meta property="og:image" content="{{ glide:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /images }}
     {{ else }}<meta property="og:image" content="{{ config:app.url }}/images/og-default.png">
     {{ /if }}
     <meta property="og:image:width" content="1200">
@@ -36,7 +37,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&family=Figtree:wght@400;500;600;700&family=Noto+Sans+Lao:wght@400;600;700&display=swap">
-    <link rel="stylesheet" href="/css/site.css?v=3">
+    <link rel="stylesheet" href="/css/site.css?v=21">
+    {{# Background photo from Globals → Appearance (a planned season's, or the default) #}}
+    {{ page_background }}<style>:root{--page-bg:url("{{ bg:large }}");--page-veil:{{ bg:veil }}%}@media (max-width:640px){:root{--page-bg:url("{{ bg:small }}")}}</style>{{ /page_background }}
     {{ livewire:styles }}
 </head>
 <body>
@@ -58,9 +61,17 @@
             <a href="{{ base }}" {{ if is_homepage }}aria-current="page"{{ /if }}>{{ trans key="site.nav.home" }}</a>
             <a href="{{ base }}xov-xwm" {{ if uri | starts_with('/xov-xwm') }}aria-current="page"{{ /if }}>{{ trans key="site.nav.feed" }}</a>
             <a href="{{ base }}events" {{ if uri | starts_with('/events') }}aria-current="page"{{ /if }}>{{ trans key="site.nav.events" }}</a>
+            <a href="{{ base }}products" {{ if uri | starts_with('/products') }}aria-current="page"{{ /if }}>{{ trans key="site.nav.products" }}</a>
             <a href="{{ base }}inspire" {{ if uri | starts_with('/inspire') }}aria-current="page"{{ /if }}>{{ trans key="site.nav.inspire" }}</a>
         </nav>
         <div class="head-actions">
+            {{ livewire:cart-count }}
+            {{ if logged_in }}
+                {{# Shown by live.js once the live connection is up #}}
+                <a class="online-pill" href="{{ base }}members" title="{{ trans key='site.members.online_title' }}" data-online-pill hidden>
+                    <span class="online-dot" aria-hidden="true"></span><b data-online-count>0</b><span class="online-label">&nbsp;{{ trans key="site.members.online" }}</span>
+                </a>
+            {{ /if }}
             <button class="theme-btn" id="theme-btn" type="button" aria-label="{{ trans key='site.nav.theme' }}" title="{{ trans key='site.nav.theme' }}">
                 <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
                 <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
@@ -76,7 +87,7 @@
                 </select>
             </label>
             {{ if logged_in }}
-                <a class="btn ghost" href="{{ user:logout_url redirect='/' }}">{{ trans key="site.nav.logout" }}</a>
+                <a class="btn ghost" href="{{ base }}account" {{ if uri == '/account' }}aria-current="page"{{ /if }}>{{ trans key="site.nav.account" }}</a>
             {{ else }}
                 <a class="btn" href="{{ base }}join">{{ trans key="site.nav.join" }}</a>
             {{ /if }}
@@ -89,26 +100,33 @@
     {{ template_content }}
 </main>
 
+<footer>
+    <div class="foot-in">
+        <p class="foot-copy">© {{ now format="Y" }} {{ trans key="site.brand" }} · {{ trans key="site.footer.project" }}</p>
+        <ul class="foot-links">
+            <li><a href="{{ base }}about" {{ if uri == '/about' }}aria-current="page"{{ /if }}>{{ trans key="site.nav.about" }}</a></li>
+            <li><a href="{{ base }}rules" {{ if uri == '/rules' }}aria-current="page"{{ /if }}>{{ trans key="site.nav.rules" }}</a></li>
+            <li><a href="{{ base }}about#contact">{{ trans key="site.nav.contact" }}</a></li>
+            <li><a href="{{ base }}members" {{ if uri == '/members' }}aria-current="page"{{ /if }}>{{ trans key="site.nav.members" }}</a></li>
+            <li><a href="{{ base }}sitemap" {{ if uri == '/sitemap' }}aria-current="page"{{ /if }}>{{ trans key="site.nav.sitemap" }}</a></li>
+        </ul>
+    </div>
+</footer>
+
+{{# Phone tab bar: last in the page and sticky, so it always covers exactly its own height above the footer #}}
 <nav class="tabbar" aria-label="{{ trans key='site.nav.main' }}">
     <a href="{{ base }}" {{ if is_homepage }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg><span>{{ trans key="site.nav.home" }}</span></a>
     <a href="{{ base }}xov-xwm" {{ if uri | starts_with('/xov-xwm') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h10M7 17h6"/></svg><span>{{ trans key="site.nav.feed" }}</span></a>
     <a href="{{ base }}events" {{ if uri | starts_with('/events') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>{{ trans key="site.nav.events" }}</span></a>
+    <a href="{{ base }}products" {{ if uri | starts_with('/products') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>{{ trans key="site.nav.products" }}</span></a>
     <a href="{{ base }}inspire" {{ if uri | starts_with('/inspire') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg><span>{{ trans key="site.nav.inspire" }}</span></a>
-    <a href="{{ base }}join" {{ if uri | starts_with('/join') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>{{ trans key="site.nav.join" }}</span></a>
+    {{ if logged_in }}
+        <a href="{{ base }}account" {{ if uri == '/account' }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>{{ trans key="site.nav.account" }}</span></a>
+    {{ else }}
+        <a href="{{ base }}join" {{ if uri | starts_with('/join') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>{{ trans key="site.nav.join" }}</span></a>
+    {{ /if }}
 </nav>
-
-<footer>
-    <div class="foot-in">
-        <span>© {{ now format="Y" }} {{ trans key="site.brand" }} · {{ trans key="site.footer.project" }}</span>
-        <span>
-            <a href="{{ base }}about">{{ trans key="site.nav.about" }}</a> ·
-            <a href="{{ base }}rules">{{ trans key="site.nav.rules" }}</a> ·
-            <a href="{{ base }}about#contact">{{ trans key="site.nav.contact" }}</a> ·
-            <a href="{{ base }}sitemap">{{ trans key="site.nav.sitemap" }}</a>
-        </span>
-    </div>
-</footer>
-<script src="/js/site.js?v=2"></script>
+<script src="/js/site.js?v=6"></script>
 <script src="/js/app.js?v=2"></script>
 {{ livewire:scripts }}
 {{ if logged_in }}
@@ -124,7 +142,7 @@ window.HL_LIVE = {
 </script>
 <script src="/js/vendor/pusher-8.6.0.min.js"></script>
 <script src="/js/vendor/echo-2.5.0.js"></script>
-<script src="/js/live.js?v=1"></script>
+<script src="/js/live.js?v=2"></script>
 {{ /if }}
 </body>
 </html>

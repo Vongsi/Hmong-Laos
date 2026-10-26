@@ -1,0 +1,71 @@
+title: 'Home page pop-up'
+fields:
+- handle: enabled
+  field:
+    type: toggle
+    display: Show the pop-up
+    instructions: Visitors see it when they open the home page, once. After they close it they don't see it again, until you change what it says.
+    default: false
+    localizable: false
+- handle: entry
+  field:
+    type: entries
+    display: Announcement or event
+    instructions: Pick a post, event, interview or product. The pop-up shows its title, photo and short text in each visitor's language, with a button to the full page.
+    collections:
+    - posts
+    - events
+    - interviews
+    - products
+    max_items: 1
+    localizable: false
+- handle: title
+  field:
+    type: text
+    display: Title
+    instructions: Leave empty to use the chosen page's title.
+    localizable: true
+- handle: message
+  field:
+    type: textarea
+    display: Message
+    instructions: Leave empty to use the chosen page's short summary.
+    localizable: true
+- handle: image
+  field:
+    type: assets
+    display: Photo
+    instructions: Leave empty to use the chosen page's photo.
+    container: assets
+    folder: popups
+    max_files: 1
+    localizable: false
+- handle: button_label
+  field:
+    type: text
+    display: Button text
+    instructions: Leave empty for "Read more".
+    localizable: true
+    width: 50
+- handle: button_link
+  field:
+    type: text
+    display: Button link
+    instructions: Leave empty to link to the chosen page. Use a full address (https://…) for other sites.
+    input_type: url
+    localizable: true
+    width: 50
+- handle: show_from
+  field:
+    type: date
+    display: First day (optional)
+    instructions: Laos date. Leave empty to start now.
+    localizable: false
+    width: 50
+- handle: show_until
+  field:
+    type: date
+    display: Last day (optional)
+    instructions: Laos date, included. Leave empty to show it until you switch it off.
+    localizable: false
+    width: 50

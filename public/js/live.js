@@ -22,6 +22,27 @@
   // Livewire and other Laravel code expect window.Echo to be the connected instance.
   window.Echo = echo;
 
+  // Site-wide "online" presence: the live count in the header and on the Members page, and the
+  // green dot on listed members who have the site open. The dots are CSS rules rather than classes
+  // so they survive Livewire redrawing the list.
+  var dots = document.createElement('style');
+  document.head.appendChild(dots);
+  var online = echo.join('online');
+  function showOnline() {
+    var members = online.subscription && online.subscription.members;
+    if (!members) return;
+    var selectors = [];
+    members.each(function (m) { selectors.push('.member[data-member-key="' + m.id + '"]'); });
+    dots.textContent = selectors.length
+      ? selectors.map(function (s) { return s + ' .presence'; }).join(',') + '{display:block}' +
+        selectors.map(function (s) { return s + ' .status-live'; }).join(',') + '{display:inline}' +
+        selectors.map(function (s) { return s + ' .status-seen'; }).join(',') + '{display:none}'
+      : '';
+    document.querySelectorAll('[data-online-count]').forEach(function (el) { el.textContent = members.count; });
+    document.querySelectorAll('[data-online-pill]').forEach(function (el) { el.hidden = false; });
+  }
+  online.here(showOnline).joining(showOnline).leaving(showOnline);
+
   var TYPING_TTL = 4000;   // hide a name this long after their last keystroke
   var SEND_EVERY = 1500;   // send at most one "typing" signal per this many ms
 

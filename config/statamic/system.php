@@ -109,7 +109,8 @@ return [
     |
     */
 
-    'display_timezone' => null,
+    // Dates are saved in UTC (the control panel converts from the editor's own time); visitors see Laos time.
+    'display_timezone' => env('STATAMIC_DISPLAY_TIMEZONE', 'Asia/Vientiane'),
 
     /*
     |--------------------------------------------------------------------------
@@ -123,7 +124,7 @@ return [
     |
     */
 
-    'localize_dates_in_modifiers' => false,
+    'localize_dates_in_modifiers' => true,
 
     /*
     |--------------------------------------------------------------------------

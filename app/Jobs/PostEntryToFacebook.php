@@ -19,7 +19,7 @@ class PostEntryToFacebook implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable;
 
     // Collections whose entries can be posted to the Page.
-    const COLLECTIONS = ['posts', 'events', 'interviews'];
+    const COLLECTIONS = ['posts', 'events', 'interviews', 'products'];
 
     public function __construct(public string $entryId) {}
 
