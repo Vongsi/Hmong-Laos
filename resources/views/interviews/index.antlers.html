@@ -18,6 +18,9 @@
     </div>
     <div class="panel" style="flex-direction:row;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px">
         <div class="stack" style="gap:4px"><h3>{{ trans key="site.inspire.suggest_title" }}</h3><p class="muted small">{{ trans key="site.inspire.suggest_body" }}</p></div>
-        <a class="btn ghost" href="{{ base }}about#contact">{{ trans key="site.inspire.suggest" }}</a>
+        <div class="chips">
+            <a class="btn red" href="{{ base }}share?type=story">+ {{ trans key="site.contribute.inspire_button" }}</a>
+            <a class="btn ghost" href="{{ base }}about#contact">{{ trans key="site.inspire.suggest" }}</a>
+        </div>
     </div>
 </div>

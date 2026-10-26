@@ -1,0 +1,42 @@
+{{ base = site:url | ensure_right('/') }}
+{{ list_url = url }}
+<div class="stack" style="gap:20px">
+    <div class="stack" style="gap:8px">
+        <h1 style="font-size:clamp(28px,4.5vw,40px)">{{ title }}</h1>
+        <p class="muted" style="max-width:60ch;font-size:16px">{{ trans key="site.shop.intro" }}</p>
+    </div>
+    <form class="chips" method="get" action="{{ url }}">
+        <label class="prov"><span class="sr">{{ trans key="site.feed.province" }}</span>
+            <select name="province" data-filter-select>
+                <option value="">{{ trans key="site.feed.all_provinces" }}</option>
+                {{ taxonomy:provinces sort="title" }}<option value="{{ slug }}" {{ if get:province == slug }}selected{{ /if }}>{{ title }}</option>{{ /taxonomy:provinces }}
+            </select>
+        </label>
+        {{ if get:category }}<input type="hidden" name="category" value="{{ get:category | sanitize }}">{{ /if }}
+        <a class="chip" href="{{ url }}{{ if get:province }}?province={{ get:province | urlencode }}{{ /if }}" {{ if !get:category }}aria-current="true"{{ /if }}>{{ trans key="site.shop.all" }}</a>
+        {{ taxonomy:product_categories }}
+            <a class="chip" href="{{ list_url }}?category={{ slug }}{{ if get:province }}&province={{ get:province | urlencode }}{{ /if }}" {{ if get:category == slug }}aria-current="true"{{ /if }}>{{ title }}</a>
+        {{ /taxonomy:product_categories }}
+    </form>
+
+    {{ collection:products paginate="24" as="products" :taxonomy:product_categories="get:category" :taxonomy:provinces="get:province" }}
+        <div class="product-grid">
+            {{ products }}{{ partial:product_card }}{{ /products }}
+        </div>
+        {{ if no_results }}<p class="muted">{{ trans key="site.shop.empty" }}</p>{{ /if }}
+        {{ paginate }}
+            {{ if total_pages > 1 }}
+                <nav class="pagination">
+                    {{ if prev_page }}<a class="btn ghost" href="{{ prev_page }}">←</a>{{ /if }}
+                    <span class="muted">{{ current_page }} / {{ total_pages }}</span>
+                    {{ if next_page }}<a class="btn ghost" href="{{ next_page }}">→</a>{{ /if }}
+                </nav>
+            {{ /if }}
+        {{ /paginate }}
+    {{ /collection:products }}
+
+    <div class="panel" style="flex-direction:row;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px">
+        <div class="stack" style="gap:4px"><h3>{{ trans key="site.shop.sell_title" }}</h3><p class="muted small">{{ trans key="site.shop.sell_body" }}</p></div>
+        <a class="btn ghost" href="{{ base }}sell">{{ trans key="site.shop.sell" }}</a>
+    </div>
+</div>

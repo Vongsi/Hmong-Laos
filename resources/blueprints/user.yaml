@@ -46,6 +46,22 @@ fields:
       display: 'District or village'
       width: 50
   -
+    handle: show_in_directory
+    field:
+      type: toggle
+      display: 'Listed on the Members page'
+      instructions: 'Members turn this on themselves on the Members page.'
+      width: 50
+  -
+    handle: last_seen_at
+    field:
+      type: date
+      display: 'Last seen'
+      time_enabled: true
+      visibility: read_only
+      listable: true
+      width: 50
+  -
     handle: preferred_lang
     field:
       type: select

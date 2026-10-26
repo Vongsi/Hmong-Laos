@@ -1,0 +1,67 @@
+title: Shop settings
+fields:
+- handle: notify_email
+  field:
+    type: text
+    display: Send new orders to
+    instructions: Email address that gets a message for every new order and every reported payment.
+    input_type: email
+    localizable: false
+- handle: delivery_fee
+  field:
+    type: integer
+    display: Delivery fee (Kip)
+    instructions: Added to orders that choose delivery. 0 for free delivery.
+    localizable: false
+    default: 0
+- handle: pickup_place
+  field:
+    type: text
+    display: Pick-up place
+    instructions: Where customers collect orders, shown at checkout.
+    localizable: true
+- handle: enable_transfer
+  field:
+    type: toggle
+    display: Accept bank transfer / QR
+    localizable: false
+    default: true
+- handle: enable_cash
+  field:
+    type: toggle
+    display: Accept cash on delivery or pick-up
+    localizable: false
+    default: true
+- handle: qr_image
+  field:
+    type: assets
+    display: Payment QR code
+    instructions: Your BCEL One / bank QR code. Customers scan it to pay.
+    container: assets
+    folder: shop
+    max_files: 1
+    localizable: false
+- handle: bank_name
+  field:
+    type: text
+    display: Bank
+    localizable: false
+    width: 33
+- handle: account_name
+  field:
+    type: text
+    display: Account name
+    localizable: false
+    width: 33
+- handle: account_number
+  field:
+    type: text
+    display: Account number
+    localizable: false
+    width: 33
+- handle: payment_instructions
+  field:
+    type: textarea
+    display: Payment instructions
+    instructions: Shown with the QR code after a customer orders.
+    localizable: true

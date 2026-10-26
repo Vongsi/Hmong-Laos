@@ -1,0 +1,52 @@
+title: Suggest a product
+fields:
+- handle: product
+  field:
+    type: text
+    display: Product
+    validate:
+    - required
+    - max:200
+- handle: description
+  field:
+    type: textarea
+    display: Description
+    validate:
+    - required
+    - max:3000
+- handle: price
+  field:
+    type: text
+    display: Price
+    validate:
+    - max:100
+- handle: maker
+  field:
+    type: text
+    display: Made by / sold by
+    validate:
+    - required
+    - max:200
+- handle: reach
+  field:
+    type: text
+    display: Phone or WhatsApp
+    validate:
+    - required
+    - max:100
+- handle: province
+  field:
+    type: text
+    display: Province
+    validate:
+    - max:100
+- handle: photos
+  field:
+    type: assets
+    display: Photos
+    container: assets
+    folder: suggestions
+    max_files: 4
+    validate:
+    - image
+    - max:8192

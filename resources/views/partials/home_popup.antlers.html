@@ -1,0 +1,17 @@
+{{# Announcement pop-up (Globals → Home page pop-up). Opened by public/js/site.js unless this visitor already closed this one. #}}
+{{ home_popup }}
+<dialog class="popup" data-popup="{{ popup:version }}" aria-labelledby="popup-title">
+    <form method="dialog"><button class="popup-close" aria-label="{{ trans key='site.popup.close' }}">×</button></form>
+    {{ if popup:image }}<img class="popup-img" src="{{ popup:image }}" alt="">{{ /if }}
+    <div class="popup-body">
+        <span class="eyebrow">{{ trans key="site.popup.eyebrow" }}</span>
+        <h2 id="popup-title">{{ popup:title | sanitize }}</h2>
+        {{ if popup:date }}<p class="muted small">{{ popup:date | sanitize }}</p>{{ /if }}
+        {{ if popup:text }}<p>{{ popup:text | sanitize }}</p>{{ /if }}
+        <div class="row-wrap">
+            {{ if popup:link }}<a class="btn red" href="{{ popup:link | sanitize }}" data-popup-seen>{{ popup:button | sanitize }}</a>{{ /if }}
+            <form method="dialog"><button class="btn ghost">{{ trans key="site.popup.close" }}</button></form>
+        </div>
+    </div>
+</dialog>
+{{ /home_popup }}

@@ -16,3 +16,9 @@ Broadcast::channel('comments.{entryId}', function ($user, string $entryId) {
 
     return ['id' => $user->id, 'name' => $user->name ?: __('site.comments.member')];
 });
+
+// Every signed-in member, on every page. Gives the live "online" count; the Members page matches
+// the ids to the members who chose to be listed. Nothing here names anyone.
+Broadcast::channel('online', function ($user) {
+    return ['listed' => (bool) $user->show_in_directory];
+});

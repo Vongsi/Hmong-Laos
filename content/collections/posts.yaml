@@ -1,4 +1,4 @@
-title: 'Xov Xwm'
+title: Feed
 route: '/xov-xwm/{slug}'
 date: true
 sort_direction: desc

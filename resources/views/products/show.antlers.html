@@ -1,0 +1,28 @@
+{{ base = site:url | ensure_right('/') }}
+<article class="stack" style="gap:24px">
+    <a class="link" href="{{ base }}products">← {{ trans key="site.shop.browse" }}</a>
+    <div class="product-layout">
+        {{# Photos, then each colour's own photo. site.js adds thumbnails and the full-screen viewer (data-full: uncropped, large). #}}
+        <div class="gallery-wrap" data-gallery data-t-open="{{ trans key='site.shop.photo_open' }}" data-t-prev="{{ trans key='site.shop.photo_prev' }}" data-t-next="{{ trans key='site.shop.photo_next' }}" data-t-zoom="{{ trans key='site.shop.photo_zoom' }}" data-t-close="{{ trans key='site.popup.close' }}" data-t-of="{{ trans key='site.shop.photo_of' }}">
+            <div class="gallery">
+                {{ if images || colour_options }}
+                    {{ images }}<button type="button" class="gallery-slide" data-full="{{ glide:url width='2000' height='2000' fit='max' }}" data-thumb="{{ glide:url width='160' height='160' fit='crop_focal' }}"><img src="{{ glide:url width='900' height='900' fit='crop_focal' }}" alt="{{ alt ?? '' }}" {{ if !first }}loading="lazy"{{ /if }}></button>{{ /images }}
+                    {{ colour_options }}{{ photo }}<button type="button" class="gallery-slide" data-colour="{{ colour:slug }}" data-full="{{ glide:url width='2000' height='2000' fit='max' }}" data-thumb="{{ glide:url width='160' height='160' fit='crop_focal' }}"><img src="{{ glide:url width='900' height='900' fit='crop_focal' }}" alt="{{ colour:title }}" loading="lazy"></button>{{ /photo }}{{ /colour_options }}
+                {{ /if }}
+                {{ unless images }}{{ unless colour_options }}<span class="ph c product-ph"></span>{{ /unless }}{{ /unless }}
+            </div>
+        </div>
+        <div class="stack product-info">
+            {{ product_categories }}<span class="tag">{{ title }}</span>{{ /product_categories }}
+            <h1 style="font-size:clamp(26px,4vw,38px)">{{ title }}</h1>
+            <p class="price big">{{ price | kip }}</p>
+            {{ if maker }}<p class="muted">{{ trans key="site.shop.made_by" :name="maker" }}{{ provinces }} · {{ title }}{{ /provinces }}</p>{{ /if }}
+            {{ if summary }}<p class="lede">{{ summary }}</p>{{ /if }}
+            {{ livewire:add-to-cart :product-id="id" }}
+            <div class="post-actions">{{ livewire:like-button :entry-id="id" }}</div>
+            {{ partial:share }}
+        </div>
+    </div>
+    {{ if description }}<div class="prose">{{ description }}</div>{{ /if }}
+    {{ livewire:comments :entry-id="id" }}
+</article>

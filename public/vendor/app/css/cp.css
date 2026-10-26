@@ -1,0 +1,22 @@
+/*
+ * Control panel styles (loaded by Statamic::style('app', 'cp.css') in AppServiceProvider).
+ * Photos in Bard text at the size and position chosen with the photo buttons (public/vendor/app/js/cp.js),
+ * like on the site (public/css/site.css, .prose .photo-…).
+ */
+.bard-editor .ProseMirror{display:flow-root}
+.bard-editor [data-photo-size]{display:block;margin-left:auto;margin-right:auto}
+.bard-editor [data-photo-size="small"]{width:34%}
+.bard-editor [data-photo-size="medium"]{width:60%}
+.bard-editor [data-photo-size][data-photo-align="left"]{float:left;margin:4px 18px 10px 0}
+.bard-editor [data-photo-size][data-photo-align="right"]{float:right;margin:4px 0 10px 18px}
+/* Photo buttons in the Bard toolbar: as big as Statamic's own icons. */
+svg[data-photo-icon]{width:20px!important;height:20px!important;max-width:none!important}
+/* Size / Position row at the bottom of each photo box in Bard. */
+.photo-layout-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 16px;padding:8px;font-size:12px;color:#374151;border-top:1px solid rgba(127,127,127,.25)}
+.photo-layout-group{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.photo-layout-label{margin-right:2px;font-weight:600;opacity:.75}
+.photo-layout-bar button{padding:3px 10px;font:inherit;font-weight:500;line-height:1.5;color:inherit;cursor:pointer;background:transparent;border:1px solid rgba(127,127,127,.4);border-radius:999px}
+.photo-layout-bar button:hover{border-color:rgba(127,127,127,.8)}
+.photo-layout-bar button[aria-pressed="true"]{color:#fff;background:#1f2937;border-color:#1f2937}
+.dark .photo-layout-bar{color:#d1d5db}
+.dark .photo-layout-bar button[aria-pressed="true"]{color:#111827;background:#e5e7eb;border-color:#e5e7eb}

@@ -1,0 +1,19 @@
+<section class="stack" style="gap:16px">
+    <h1 style="font-size:clamp(28px,4.5vw,40px);text-align:center">{{ title }}</h1>
+    {{ livewire:account }}
+    {{ if logged_in }}
+        <div class="join" style="max-width:560px;margin-top:0">
+            <a class="panel sell-link" href="{{ site:url | ensure_right('/') }}sell">
+                <b>{{ trans key="site.sell.mine" }}</b>
+                <span class="muted small">{{ trans key="site.sell.account_hint" }}</span>
+            </a>
+            <a class="panel sell-link" href="{{ site:url | ensure_right('/') }}share">
+                <b>{{ trans key="site.contribute.mine" }}</b>
+                <span class="muted small">{{ trans key="site.contribute.account_hint" }}</span>
+            </a>
+        </div>
+    {{ /if }}
+    {{ if logged_in }}
+        <p style="text-align:center"><a class="btn ghost" href="{{ user:logout_url :redirect="site:url" }}">{{ trans key="site.nav.logout" }}</a></p>
+    {{ /if }}
+</section>

@@ -1,0 +1,10 @@
+title: Products
+route: '/products/{slug}'
+date: true
+sort_direction: desc
+taxonomies: [product_categories, provinces]
+sites: [hm, lo, en]
+propagate: true
+template: products/show
+layout: layout
+revisions: false

@@ -22,7 +22,7 @@ class SendEntryPushNotification implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable;
 
     // Collections whose entries can be sent as phone notifications.
-    const COLLECTIONS = ['posts', 'events', 'interviews'];
+    const COLLECTIONS = ['posts', 'events', 'interviews', 'products'];
 
     public function __construct(public string $entryId) {}
 

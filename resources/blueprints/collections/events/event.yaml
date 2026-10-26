@@ -57,6 +57,33 @@ tabs:
   sidebar:
     display: Sidebar
     sections:
+    - display: From a member
+      instructions: Sent by a member through "Share". Check the text and photo (translate them if needed), then switch Published on and save. To ask for changes instead, write a message to the member and save while it is still a draft.
+      fields:
+      - handle: submitted_by
+        field:
+          type: users
+          display: Sent by (account)
+          max_items: 1
+          visibility: hidden
+          localizable: false
+      - handle: submitted_by_name
+        field:
+          type: text
+          display: Sent by
+          visibility: read_only
+          listable: true
+          localizable: false
+          if:
+            submitted_by: not empty
+      - handle: review_note
+        field:
+          type: textarea
+          display: Message to the member
+          instructions: What to change. The member gets an email and sees it on their Share page. They update it and send it again.
+          localizable: false
+          if:
+            submitted_by: not empty
     - fields:
       - handle: slug
         field:
@@ -126,7 +153,7 @@ tabs:
         field:
           type: toggle
           display: Also post to our Facebook Page
-          instructions: Posts a link to this page on the Hmong Laos Facebook Page
+          instructions: Posts a link to this page on our Facebook Page
             once it is published, one time only. Each language is posted separately.
           localizable: true
           default: false

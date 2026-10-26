@@ -34,3 +34,203 @@
     if (e.target.matches('[data-filter-select]')) e.target.form.submit();
   });
 })();
+
+// Home page pop-up (Globals → Home page pop-up): opens once; closing it, by the ×, the Close button,
+// Escape or a click outside, hides this announcement for good on this device. A new one shows again.
+(function () {
+  var dialog = document.querySelector('dialog[data-popup]');
+  if (!dialog || typeof dialog.showModal !== 'function') return;
+  var key = 'hl-popup';
+  var version = dialog.getAttribute('data-popup');
+  function remember() { try { localStorage.setItem(key, version); } catch (e) {} }
+  try { if (localStorage.getItem(key) === version) return; } catch (e) {}
+
+  dialog.addEventListener('close', remember);
+  // The backdrop belongs to the dialog element itself; its content sits in child elements.
+  dialog.addEventListener('click', function (e) { if (e.target === dialog) dialog.close(); });
+  dialog.querySelectorAll('[data-popup-seen]').forEach(function (a) { a.addEventListener('click', remember); });
+  setTimeout(function () { dialog.showModal(); }, 600);
+})();
+
+// "Track on Anousith" also copies the tracking number, ready to paste into the courier's tracking box.
+document.addEventListener('click', function (e) {
+  var link = e.target.closest('[data-copy-also]');
+  if (link && navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(link.getAttribute('data-copy-also')).catch(function () {});
+  }
+});
+
+// Full-screen photo viewer, a native <dialog> (focus, Escape and screen readers work as usual): the whole
+// photo, zoom (tap the photo or +), swipe or arrow keys for the next one. `t` holds the labels (data-t-open,
+// -prev, -next, -zoom, -close, -of on the page); onClose gets the photo that was showing.
+function photoViewer(t, onClose) {
+  var photos = [];
+  var current = 0;
+  var dialog = document.createElement('dialog');
+  dialog.className = 'viewer';
+  dialog.setAttribute('aria-label', t.tOpen);
+  dialog.innerHTML =
+    '<div class="viewer-stage"><img alt=""></div>' +
+    '<p class="viewer-count" aria-live="polite"></p>' +
+    '<button type="button" class="viewer-btn viewer-close">×</button>' +
+    '<button type="button" class="viewer-btn viewer-zoom">+</button>' +
+    '<button type="button" class="viewer-btn viewer-prev">‹</button>' +
+    '<button type="button" class="viewer-btn viewer-next">›</button>';
+  document.body.appendChild(dialog);
+  var stage = dialog.querySelector('.viewer-stage');
+  var img = stage.querySelector('img');
+  var zoomBtn = dialog.querySelector('.viewer-zoom');
+  dialog.querySelector('.viewer-close').setAttribute('aria-label', t.tClose);
+  zoomBtn.setAttribute('aria-label', t.tZoom);
+  dialog.querySelector('.viewer-prev').setAttribute('aria-label', t.tPrev);
+  dialog.querySelector('.viewer-next').setAttribute('aria-label', t.tNext);
+
+  function zoom(on, e) {
+    dialog.classList.toggle('zoomed', on);
+    zoomBtn.textContent = on ? '−' : '+';
+    zoomBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    if (on && e) {
+      // Zoom in on the spot that was tapped.
+      var r = stage.getBoundingClientRect();
+      stage.scrollLeft = ((e.clientX - r.left) / r.width) * stage.scrollWidth - r.width / 2;
+      stage.scrollTop = ((e.clientY - r.top) / r.height) * stage.scrollHeight - r.height / 2;
+    }
+  }
+  function show(i) {
+    current = (i + photos.length) % photos.length;
+    zoom(false);
+    img.src = photos[current].src;
+    img.alt = photos[current].alt || '';
+    dialog.querySelector('.viewer-count').textContent = t.tOf.replace(':n', current + 1).replace(':total', photos.length);
+  }
+  dialog.querySelector('.viewer-close').addEventListener('click', function () { dialog.close(); });
+  dialog.querySelector('.viewer-prev').addEventListener('click', function () { show(current - 1); });
+  dialog.querySelector('.viewer-next').addEventListener('click', function () { show(current + 1); });
+  zoomBtn.addEventListener('click', function () { zoom(!dialog.classList.contains('zoomed')); });
+  img.addEventListener('click', function (e) { zoom(!dialog.classList.contains('zoomed'), e); });
+  dialog.addEventListener('click', function (e) { if (e.target === dialog || e.target === stage) dialog.close(); });
+  dialog.addEventListener('close', function () { zoom(false); if (onClose) onClose(current); });
+  dialog.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft') show(current - 1);
+    if (e.key === 'ArrowRight') show(current + 1);
+  });
+  // Zoomed with a mouse: the picture follows the pointer. Touch screens pan by dragging.
+  stage.addEventListener('mousemove', function (e) {
+    if (!dialog.classList.contains('zoomed')) return;
+    var r = stage.getBoundingClientRect();
+    stage.scrollLeft = ((e.clientX - r.left) / r.width) * (stage.scrollWidth - r.width);
+    stage.scrollTop = ((e.clientY - r.top) / r.height) * (stage.scrollHeight - r.height);
+  });
+  // Swipe to change photo (not while zoomed: then a swipe moves around the photo).
+  var startX = null;
+  stage.addEventListener('touchstart', function (e) { startX = dialog.classList.contains('zoomed') ? null : e.touches[0].clientX; }, { passive: true });
+  stage.addEventListener('touchend', function (e) {
+    if (startX === null) return;
+    var dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 50) show(current + (dx < 0 ? 1 : -1));
+  });
+
+  return {
+    /** @param list [{ src, alt }] */
+    open: function (list, i) {
+      photos = list;
+      dialog.classList.toggle('single', photos.length < 2);
+      show(i);
+      dialog.showModal();
+    },
+  };
+}
+
+// Product photos: thumbnails under the gallery, the full-screen viewer, and jumping to a colour's photo when
+// the buyer picks that colour.
+(function () {
+  var wrap = document.querySelector('[data-gallery]');
+  var track = wrap && wrap.querySelector('.gallery');
+  var slides = track ? [].slice.call(track.querySelectorAll('.gallery-slide')) : [];
+  if (!slides.length) return;
+  var t = wrap.dataset;
+  var current = 0;
+  function counter(i) { return t.tOf.replace(':n', i + 1).replace(':total', slides.length); }
+
+  function goTo(i) {
+    current = (i + slides.length) % slides.length;
+    track.scrollTo({ left: slides[current].offsetLeft - track.offsetLeft, behavior: 'smooth' });
+    markThumb();
+  }
+
+  // Thumbnails.
+  var thumbs = [];
+  if (slides.length > 1) {
+    var row = document.createElement('div');
+    row.className = 'gallery-thumbs';
+    slides.forEach(function (slide, i) {
+      var b = document.createElement('button');
+      var pic = document.createElement('img');
+      b.type = 'button';
+      b.setAttribute('aria-label', counter(i));
+      pic.alt = '';
+      pic.loading = 'lazy';
+      pic.src = slide.dataset.thumb;
+      b.appendChild(pic);
+      b.addEventListener('click', function () { goTo(i); });
+      row.appendChild(b);
+      thumbs.push(b);
+    });
+    wrap.appendChild(row);
+  }
+  function markThumb() {
+    thumbs.forEach(function (b, i) { b.setAttribute('aria-current', i === current ? 'true' : 'false'); });
+  }
+  // Keep the thumbnails in step when the buyer swipes the gallery itself.
+  var settle;
+  track.addEventListener('scroll', function () {
+    clearTimeout(settle);
+    settle = setTimeout(function () {
+      var i = Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
+      if (i !== current && slides[i]) { current = i; markThumb(); }
+    }, 80);
+  });
+  markThumb();
+
+  // After the viewer closes, the gallery shows the photo that was last enlarged.
+  var viewer = photoViewer(t, goTo);
+  var list = slides.map(function (slide) { return { src: slide.dataset.full, alt: slide.querySelector('img').alt }; });
+  slides.forEach(function (slide, i) {
+    slide.setAttribute('aria-label', t.tOpen);
+    slide.addEventListener('click', function () { viewer.open(list, i); });
+  });
+
+  // Picking a colour shows its photo.
+  document.addEventListener('change', function (e) {
+    if (!e.target.matches('[data-colour-choice]')) return;
+    for (var i = 0; i < slides.length; i++) {
+      if (slides[i].dataset.colour === e.target.value) { goTo(i); break; }
+    }
+  });
+})();
+
+// Photos in news posts, events and stories (inside [data-photos]): tap or click one to see it large, then move
+// through all the page's photos. data-full is an uncropped large version; photos in the text are shown as they are.
+(function () {
+  var wrap = document.querySelector('[data-photos]');
+  if (!wrap) return;
+  var imgs = [].slice.call(wrap.querySelectorAll('img[data-full], .prose img, .qa img')).filter(function (img) {
+    return !img.closest('a, button') && img.getAttribute('src');
+  });
+  if (!imgs.length) return;
+  var t = wrap.dataset;
+  var viewer = photoViewer(t);
+  imgs.forEach(function (img, i) {
+    img.classList.add('zoomable');
+    img.tabIndex = 0;
+    img.setAttribute('role', 'button');
+    img.setAttribute('aria-label', img.alt ? img.alt + ' · ' + t.tOpen : t.tOpen);
+    function open() {
+      viewer.open(imgs.map(function (one) { return { src: one.dataset.full || one.currentSrc || one.src, alt: one.alt }; }), i);
+    }
+    img.addEventListener('click', open);
+    img.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+    });
+  });
+})();

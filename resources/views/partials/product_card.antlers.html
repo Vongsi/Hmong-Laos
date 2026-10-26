@@ -1,0 +1,13 @@
+<a class="product-card" href="{{ url }}">
+    {{ if images }}
+        {{ images limit="1" }}<img src="{{ glide:url width='480' height='480' fit='crop_focal' }}" alt="{{ alt ?? '' }}" loading="lazy">{{ /images }}
+    {{ else }}
+        <span class="ph c product-ph"></span>
+    {{ /if }}
+    <span class="product-meta">
+        <b>{{ title }}</b>
+        <span class="price">{{ price | kip }}</span>
+        {{ if colour_options }}<span class="card-swatches">{{ colour_options }}{{ colour }}<i class="swatch" style="--swatch:{{ swatch ?? 'transparent' }}" title="{{ title }}"></i>{{ /colour }}{{ /colour_options }}</span>{{ /if }}
+        {{ if stock === 0 }}<span class="tag">{{ trans key="site.shop.sold_out" }}</span>{{ /if }}
+    </span>
+</a>

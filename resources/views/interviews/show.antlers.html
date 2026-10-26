@@ -1,10 +1,11 @@
 {{ base = site:url | ensure_right('/') }}
-<article class="article">
+{{# data-photos: tap a photo to see it large (public/js/site.js). #}}
+<article class="article" data-photos {{ partial:photo_viewer_labels }}>
     <a class="link" href="{{ base }}inspire">← {{ trans key="site.inspire.back" }}</a>
     {{ topics }}<span class="tag">{{ title }}</span>{{ /topics }}
     <h1 style="font-size:clamp(28px,4.5vw,42px)">{{ title }}</h1>
     <div class="interview-head">
-        <div class="portrait p1" style="aspect-ratio:1;width:96px;border-radius:50%">{{ portrait }}<img src="{{ glide:url width='200' height='200' fit='crop_focal' }}" alt="">{{ /portrait }}</div>
+        <div class="portrait p1" style="aspect-ratio:1;width:96px;border-radius:50%">{{ portrait }}<img src="{{ glide:url width='200' height='200' fit='crop_focal' }}" data-full="{{ glide:url width='2000' height='2000' fit='max' }}" alt="{{ person_name }}">{{ /portrait }}</div>
         <div class="stack" style="gap:2px"><b style="font-size:17px">{{ person_name }}</b>{{ if person_role }}<span class="muted">{{ person_role }}</span>{{ /if }}</div>
     </div>
     {{ if intro }}<p class="lede">{{ intro }}</p>{{ /if }}
@@ -13,7 +14,7 @@
         {{ qa }}
             {{ if type == 'question_answer' }}<p class="q">{{ question }}</p><p>{{ answer | nl2br }}</p>{{ /if }}
             {{ if type == 'pull_quote' }}<blockquote class="pull">“{{ quote }}”</blockquote>{{ /if }}
-            {{ if type == 'photo' }}{{ photo }}<figure><img class="cover" src="{{ glide:url width='1000' }}" alt="{{ alt ?? '' }}"><figcaption class="muted small">{{ caption }}</figcaption></figure>{{ /photo }}{{ /if }}
+            {{ if type == 'photo' }}{{ photo }}<figure><img class="cover" src="{{ glide:url width='1000' }}" data-full="{{ glide:url width='2000' height='2000' fit='max' }}" alt="{{ alt ?? '' }}"><figcaption class="muted small">{{ caption }}</figcaption></figure>{{ /photo }}{{ /if }}
         {{ /qa }}
     </div>
     <div class="post-actions">{{ livewire:like-button :entry-id="id" }}</div>

@@ -1,15 +1,15 @@
 hm:
   name: 'Hmoob'
-  url: '{{ config:app:url }}/'
+  url: /
   locale: en_US
   lang: hmn
 lo:
   name: 'ລາວ'
-  url: '{{ config:app:url }}/lo/'
+  url: /lo/
   locale: lo_LA
   lang: lo
 en:
   name: English
-  url: '{{ config:app:url }}/en/'
+  url: /en/
   locale: en_US
   lang: en
