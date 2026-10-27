@@ -6,6 +6,7 @@ use App\Shop\Cart;
 use App\Shop\PlaceOrder;
 use App\Shop\Shop;
 use App\Shop\ShopException;
+use App\Shop\WhatsApp;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rule;
@@ -40,6 +41,7 @@ class Checkout extends Component
         if ($user = Auth::user()) {
             $this->name = (string) $user->name;
             $this->email = (string) $user->email;
+            $this->phone = (string) $user->phone;
         }
     }
 
@@ -113,6 +115,7 @@ class Checkout extends Component
             'deliveryFee' => (int) Shop::setting($this->site, 'delivery_fee'),
             'methods' => Shop::paymentMethods($this->site),
             'pickupPlace' => Shop::setting($this->site, 'pickup_place'),
+            'whatsappUpdates' => WhatsApp::active(),
             'cartUrl' => Shop::url($this->site, 'cart'),
             'productsUrl' => Shop::url($this->site, 'products'),
         ]);

@@ -209,6 +209,81 @@ function photoViewer(t, onClose) {
   });
 })();
 
+// My account menu (header and phone tab bar): one open at a time; a tap elsewhere or Escape closes it.
+(function () {
+  function open() { return [].slice.call(document.querySelectorAll('details.account-menu[open]')); }
+  document.addEventListener('click', function (e) {
+    open().forEach(function (menu) { if (!menu.contains(e.target)) menu.open = false; });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    open().forEach(function (menu) { menu.open = false; menu.querySelector('summary').focus(); });
+  });
+})();
+
+// Orders on this phone: each order page the customer opens is remembered in this browser only (their own secret
+// links), so "Find your order" can list them without an account. Newest first, at most 10.
+(function () {
+  var KEY = 'dah-orders';
+  function read() {
+    try { var list = JSON.parse(localStorage.getItem(KEY)); return Array.isArray(list) ? list : []; } catch (e) { return []; }
+  }
+  var here = document.querySelector('[data-order-remember]');
+  if (here) {
+    var d = here.dataset;
+    var list = read().filter(function (o) { return o && o.number !== d.number; });
+    list.unshift({ number: d.number, url: location.pathname + location.search, iso: d.iso, date: d.date, total: d.total });
+    try { localStorage.setItem(KEY, JSON.stringify(list.slice(0, 10))); } catch (e) {}
+  }
+  var box = document.querySelector('[data-device-orders]');
+  if (!box) return;
+  var orders = read().filter(function (o) { return o && typeof o.url === 'string' && /^\/[^\/]/.test(o.url); });
+  if (!orders.length) return;
+  // The date in this page's language (it was saved on the order page, maybe in another language).
+  var lang = document.documentElement.lang || 'en';
+  function day(o) {
+    if (!o.iso) return o.date || '';
+    var date = new Date(o.iso + 'T12:00:00');
+    try {
+      return lang === 'hmn' ? date.toLocaleDateString('en-GB') : date.toLocaleDateString(lang, { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch (e) { return o.date || o.iso; }
+  }
+  var ul = box.querySelector('ul');
+  orders.forEach(function (o) {
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.className = 'order-line';
+    a.href = o.url;
+    var b = document.createElement('b');
+    b.textContent = o.number;
+    var small = document.createElement('small');
+    small.className = 'muted';
+    small.textContent = [day(o), o.total].filter(Boolean).join(' · ');
+    a.appendChild(b);
+    a.appendChild(small);
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
+  box.hidden = false;
+})();
+
+// The customer's receipts in the payment history on their order page (inside [data-receipts]): tap one to see it
+// large. Listens on the page, because Livewire redraws the history when they add a receipt.
+(function () {
+  var viewer;
+  document.addEventListener('click', function (e) {
+    var button = e.target.closest('[data-receipts] .receipt-thumb');
+    if (!button) return;
+    var wrap = button.closest('[data-receipts]');
+    var buttons = [].slice.call(wrap.querySelectorAll('.receipt-thumb'));
+    viewer = viewer || photoViewer(wrap.dataset);
+    viewer.open(buttons.map(function (one) {
+      var img = one.querySelector('img');
+      return { src: img.currentSrc || img.src, alt: img.alt };
+    }), buttons.indexOf(button));
+  });
+})();
+
 // Photos in news posts, events and stories (inside [data-photos]): tap or click one to see it large, then move
 // through all the page's photos. data-full is an uncropped large version; photos in the text are shown as they are.
 (function () {

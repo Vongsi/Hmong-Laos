@@ -70,6 +70,25 @@ return [
             'report' => false,
         ],
 
+        // Payment receipts customers upload (App\Shop\Receipts). Private: no URL, so only the control
+        // panel shows them (Assets → Receipts, and on the order).
+        'receipts' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/receipts'),
+            'visibility' => 'private',
+            'throw' => false,
+            'report' => false,
+        ],
+
+        // Screenshots of the transfers the team makes to sellers (Seller payouts). Private, like receipts.
+        'payout_proofs' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/payout-proofs'),
+            'visibility' => 'private',
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*

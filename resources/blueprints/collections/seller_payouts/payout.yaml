@@ -1,0 +1,139 @@
+title: Payout
+tabs:
+  main:
+    display: Payout
+    sections:
+    - display: Payout
+      instructions: 'Money the shop owes a member for their products in delivered, paid orders (App\Shop\SellerPayouts). 1) Prepared from the dashboard ("Seller payouts"): To pay. 2) Maker: transfer the amount to the account below (with the payout number in the transfer message), attach the screenshot, fill in the date and reference, and set "Sent". 3) Checker, another team member: check the screenshot against the bank and set "Paid" (the member is emailed), or set "To pay" with a note for the maker.'
+      fields:
+      - handle: title
+        field:
+          type: text
+          display: Payout
+          visibility: read_only
+      - handle: payout_number
+        field:
+          type: text
+          display: 'Payout number'
+          instructions: 'Given when it is prepared (PO-year-running number). Write it in the transfer message so the member recognises the money, and use it when talking about this payout.'
+          visibility: read_only
+          listable: true
+      - handle: payout_status
+        field:
+          type: select
+          display: Status
+          listable: true
+          default: to_pay
+          options:
+            to_pay: 'To pay: transfer the money first'
+            sent: 'Sent: waiting for a second person to check'
+            paid: 'Paid: checked'
+      - handle: seller
+        field:
+          type: users
+          display: Seller
+          max_items: 1
+          mode: select
+          visibility: read_only
+          listable: true
+          width: 50
+      - handle: amount
+        field:
+          type: integer
+          display: 'Amount to send (Kip)'
+          visibility: read_only
+          listable: true
+          width: 50
+      - handle: pay_to
+        field:
+          type: text
+          display: 'Send to (the member''s bank account)'
+          instructions: 'From their My account. Empty: ask them to add it before you transfer.'
+          visibility: computed
+      - handle: breakdown
+        field:
+          type: textarea
+          display: 'What it covers'
+          instructions: 'Order number · product × quantity · price, less the shop fee at the time.'
+          visibility: read_only
+    - display: 'The transfer (maker)'
+      instructions: 'Needed to set "Sent". Kept privately (Assets → Payout proofs).'
+      fields:
+      - handle: transfer_proof
+        field:
+          type: assets
+          display: 'Transfer screenshot'
+          instructions: 'The receipt from your banking app, or the transfer document (up to 3 pictures or PDFs).'
+          container: payout_proofs
+          max_files: 3
+          mode: grid
+          validate:
+            - 'required_unless:payout_status,to_pay'
+      - handle: paid_on
+        field:
+          type: date
+          display: 'Paid on'
+          width: 33
+          validate:
+            - 'required_unless:payout_status,to_pay'
+      - handle: method
+        field:
+          type: select
+          display: 'Paid by'
+          width: 33
+          default: transfer
+          options:
+            transfer: Bank transfer
+            onepay: BCEL One
+            cash: Cash
+      - handle: reference
+        field:
+          type: text
+          display: 'Bank reference'
+          instructions: 'From the transfer receipt. The member sees it.'
+          width: 33
+          listable: true
+          validate:
+            - 'required_unless:payout_status,to_pay'
+      - handle: note
+        field:
+          type: textarea
+          display: 'Message to the member (optional)'
+          instructions: 'Shown in their email and on My account.'
+    - display: 'Maker and checker'
+      fields:
+      - handle: made_by
+        field:
+          type: text
+          display: 'Sent by (maker)'
+          visibility: read_only
+          listable: true
+          width: 50
+      - handle: checked_by
+        field:
+          type: text
+          display: 'Checked by (checker)'
+          instructions: 'Must be a different team member (Shop settings: "Payouts need a second person").'
+          visibility: read_only
+          listable: true
+          width: 50
+      - handle: checker_note
+        field:
+          type: textarea
+          display: 'Checker''s note to the maker'
+          instructions: 'When something is wrong: set the status back to "To pay" and say what to fix. The maker sees it here and on the dashboard.'
+  sidebar:
+    display: Sidebar
+    sections:
+    - fields:
+      - handle: date
+        field:
+          type: date
+          display: Prepared
+          visibility: read_only
+      - handle: fee_percent
+        field:
+          type: integer
+          display: 'Shop fee (%)'
+          instructions: 'Taken off when this payout was prepared (Shop settings).'
+          visibility: read_only

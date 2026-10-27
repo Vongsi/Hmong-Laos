@@ -1,0 +1,6 @@
+/node_modules
+# The linked WhatsApp session and the message queue: private, and per server.
+/data
+/.wwebjs_auth
+/.wwebjs_cache
+.env

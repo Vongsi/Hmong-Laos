@@ -28,6 +28,32 @@ fields:
       max_files: 1
       container: assets
   -
+    handle: phone
+    field:
+      type: text
+      display: 'Mobile number (WhatsApp)'
+      instructions: 'From My account. Only the team sees it; checkout fills it in for the member.'
+      width: 50
+  -
+    handle: payout_bank
+    field:
+      type: text
+      display: 'Payout bank'
+      instructions: 'Where we send a seller''s money (Seller payouts). From My account.'
+      width: 33
+  -
+    handle: payout_account_name
+    field:
+      type: text
+      display: 'Payout account name'
+      width: 33
+  -
+    handle: payout_account_number
+    field:
+      type: text
+      display: 'Payout account number'
+      width: 33
+  -
     handle: province
     field:
       type: text

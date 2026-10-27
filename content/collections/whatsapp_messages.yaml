@@ -1,0 +1,8 @@
+title: 'WhatsApp messages'
+date: true
+sort_direction: desc
+sites: [hm]
+propagate: false
+revisions: false
+slugs: false
+search_index: whatsapp_messages

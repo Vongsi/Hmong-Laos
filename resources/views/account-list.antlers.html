@@ -1,0 +1,16 @@
+{{# One of My account's full lists (routes/web.php): the member's posts, products or orders, a page at a time. #}}
+<section class="account-page">
+    <p style="margin:0"><a href="{{ site:url | ensure_right('/') }}account">← {{ trans key="site.auth.back_to_account" }}</a></p>
+    <h1 style="font-size:clamp(28px,4.5vw,40px)">{{ title }}</h1>
+    {{ if logged_in }}
+        {{ if list == 'orders' }}
+            {{ livewire:my-orders mode="all" }}
+        {{ elseif list == 'payouts' }}
+            {{ livewire:my-earnings mode="all" }}
+        {{ else }}
+            {{ livewire:my-submissions :kind="list" mode="all" }}
+        {{ /if }}
+    {{ else }}
+        {{ livewire:account }}
+    {{ /if }}
+</section>

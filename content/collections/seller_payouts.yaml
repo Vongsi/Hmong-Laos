@@ -1,0 +1,7 @@
+title: 'Seller payouts'
+date: true
+sort_direction: desc
+sites: [hm]
+propagate: false
+revisions: false
+slugs: false

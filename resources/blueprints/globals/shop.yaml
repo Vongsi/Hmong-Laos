@@ -20,12 +20,80 @@ fields:
     display: Pick-up place
     instructions: Where customers collect orders, shown at checkout.
     localizable: true
+- handle: enable_onepay
+  field:
+    type: toggle
+    display: Accept BCEL One (OnePay QR)
+    instructions: 'Each order gets its own QR code with the amount and order number; when it is paid, the order is marked Paid by itself. Needs the OnePay merchant details in the server settings (ONEPAY_* in .env) and `php artisan onepay:listen` running. With BCEL''s test merchant, payments go to BCEL''s test shop.'
+    localizable: false
+    default: false
 - handle: enable_transfer
   field:
     type: toggle
     display: Accept bank transfer / QR
     localizable: false
     default: true
+- handle: seller_fee
+  field:
+    type: integer
+    display: 'Shop fee on members'' products (%)'
+    instructions: 'Kept by the shop from each item members sell through "Sell with us"; the rest is paid to them (dashboard → Seller payouts). 0 = they get the full price. A change applies to payouts prepared after it.'
+    localizable: false
+    default: 0
+    width: 50
+    validate:
+      - 'nullable'
+      - 'integer'
+      - 'min:0'
+      - 'max:50'
+- handle: payout_needs_checker
+  field:
+    type: toggle
+    display: 'Payouts need a second person'
+    instructions: 'On: the team member who sends a payout (attaches the screenshot and sets "Sent") cannot also confirm it; another team member checks it and sets "Paid". Turn off only while one person does everything.'
+    localizable: false
+    default: true
+    width: 50
+- handle: read_receipts
+  field:
+    type: toggle
+    display: Check receipts automatically
+    instructions: 'Customers who pay by bank transfer can add the receipt from their banking app. With this on, Claude (Anthropic''s AI) reads it, and the order and the team email show whether amount, receiver (the account below), time and references match the order. You still confirm in the bank app before setting Paid. Needs ANTHROPIC_API_KEY in the server settings (.env); each receipt costs about 0.1 US cent.'
+    localizable: false
+    default: true
+- handle: whatsapp_updates
+  field:
+    type: toggle
+    display: WhatsApp updates to buyers
+    instructions: 'Buyers get a message about their order on WhatsApp, from the shop''s own number, in their language. Needs the WhatsApp sender running on the server and the shop''s phone linked (dashboard → WhatsApp updates to buyers). It works through WhatsApp Web, which WhatsApp doesn''t officially allow for businesses: keep it to these order updates, never adverts, so the number isn''t blocked. Off: nobody gets WhatsApp messages; you still get the ready-made links by email.'
+    localizable: false
+    default: true
+    width: 50
+- handle: whatsapp_events
+  field:
+    type: checkboxes
+    display: Send a WhatsApp message when
+    instructions: Fewer messages are kinder to buyers and safer for the number.
+    localizable: false
+    width: 50
+    default:
+      - received
+      - confirmed
+      - paid
+      - rejected
+      - shipped
+      - completed
+      - cancelled
+    options:
+      received: An order comes in
+      confirmed: You set Confirmed
+      paid: The payment is received (Paid)
+      rejected: A payment is not accepted
+      shipped: 'You set Sent / ready to pick up'
+      completed: You set Completed
+      cancelled: The order is cancelled (by you or the buyer)
+    if:
+      whatsapp_updates: true
 - handle: enable_cash
   field:
     type: toggle

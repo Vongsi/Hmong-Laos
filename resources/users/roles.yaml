@@ -3,7 +3,8 @@
 #   permissions:
 #     - super
 
-# Reviews and publishes what members send through "Sell with us" (products) and "Share" (news, events,
+# All member content in one role (or use the team roles below for one area each): reviews and publishes what
+# members send through "Sell with us" (products) and "Share" (news, events,
 # stories), and manages those. Cannot see orders, customers, users, pages or settings.
 # Assign it under Users → (member) → Roles.
 moderator:
@@ -55,3 +56,104 @@ moderator:
     - rename assets assets
     - delete assets assets
     - view suggest_product form submissions
+
+# Runs the shop day to day: orders (status, payment, delivery, "Not accepted"), the Payments list (ticking "Cash
+# handed in"), customers' receipts, and Seller payouts as maker or checker (preparing, attaching the transfer
+# screenshot, sending, confirming). Reads the WhatsApp messages log (what was sent to buyers). Cannot delete payouts or payments, see users, change Shop settings or edit
+# products and posts. A payout needs two people: two Shop team members, or one and an admin.
+# Assign it under Users → (member) → Roles.
+shop_team:
+  title: Shop team
+  permissions:
+    - access cp
+    - access hm site
+    - access lo site
+    - access en site
+    - view orders entries
+    - edit orders entries
+    - view payments entries
+    - edit payments entries
+    - view seller_payouts entries
+    - create seller_payouts entries
+    - edit seller_payouts entries
+    - view whatsapp_messages entries
+    - view products entries
+    - view receipts assets
+    - view payout_proofs assets
+    - upload payout_proofs assets
+
+# Product catalog team: the shop's products (members' "Sell with us" ones too: review, publish, ask for changes),
+# their categories and colours, and product photos. No orders, payments or other content.
+product_catalog:
+  title: Product catalog team
+  permissions:
+    - access cp
+    - access hm site
+    - access lo site
+    - access en site
+    - view products entries
+    - edit products entries
+    - create products entries
+    - delete products entries
+    - publish products entries
+    - view product_categories terms
+    - edit product_categories terms
+    - create product_categories terms
+    - view colours terms
+    - edit colours terms
+    - create colours terms
+    - view provinces terms
+    - view assets assets
+    - upload assets assets
+    - edit assets assets
+    - view suggest_product form submissions
+
+# Event team: events (members' too: review, publish, ask for changes) and their photos.
+event_team:
+  title: Event team
+  permissions:
+    - access cp
+    - access hm site
+    - access lo site
+    - access en site
+    - view events entries
+    - edit events entries
+    - create events entries
+    - delete events entries
+    - publish events entries
+    - view provinces terms
+    - view topics terms
+    - view assets assets
+    - upload assets assets
+    - edit assets assets
+
+# Feed team: Feed posts (members' too: review, publish, ask for changes) and Inspire stories, with their photos and
+# "Suggest a person" for Inspire.
+feed_team:
+  title: Feed team
+  permissions:
+    - access cp
+    - access hm site
+    - access lo site
+    - access en site
+    - view posts entries
+    - edit posts entries
+    - create posts entries
+    - delete posts entries
+    - publish posts entries
+    # News posts have an author (the member who sent it), so these are needed to review them.
+    - edit other authors posts entries
+    - publish other authors posts entries
+    - delete other authors posts entries
+    - view interviews entries
+    - edit interviews entries
+    - create interviews entries
+    - delete interviews entries
+    - publish interviews entries
+    - view categories terms
+    - view topics terms
+    - view provinces terms
+    - view assets assets
+    - upload assets assets
+    - edit assets assets
+    - view suggest_person form submissions

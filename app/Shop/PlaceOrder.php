@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Statamic\Contracts\Assets\Asset as AssetContract;
 use Statamic\Contracts\Entries\Entry as EntryContract;
 use Statamic\Facades\Entry;
 use Throwable;
@@ -61,6 +62,8 @@ class PlaceOrder
                         'unit_price' => $line->unitPrice,
                         'line_total' => $line->lineTotal,
                         'product_id' => $line->product->id(),
+                        // The member who sells it ("Sell with us"), whom the team pays (App\Shop\SellerPayouts).
+                        'seller' => ((array) $line->product->get('submitted_by'))[0] ?? null,
                     ])->all(),
                     'subtotal' => $subtotal,
                     'delivery_fee' => $deliveryFee,
@@ -76,6 +79,8 @@ class PlaceOrder
                     'status' => 'new',
                     'payment_status' => 'pending',
                     'payment_method' => $customer['payment'],
+                    // BCEL One: the reference in the order's QR code, which BCEL sends back when it is paid.
+                    'onepay_ref' => $customer['payment'] === 'onepay' ? OnePay::newReference() : null,
                     // What the courier collects for us (Anousith's COD) when a cash order is delivered.
                     'cod_amount' => $customer['payment'] === 'cash' && $customer['delivery'] === 'delivery' ? $subtotal + $deliveryFee : null,
                 ]);
@@ -100,8 +105,28 @@ class PlaceOrder
         return $order;
     }
 
-    /** Emails the team, with an optional ready-made WhatsApp message for the customer. A mail problem must never lose the order. */
-    public static function notifyTeam(EntryContract $order, string $subject, ?string $whatsappUrl = null): void
+    /**
+     * Puts a cancelled order's items back in stock (+1), or takes them out again when it is un-cancelled (-1).
+     * Only products that count stock; one at a time, like placing an order. saveQuietly, as when ordering.
+     */
+    public static function restock(EntryContract $order, int $direction): void
+    {
+        Cache::lock('shop:place-order', 15)->block(10, function () use ($order, $direction) {
+            foreach (collect((array) $order->get('items'))->groupBy('product_id') as $productId => $items) {
+                $product = $productId ? Entry::find($productId)?->root() : null;
+                if (! $product || Shop::available($product) === null) {
+                    continue;
+                }
+                $product->set('stock', max(0, Shop::available($product) + $direction * (int) $items->sum('quantity')))->saveQuietly();
+            }
+        });
+    }
+
+    /**
+     * Emails the team, with an optional ready-made WhatsApp message for the customer, or the payment receipt the
+     * customer added. A mail problem must never lose the order.
+     */
+    public static function notifyTeam(EntryContract $order, string $subject, ?string $whatsappUrl = null, ?AssetContract $receipt = null): void
     {
         $to = Shop::setting('hm', 'notify_email');
 
@@ -112,7 +137,7 @@ class PlaceOrder
         }
 
         try {
-            Mail::to($to)->send(new OrderNotice($order, $subject, $whatsappUrl));
+            Mail::to($to)->send(new OrderNotice($order, $subject, $whatsappUrl, $receipt));
         } catch (Throwable $e) {
             Log::error("Shop: could not email the team about order {$order->get('title')}: {$e->getMessage()}");
         }

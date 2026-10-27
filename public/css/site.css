@@ -53,6 +53,24 @@ select option{background-color:var(--surface);color:var(--ink)}
 .btn{border:0;border-radius:10px;padding:9px 16px;font-weight:700;cursor:pointer;background:var(--indigo);color:var(--on-accent)}
 .btn.red{background:var(--red)}
 .btn.ghost{background:none;border:1px solid var(--line);color:var(--ink)}
+/* Pop-up confirmation (cancel order): centred on computers, a sheet sliding up from the bottom on phones. */
+.modal-backdrop{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(10,12,30,.55);backdrop-filter:blur(2px);animation:modal-fade .15s ease-out}
+.modal{width:100%;max-width:440px;max-height:calc(100vh - 32px);overflow:auto;display:flex;flex-direction:column;gap:14px;padding:24px;background:var(--surface);color:var(--ink);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);animation:modal-pop .18s ease-out}
+.modal p{margin:0}
+.modal .field input{width:100%}
+.modal-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--red) 14%,transparent);color:var(--red);font-size:24px;font-weight:800}
+.modal-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;margin-top:6px}
+body:has(.modal-backdrop){overflow:hidden}
+@keyframes modal-fade{from{opacity:0}}
+@keyframes modal-pop{from{opacity:0;transform:scale(.96)}}
+@keyframes modal-up{from{transform:translateY(100%)}}
+@media (max-width:560px){
+  .modal-backdrop{align-items:flex-end;padding:0}
+  .modal{max-width:none;border-radius:20px 20px 0 0;padding:22px 18px calc(18px + env(safe-area-inset-bottom,0px));animation:modal-up .22s ease-out}
+  .modal-actions{flex-direction:column-reverse}
+  .modal-actions .btn{width:100%;padding:13px 16px}
+}
+@media (prefers-reduced-motion:reduce){.modal-backdrop,.modal{animation:none}}
 .btn:disabled{opacity:.6;cursor:default}
 
 /* paj ntaub stitched band: the one decorative flourish */
@@ -188,6 +206,7 @@ p{margin:0}
 .phase{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .phase .panel .eyebrow{color:var(--indigo)}
 .note{background:var(--surface-2);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--ink-2)}
+.note.warn{border-left:4px solid var(--red);color:var(--ink)}
 
 /* join / sign in */
 .join{max-width:440px;margin:8px auto 0;display:flex;flex-direction:column;gap:18px}
@@ -324,7 +343,7 @@ img{max-width:100%;height:auto;display:block}
 a.btn{text-decoration:none;display:inline-block}
 .cover{border-radius:12px;width:100%;aspect-ratio:16/10;object-fit:cover}
 .portrait img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.pagination{display:flex;gap:8px;justify-content:center;margin-top:24px}
+.pagination{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:24px}
 /* Block flow (not flex) so text can wrap around photos placed left or right. */
 .prose{display:flow-root;font-size:16px;max-width:65ch}
 .prose>*{margin:0}
@@ -339,6 +358,23 @@ a.btn{text-decoration:none;display:inline-block}
 .tabbar a span{max-width:100%;text-align:center;line-height:1.15;font-size:10.5px;overflow-wrap:anywhere}
 .tabbar svg{width:22px;height:22px}
 .tabbar a[aria-current="page"]{color:var(--red)}
+/* My account menu (header, and the phone tab bar where it opens upwards): My profile, Sign out. */
+.account-menu{position:relative}
+.account-menu > summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.account-menu > summary::-webkit-details-marker{display:none}
+.account-menu .chev{width:14px;height:14px;transition:transform .15s}
+.account-menu[open] .chev{transform:rotate(180deg)}
+.account-menu .menu{position:absolute;right:0;top:calc(100% + 8px);z-index:60;min-width:210px;padding:6px;display:flex;flex-direction:column;gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 36px rgba(10,12,30,.18);animation:modal-fade .12s ease-out}
+.account-menu .menu a{display:flex;flex-direction:row;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;color:var(--ink);font-size:15px;font-weight:600;text-decoration:none;white-space:nowrap}
+.account-menu .menu a:hover,.account-menu .menu a:focus-visible{background:var(--surface-2)}
+.account-menu .menu a span{max-width:none;font-size:15px;line-height:1.3}
+.account-menu .menu svg{width:18px;height:18px;flex-shrink:0}
+.account-menu .menu .menu-out{color:var(--red)}
+.tabbar .account-menu{display:flex;justify-content:center;min-width:0}
+.tabbar .account-menu > summary{flex-direction:column;gap:2px;padding:4px 2px;color:var(--ink-2);font-size:11px;font-weight:600;min-width:0}
+.tabbar .account-menu > summary span{max-width:100%;text-align:center;line-height:1.15;font-size:10.5px;overflow-wrap:anywhere}
+.tabbar .account-menu > summary[aria-current="page"],.tabbar .account-menu[open] > summary{color:var(--red)}
+.tabbar .account-menu .menu{top:auto;bottom:calc(100% + 12px);right:4px}
 .chip{text-decoration:none;color:inherit}
 .chip[aria-current="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .sso{text-decoration:none;color:inherit}
@@ -431,6 +467,16 @@ a.btn{text-decoration:none;display:inline-block}
 .pay-box{display:flex;flex-direction:column;gap:14px;padding:18px;background:var(--surface);border:2px solid var(--indigo);border-radius:16px}
 .pay-grid{display:flex;flex-wrap:wrap;align-items:flex-start;gap:18px}
 .qr{width:220px;height:220px;padding:8px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:12px}
+.receipt-form input[type=file]{padding:8px;font-size:14px;max-width:100%;cursor:pointer}
+.receipt-form input[type=file]::file-selector-button{margin-right:10px;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--surface-2);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+.receipt-preview{width:140px;max-height:260px;object-fit:contain;object-position:left top;border:1px solid var(--line);border-radius:10px;background:#fff}
+.history{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.history li{display:flex;flex-direction:column;gap:4px;padding-left:12px;border-left:3px solid var(--line)}
+.history li.history-rejected{border-left-color:var(--red)}
+.history li.history-paid{border-left-color:var(--green)}
+.history p{margin:0;white-space:pre-line;font-size:14px}
+.receipt-thumb{align-self:flex-start;padding:0;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:zoom-in;overflow:hidden}
+.receipt-thumb img{display:block;width:96px;height:160px;object-fit:cover;object-position:top}
 @media (max-width:860px){.product-layout,.checkout{grid-template-columns:1fr}.order-summary{position:static}}
 @media (max-width:640px){
   .product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -536,6 +582,48 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 @media (max-width:420px){.sell-row{grid-template-columns:1fr}}
 .sell-link{gap:2px;color:inherit;text-decoration:none}
 .sell-link:hover{border-color:var(--indigo)}
+.order-line{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);color:inherit;text-decoration:none}
+.order-line small{display:block}
+.order-line:hover b{color:var(--indigo)}
+/* My account: the details and password first (side by side on computers), then posts, products and orders. */
+.account-page{display:flex;flex-direction:column;gap:20px;width:100%}
+.account-top{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:20px;align-items:start}
+.account-top > .panel{grid-column:1/-1}
+.account-side{display:flex;flex-direction:column;gap:20px;min-width:0}
+.account-details .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.account-details .field input,.account-details .field select{width:100%}
+.account-sections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+.account-section{gap:0;min-width:0}
+.account-section-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}
+.account-section > .btn,.account-section > p{margin-top:12px}
+.earn-summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 20px;margin:0 0 8px;font-size:15px}
+.sub-row{display:flex;align-items:center;gap:12px;padding:10px 4px;border-top:1px solid var(--line);color:inherit;text-decoration:none;border-radius:10px}
+.sub-row:hover{background:var(--surface-2)}
+.sub-row img,.sub-ph{width:48px;height:48px;border-radius:10px;object-fit:cover;flex-shrink:0;background:var(--surface-2)}
+.sub-row .order-main{flex:1}
+.account-foot{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:18px;margin:0}
+.account-password summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.account-password summary::-webkit-details-marker{display:none}
+.account-password summary::after{content:"+";font-size:22px;font-weight:700;color:var(--ink-2)}
+.account-password[open] summary::after{content:"−"}
+.account-password[open] summary{margin-bottom:6px}
+@media (max-width:860px){.account-top,.account-sections{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:520px){.account-details .form-grid{grid-template-columns:1fr}}
+.my-orders{gap:0}
+.my-orders h2{margin-bottom:8px}
+.order-row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 4px;border-top:1px solid var(--line);color:inherit;text-decoration:none;border-radius:10px}
+.order-row:hover{background:var(--surface-2)}
+.order-main{display:flex;flex-direction:column;gap:2px;min-width:0}
+.order-items{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.order-side{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;text-align:right}
+.order-action{font-size:13px;font-weight:700;color:var(--red)}
+.my-orders > .btn,.my-orders > p{margin-top:12px}
+.badge{display:inline-flex;align-items:center;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.badge.green{background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--green)}
+.badge.amber{background:color-mix(in srgb,var(--gold) 24%,transparent);color:color-mix(in srgb,var(--gold) 55%,var(--ink))}
+.badge.blue{background:color-mix(in srgb,var(--indigo) 14%,transparent);color:var(--indigo)}
+.badge.red{background:color-mix(in srgb,var(--red) 14%,transparent);color:var(--red)}
+.badge.grey{background:var(--surface-2);color:var(--ink-2)}
 
 /* Share: news, events and stories from members */
 .share-types{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
@@ -581,10 +669,9 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 .rte-status{margin:0;padding:6px 12px;font-size:13px;font-weight:600;color:var(--ink-2);border-top:1px solid var(--line)}
 .rte-status.error{color:var(--red)}
 
-/* Share page: more room on big screens */
-.share-page{max-width:640px}
+/* Share and Sell with us: the full page width, like the other pages (main), not the narrow sign-in box */
+.join.page-wide{max-width:none;margin-top:0}
 @media (min-width:900px){
-  .share-page{max-width:920px}
   .rte .rte-area{min-height:200px;padding:14px 18px;font-size:16px}
   .rte.tall .rte-area{min-height:420px}
 }
@@ -613,3 +700,14 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 .rte-btn.danger{color:var(--red)}
 .zoomable{cursor:zoom-in}
 .zoomable:hover{filter:brightness(.96)}
+
+/* BCEL One (OnePay) on the order page */
+.onepay-qr{flex:none;width:220px;max-width:100%;padding:8px;background:#fff;border:3px solid #b11;border-radius:12px}
+.onepay-qr svg{display:block;width:100%;height:auto}
+.onepay-app{align-self:flex-start}
+/* No app to open on a computer (mouse and hover); a.btn would otherwise show it. */
+@media (hover:hover) and (pointer:fine){.onepay-box a.onepay-app{display:none}}
+.onepay-waiting{display:flex;align-items:center;gap:8px;margin:0;font-weight:600}
+.spinner{flex:none;width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--indigo);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spinner{animation:none}}

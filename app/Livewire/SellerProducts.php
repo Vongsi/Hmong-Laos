@@ -80,6 +80,8 @@ class SellerProducts extends Component
     {
         $this->resetForm();
         $this->maker = (string) Auth::user()?->name;
+        // The mobile number from My account, if they gave one.
+        $this->contact = (string) Auth::user()?->phone;
         $this->mode = 'form';
     }
 

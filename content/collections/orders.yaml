@@ -4,3 +4,4 @@ sort_direction: desc
 sites: [hm]
 propagate: false
 revisions: false
+search_index: orders

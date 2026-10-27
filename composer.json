@@ -11,6 +11,7 @@
     ],
     "require": {
         "php": "^8.3",
+        "bacon/bacon-qr-code": "^3.0",
         "laravel-notification-channels/webpush": "^13.0.1",
         "laravel/framework": "^13.17",
         "laravel/reverb": "^1.12",
@@ -18,6 +19,7 @@
         "laravel/tinker": "^3.0",
         "livewire/livewire": "^4.4",
         "marcorieser/statamic-livewire": "^5.3",
+        "pubnub/pubnub": "^10.1",
         "statamic/cms": "^6.0",
         "statamic/eloquent-driver": "^5.12"
     },

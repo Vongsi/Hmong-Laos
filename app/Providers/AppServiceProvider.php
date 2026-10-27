@@ -4,11 +4,23 @@ namespace App\Providers;
 
 use App\Bard\PhotoNode;
 use App\Bard\StatamicPhotoNode;
+use App\Http\Controllers\CP\SellerPayoutController;
+use App\Http\Controllers\CP\WhatsAppController;
 use App\Listeners\NotifyEntryByPush;
+use App\Listeners\SendOrderWhatsApp;
 use App\Listeners\ShareEntryToFacebook;
+use App\Listeners\TrackCashHandIn;
 use App\Listeners\TrackMemberSubmission;
 use App\Listeners\TrackOrderDelivery;
+use App\Listeners\TrackOrderPayment;
+use App\Listeners\TrackSellerPayout;
+use App\Models\User;
+use App\Search\AllWordsIndex;
 use App\Services\FacebookPage;
+use App\Shop\OnePay;
+use App\Shop\Payments;
+use App\Shop\SellerPayouts;
+use App\Shop\WhatsApp;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\DevCommands;
 use Illuminate\Http\Request;
@@ -16,6 +28,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -24,6 +37,8 @@ use Statamic\Events\EntrySaved;
 use Statamic\Events\EntrySaving;
 use Statamic\Events\FormSubmitted;
 use Statamic\Events\UserRegistering;
+use Statamic\Facades\Collection;
+use Statamic\Facades\Search;
 use Statamic\Fieldtypes\Bard\Augmentor;
 use Statamic\Fieldtypes\Bard\StatamicImageNode;
 use Statamic\Statamic;
@@ -51,13 +66,40 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(EntrySaved::class, NotifyEntryByPush::class);
         Event::listen(EntrySaving::class, [TrackOrderDelivery::class, 'saving']);
         Event::listen(EntrySaved::class, [TrackOrderDelivery::class, 'saved']);
+        Event::listen(EntrySaving::class, [TrackOrderPayment::class, 'saving']);
+        Event::listen(EntrySaved::class, [TrackOrderPayment::class, 'saved']);
+        Event::listen(EntrySaving::class, [SendOrderWhatsApp::class, 'saving']);
+        Event::listen(EntrySaved::class, [SendOrderWhatsApp::class, 'saved']);
+        Event::listen(EntrySaving::class, [TrackSellerPayout::class, 'saving']);
+        Event::listen(EntrySaved::class, [TrackSellerPayout::class, 'saved']);
+        Event::listen(EntrySaving::class, [TrackCashHandIn::class, 'saving']);
         Event::listen(EntrySaving::class, [TrackMemberSubmission::class, 'saving']);
         Event::listen(EntrySaved::class, [TrackMemberSubmission::class, 'saved']);
 
         // Photos in Bard text keep a size and position (app/Bard/PhotoLayout.php). In the control panel,
         // public/vendor/app/js/cp.js and css/cp.css show them and add buttons to change them.
         Augmentor::replaceExtension('image', fn ($image) => $image instanceof StatamicImageNode ? new StatamicPhotoNode : new PhotoNode);
-        Statamic::script('app', 'cp.js?v=5');
+        // An order's payment history for the team, read only (App\Shop\Payments): never saved from the control panel,
+        // so a save there can't drop what the customer added meanwhile.
+        Collection::computed('orders', 'payment_log', fn ($order) => Payments::historyText($order));
+        Collection::computed('orders', 'receipts', fn ($order) => Payments::receipts($order) ?: null);
+        // Its WhatsApp updates to the buyer, from the WhatsApp messages log (App\Shop\WhatsApp), and the dashboard's
+        // "WhatsApp updates to buyers".
+        Collection::computed('orders', 'whatsapp_messages', fn ($order) => WhatsApp::messages($order)->map->id()->all() ?: null);
+        // The search box above the Orders and WhatsApp messages lists: every word typed must match (App\Search).
+        Search::extend('local_all_words', fn ($app, array $config, string $name, ?string $locale) => new AllWordsIndex($name, $config, $locale));
+        Statamic::pushCpRoutes(function () {
+            Route::get('whatsapp/widget', [WhatsAppController::class, 'widget'])->name('whatsapp.widget');
+            Route::post('whatsapp/test', [WhatsAppController::class, 'test'])->name('whatsapp.test');
+            Route::post('whatsapp/resend/{id}', [WhatsAppController::class, 'resend'])->name('whatsapp.resend');
+            Route::post('whatsapp/unlink', [WhatsAppController::class, 'unlink'])->name('whatsapp.unlink');
+        });
+
+        // Seller payouts (App\Shop\SellerPayouts): where to send the money, and "Prepare payout" on the dashboard.
+        Collection::computed(SellerPayouts::COLLECTION, 'pay_to', fn ($payout) => SellerPayouts::payTo(User::find(((array) $payout->get('seller'))[0] ?? null)) ?? 'Not given yet: ask the member to add it on My account.');
+        Statamic::pushCpRoutes(fn () => Route::post('seller-payouts/prepare', [SellerPayoutController::class, 'prepare'])->name('seller-payouts.prepare'));
+
+        Statamic::script('app', 'cp.js?v=6');
         Statamic::style('app', 'cp.css?v=3');
 
         // Site URLs are relative ("/", "/lo/", "/en/"), so links use the address the visitor came in on.
@@ -75,6 +117,14 @@ class AppServiceProvider extends ServiceProvider
             DevCommands::artisan('serve --no-reload', 'web')->blue();
             DevCommands::artisan('reverb:start', 'reverb')->green();
             DevCommands::artisan('schedule:work', 'scheduler')->purple();
+            // BCEL One payments, once the OnePay details are in .env.
+            if (OnePay::configured()) {
+                DevCommands::artisan('onepay:listen', 'onepay')->yellow();
+            }
+            // WhatsApp updates to buyers, once WHATSAPP_SENDER_* are in .env and whatsapp-sender/ is installed.
+            if (WhatsApp::configured() && is_dir(base_path('whatsapp-sender/node_modules'))) {
+                DevCommands::artisan('whatsapp:sender', 'whatsapp')->pink();
+            }
         }
 
         // Carbon has no Hmong, so "5 minutes ago" would stay English on the Hmong site.

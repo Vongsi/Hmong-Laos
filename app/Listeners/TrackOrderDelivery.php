@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Mail\OrderShipped;
+use App\Shop\OrderMessages;
 use App\Shop\PlaceOrder;
 use App\Shop\Shop;
 use Illuminate\Support\Facades\Log;
@@ -15,6 +16,7 @@ use Throwable;
 /**
  * Follows an order's delivery as the team updates it in the control panel.
  * - Stamps when it was paid, sent and completed, for the customer's timeline.
+ * - Cancelled before it was sent: puts its items back in stock (and takes them out again if un-cancelled).
  * - The first time it becomes "Sent / ready to pick up", emails the customer (if they gave an email)
  *   and emails the team a ready-made WhatsApp message for the customer. Only once: a marker that isn't
  *   in the blueprint is kept, because the control panel merges its values into the order.
@@ -42,6 +44,15 @@ class TrackOrderDelivery
         }
         if ($status === 'completed' && ! $order->get('delivered_at')) {
             $order->set('delivered_at', $now);
+        }
+        // Cancelled before it was sent (by the team or the customer): its items go back in stock, once. Un-cancelled:
+        // taken out again.
+        if ($status === 'cancelled' && ! $order->get('restocked_at') && ! $order->get('shipped_at')) {
+            PlaceOrder::restock($order, +1);
+            $order->set('restocked_at', $now);
+        } elseif ($status !== 'cancelled' && $order->get('restocked_at')) {
+            PlaceOrder::restock($order, -1);
+            $order->set('restocked_at', null);
         }
         if ($status === 'shipped' && ! $order->get('shipped_notified_at')) {
             $order->set('shipped_notified_at', $now);
@@ -78,18 +89,6 @@ class TrackOrderDelivery
             }
         }
 
-        PlaceOrder::notifyTeam($order, "Order {$params['number']} marked as sent", Shop::whatsappUrl($order->get('customer_phone'), self::message($params, $pickup, $lang)));
-    }
-
-    /** The WhatsApp text for the customer, in their language. */
-    private static function message(array $params, bool $pickup, string $lang): string
-    {
-        $lines = [trans($pickup ? 'site.shop.msg_ready' : 'site.shop.msg_sent', $params, $lang)];
-        if (! $pickup && $params['tracking']) {
-            $lines[] = trans('site.shop.msg_tracking', $params, $lang);
-        }
-        $lines[] = trans('site.shop.msg_follow', $params, $lang);
-
-        return implode("\n", $lines);
+        PlaceOrder::notifyTeam($order, "Order {$params['number']} marked as sent", Shop::whatsappUrl($order->get('customer_phone'), OrderMessages::text($order, ['shipped'])));
     }
 }

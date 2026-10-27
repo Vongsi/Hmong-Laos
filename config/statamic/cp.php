@@ -55,6 +55,12 @@ return [
     'widgets' => [
         // What members sent that a moderator still has to check (app/Widgets/WaitingForReview.php).
         ['type' => 'waiting_for_review', 'width' => 100, 'can' => ['edit products entries', 'edit posts entries', 'edit events entries', 'edit interviews entries']],
+        // What the shop owes members for their products, and "Prepare payout" (app/Widgets/SellerPayouts.php).
+        ['type' => 'seller_payouts', 'width' => 100, 'can' => ['create seller_payouts entries']],
+        // Cash received but not yet handed in to the shop, by who has it (app/Widgets/CashOnHand.php).
+        ['type' => 'cash_on_hand', 'width' => 100, 'can' => ['edit payments entries']],
+        // WhatsApp updates to buyers: link the shop's phone, test, latest messages (app/Widgets/WhatsAppSender.php).
+        ['type' => 'whatsapp_sender', 'width' => 100, 'can' => ['edit orders entries']],
     ],
 
     /*

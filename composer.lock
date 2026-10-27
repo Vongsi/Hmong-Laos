@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e76e32fe05f787645a204bcf8cf75d92",
+    "content-hash": "ce93114c692650efdf0bad51b886d513",
     "packages": [
         {
             "name": "ajthinking/archetype",
@@ -5492,6 +5492,73 @@
             "time": "2026-06-29T15:41:09+00:00"
         },
         {
+            "name": "pubnub/pubnub",
+            "version": "10.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pubnub/php.git",
+                "reference": "15d76a33711d5781e82a2849a4c57f8dfb6c4992"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pubnub/php/zipball/15d76a33711d5781e82a2849a4c57f8dfb6c4992",
+                "reference": "15d76a33711d5781e82a2849a4c57f8dfb6c4992",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.9",
+                "php": ">=8.1",
+                "psr/log": "^1.1|^2.0|^3.0",
+                "rmccue/requests": "^2.0"
+            },
+            "require-dev": {
+                "behat/behat": "^3.14",
+                "monolog/monolog": "^2.9 || ^3.0",
+                "phpstan/phpstan": "^1.8",
+                "phpunit/phpunit": "^9.5",
+                "squizlabs/php_codesniffer": "^3.7",
+                "vlucas/phpdotenv": "^5.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PubNub\\": "src/PubNub",
+                    "PubNubTests\\": "tests"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "proprietary"
+            ],
+            "authors": [
+                {
+                    "name": "PubNub",
+                    "email": "support@pubnub.com"
+                }
+            ],
+            "description": "PubNub SDK for PHP. Publish/subscribe messaging over HTTP long-poll with server-assigned message ordering, channel occupancy via Here Now, and message history through Message Persistence.",
+            "homepage": "https://www.pubnub.com",
+            "keywords": [
+                "chat",
+                "long-poll",
+                "message-history",
+                "message-ordering",
+                "messaging",
+                "occupancy",
+                "presence",
+                "publish-subscribe",
+                "pubnub",
+                "pubsub",
+                "real-time",
+                "realtime"
+            ],
+            "support": {
+                "issues": "https://github.com/pubnub/php/issues",
+                "source": "https://github.com/pubnub/php/tree/10.1.0"
+            },
+            "time": "2026-10-20T17:48:51+00:00"
+        },
+        {
             "name": "pusher/pusher-php-server",
             "version": "7.3.0",
             "source": {
@@ -6496,6 +6563,90 @@
                 "source": "https://github.com/rhukster/dom-sanitizer/tree/1.0.19"
             },
             "time": "2026-09-30T16:45:11+00:00"
+        },
+        {
+            "name": "rmccue/requests",
+            "version": "v2.0.21",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/WordPress/Requests.git",
+                "reference": "81c4078c227a2edf154862d1486bb59281da1e03"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/WordPress/Requests/zipball/81c4078c227a2edf154862d1486bb59281da1e03",
+                "reference": "81c4078c227a2edf154862d1486bb59281da1e03",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "php-parallel-lint/php-console-highlighter": "^0.5.0",
+                "php-parallel-lint/php-parallel-lint": "^1.4.0",
+                "phpcompatibility/php-compatibility": "^10.0.0@dev",
+                "requests/test-server": "dev-main",
+                "wp-coding-standards/wpcs": "^3.1",
+                "yoast/phpunit-polyfills": "^1.1.5"
+            },
+            "suggest": {
+                "art4/requests-psr18-adapter": "For using Requests as a PSR-18 HTTP Client",
+                "ext-curl": "For improved performance",
+                "ext-openssl": "For secure transport support",
+                "ext-zlib": "For improved performance when decompressing encoded streams"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "library/Deprecated.php"
+                ],
+                "psr-4": {
+                    "WpOrg\\Requests\\": "src/"
+                },
+                "classmap": [
+                    "library/Requests.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "ISC"
+            ],
+            "authors": [
+                {
+                    "name": "Ryan McCue",
+                    "homepage": "https://rmccue.io/"
+                },
+                {
+                    "name": "Alain Schlesser",
+                    "homepage": "https://github.com/schlessera"
+                },
+                {
+                    "name": "Juliette Reinders Folmer",
+                    "homepage": "https://github.com/jrfnl"
+                },
+                {
+                    "name": "Contributors",
+                    "homepage": "https://github.com/WordPress/Requests/graphs/contributors"
+                }
+            ],
+            "description": "A HTTP library written in PHP, for human beings.",
+            "homepage": "https://requests.ryanmccue.info/",
+            "keywords": [
+                "curl",
+                "fsockopen",
+                "http",
+                "idna",
+                "ipv6",
+                "iri",
+                "sockets"
+            ],
+            "support": {
+                "docs": "https://requests.ryanmccue.info/",
+                "issues": "https://github.com/WordPress/Requests/issues",
+                "source": "https://github.com/WordPress/Requests"
+            },
+            "time": "2026-10-20T19:26:33+00:00"
         },
         {
             "name": "scrivo/highlight.php",

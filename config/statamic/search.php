@@ -1,5 +1,7 @@
 <?php
 
+use App\Search\PhoneVariants;
+
 return [
 
     /*
@@ -31,10 +33,23 @@ return [
             'fields' => ['title'],
         ],
 
-        // 'blog' => [
-        //     'driver' => 'local',
-        //     'searchables' => 'collection:blog',
-        // ],
+        // The control panel's search box above the Orders and WhatsApp messages lists: by customer name, phone (as
+        // people type it, App\Search\PhoneVariants), email or tracking number, not only the order number; every word
+        // typed must match (App\Search\AllWordsIndex). Built on the first search and kept up to date as entries are
+        // saved (App\Shop\WhatsApp updates its quiet saves itself); `php please search:update orders` /
+        // `whatsapp_messages` rebuilds one.
+        'orders' => [
+            'driver' => 'local_all_words',
+            'searchables' => 'collection:orders',
+            'fields' => ['title', 'customer_name', 'customer_phone', 'customer_email', 'tracking_number'],
+            'transformers' => ['customer_phone' => PhoneVariants::class],
+        ],
+        'whatsapp_messages' => [
+            'driver' => 'local_all_words',
+            'searchables' => 'collection:whatsapp_messages',
+            'fields' => ['title', 'to', 'customer', 'order_number', 'sent_by'],
+            'transformers' => ['to' => PhoneVariants::class],
+        ],
 
     ],
 
@@ -53,6 +68,11 @@ return [
     'drivers' => [
 
         'local' => [
+            'path' => storage_path('statamic/search'),
+        ],
+
+        // Local search where every word typed must match (App\Search\AllWordsIndex).
+        'local_all_words' => [
             'path' => storage_path('statamic/search'),
         ],
 
