@@ -27,7 +27,7 @@ class User extends Authenticatable
     protected static function booted(): void
     {
         static::saving(function (User $user) {
-            foreach (['name', 'province', 'clan', 'area'] as $field) {
+            foreach (['name', 'province', 'clan', 'area', 'phone', 'payout_bank', 'payout_account_name', 'payout_account_number'] as $field) {
                 if (is_string($user->getAttribute($field))) {
                     $user->setAttribute($field, PlainText::line($user->getAttribute($field)));
                 }

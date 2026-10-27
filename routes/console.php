@@ -2,6 +2,7 @@
 
 use App\Jobs\PostEntryToFacebook;
 use App\Jobs\SendEntryPushNotification;
+use App\Shop\OnePay;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -34,3 +35,6 @@ Artisan::command('push:send-pending', function () {
 })->purpose('Send phone notifications for entries marked "Send a phone notification" that are now live');
 
 Schedule::command('push:send-pending')->everyTenMinutes()->withoutOverlapping();
+
+// BCEL One: picks up payments within a minute even when `onepay:listen` isn't running (or missed one).
+Schedule::command('onepay:listen --once')->everyMinute()->withoutOverlapping()->when(fn () => OnePay::configured());

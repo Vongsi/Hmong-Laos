@@ -54,4 +54,22 @@ return [
         'redirect' => env('APP_URL').'/oauth/google/callback',
     ],
 
+    // Claude reads the payment receipts customers upload (App\Shop\Receipts). Prices are in US dollars per
+    // million tokens for this model, to show what each reading cost.
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY'),
+        'receipt_model' => env('ANTHROPIC_RECEIPT_MODEL', 'claude-haiku-5-5'),
+        'input_price' => (float) env('ANTHROPIC_INPUT_PRICE', 0.10),
+        'output_price' => (float) env('ANTHROPIC_OUTPUT_PRICE', 0.50),
+    ],
+
+    // Order updates to buyers from the shop's own WhatsApp number (App\Shop\WhatsApp), through the separate
+    // sender in whatsapp-sender/. The token is shared with it (its TOKEN); empty = not used.
+    'whatsapp_sender' => [
+        'url' => env('WHATSAPP_SENDER_URL'),
+        'token' => env('WHATSAPP_SENDER_TOKEN'),
+        // Its linked session, queue and history; outside the release folders with zero-downtime deploys.
+        'data_dir' => env('WHATSAPP_SENDER_DATA_DIR'),
+    ],
+
 ];

@@ -1,0 +1,17 @@
+{
+    "name": "daim-av-hlub-whatsapp-sender",
+    "private": true,
+    "description": "Sends the shop's order updates to buyers from the shop's own WhatsApp number (whatsapp-web.js). Called by the website; see README.md.",
+    "type": "module",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "engines": {
+        "node": ">=20.12"
+    },
+    "dependencies": {
+        "qrcode": "^1.5.4",
+        "whatsapp-web.js": "^1.34.7"
+    }
+}

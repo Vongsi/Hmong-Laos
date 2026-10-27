@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&family=Figtree:wght@400;500;600;700&family=Noto+Sans+Lao:wght@400;600;700&display=swap">
-    <link rel="stylesheet" href="/css/site.css?v=21">
+    <link rel="stylesheet" href="/css/site.css?v=37">
     {{# Background photo from Globals → Appearance (a planned season's, or the default) #}}
     {{ page_background }}<style>:root{--page-bg:url("{{ bg:large }}");--page-veil:{{ bg:veil }}%}@media (max-width:640px){:root{--page-bg:url("{{ bg:small }}")}}</style>{{ /page_background }}
     {{ livewire:styles }}
@@ -87,7 +87,11 @@
                 </select>
             </label>
             {{ if logged_in }}
-                <a class="btn ghost" href="{{ base }}account" {{ if uri == '/account' }}aria-current="page"{{ /if }}>{{ trans key="site.nav.account" }}</a>
+                {{# My account menu: My profile and Sign out (public/js/site.js closes it on a tap elsewhere or Escape) #}}
+                <details class="account-menu">
+                    <summary class="btn ghost" {{ if uri | starts_with('/account') }}aria-current="page"{{ /if }}>{{ trans key="site.nav.account" }}<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+                    {{ partial:account_menu_items }}
+                </details>
             {{ else }}
                 <a class="btn" href="{{ base }}join">{{ trans key="site.nav.join" }}</a>
             {{ /if }}
@@ -121,12 +125,16 @@
     <a href="{{ base }}products" {{ if uri | starts_with('/products') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>{{ trans key="site.nav.products" }}</span></a>
     <a href="{{ base }}inspire" {{ if uri | starts_with('/inspire') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg><span>{{ trans key="site.nav.inspire" }}</span></a>
     {{ if logged_in }}
-        <a href="{{ base }}account" {{ if uri == '/account' }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>{{ trans key="site.nav.account" }}</span></a>
+        {{# The same menu on phones, opening upwards #}}
+        <details class="account-menu">
+            <summary {{ if uri | starts_with('/account') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>{{ trans key="site.nav.account" }}</span></summary>
+            {{ partial:account_menu_items }}
+        </details>
     {{ else }}
         <a href="{{ base }}join" {{ if uri | starts_with('/join') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>{{ trans key="site.nav.join" }}</span></a>
     {{ /if }}
 </nav>
-<script src="/js/site.js?v=6"></script>
+<script src="/js/site.js?v=10"></script>
 <script src="/js/app.js?v=2"></script>
 {{ livewire:scripts }}
 {{ if logged_in }}

@@ -1,0 +1,248 @@
+title: Payment
+tabs:
+  main:
+    display: Payment
+    sections:
+    - display: Payment
+      instructions: "Every payment we received: from the bank's payment message, the receipt a customer added, or the team setting an order to Paid (cash, or a transfer confirmed by hand). For reference and for checking against the bank's statements; only \"Cash handed in\" can be changed. (App\\Shop\\Payments.)"
+      fields:
+      - handle: title
+        field:
+          type: text
+          display: Payment
+          visibility: read_only
+      - handle: result
+        field:
+          type: select
+          display: Result
+          visibility: read_only
+          listable: true
+          options:
+            paid: 'Paid: order marked paid'
+            looks_right: 'Receipt looks right: confirm in the bank app'
+            check: 'Check: something did not match the order'
+            unread: 'Receipt not read: check by hand'
+            rejected: 'Not accepted: customer asked to pay again'
+            refunded: Refunded
+            twice: 'Paid twice: refund one'
+            other: Not one of our orders
+      - handle: bank
+        field:
+          type: select
+          display: Bank
+          visibility: read_only
+          listable: true
+          width: 50
+          options:
+            bcel: BCEL
+            ldb: LDB
+            jdb: JDB
+            apb: APB
+            lvb: Lao-Viet Bank
+            other: Other bank
+      - handle: payment_type
+        field:
+          type: select
+          display: Payment type
+          visibility: read_only
+          listable: true
+          width: 50
+          options:
+            qr: QR code
+            transfer: Bank transfer
+            cash: Cash
+      - handle: for_order
+        field:
+          type: entries
+          display: Order
+          collections: [orders]
+          max_items: 1
+          visibility: read_only
+          listable: true
+      - handle: amount
+        field:
+          type: integer
+          display: Amount
+          visibility: read_only
+          listable: true
+          width: 33
+      - handle: currency
+        field:
+          type: text
+          display: Currency
+          visibility: read_only
+          width: 33
+      - handle: paid_time
+        field:
+          type: text
+          display: Paid at (bank's time)
+          visibility: read_only
+          listable: hidden
+          width: 33
+      - handle: received_by
+        field:
+          type: text
+          display: 'Marked paid by'
+          instructions: 'The team member who set the order to Paid (cash, or a payment confirmed by hand).'
+          visibility: read_only
+          listable: hidden
+          width: 50
+      - handle: cash_with
+        field:
+          type: text
+          display: 'Cash with'
+          instructions: 'Who has the cash until it is handed in: the courier (COD) or the team member who took it.'
+          visibility: read_only
+          listable: hidden
+          width: 50
+          if:
+            payment_type: cash
+      - handle: handed_in
+        field:
+          type: toggle
+          display: 'Cash handed in'
+          instructions: 'Tick when the cash has reached the shop (from the courier or the team member). The date and your name are filled in when you save.'
+          listable: true
+          width: 33
+          if:
+            payment_type: cash
+      - handle: handed_in_on
+        field:
+          type: date
+          display: 'Handed in on'
+          width: 33
+          if:
+            payment_type: cash
+      - handle: handed_in_by
+        field:
+          type: text
+          display: 'Ticked by'
+          visibility: read_only
+          width: 33
+          if:
+            payment_type: cash
+      - handle: receipt_check
+        field:
+          type: textarea
+          display: Receipt check
+          instructions: 'The automatic pre-check of a customer''s receipt against the order. A picture can be edited: confirm in the bank app.'
+          visibility: read_only
+          if:
+            payment_type: transfer
+      - handle: team_note
+        field:
+          type: textarea
+          display: Team's message to the customer
+          visibility: read_only
+          if:
+            result: rejected
+      - handle: receipt
+        field:
+          type: assets
+          display: Receipt
+          container: receipts
+          max_files: 1
+          mode: grid
+          visibility: read_only
+          if:
+            payment_type: transfer
+      - handle: reference_1
+        field:
+          type: text
+          display: Bank reference 1
+          instructions: "On the customer's receipt. BCEL One QR: ticket."
+          visibility: read_only
+          listable: true
+          width: 50
+      - handle: reference_2
+        field:
+          type: text
+          display: Bank reference 2
+          instructions: "On the customer's receipt. BCEL One QR: fccref."
+          visibility: read_only
+          listable: hidden
+          width: 50
+      - handle: payer_name
+        field:
+          type: text
+          display: Paid by
+          visibility: read_only
+          listable: true
+          width: 50
+      - handle: payer_phone
+        field:
+          type: text
+          display: Payer's phone
+          visibility: read_only
+          width: 50
+      - handle: payer_account
+        field:
+          type: text
+          display: Payer's account
+          visibility: read_only
+          width: 50
+      - handle: receiver_name
+        field:
+          type: text
+          display: Paid to
+          visibility: read_only
+          width: 50
+      - handle: receiver_account
+        field:
+          type: text
+          display: Receiver's account
+          visibility: read_only
+          width: 50
+      - handle: order_number
+        field:
+          type: text
+          display: Order number in the payment
+          visibility: read_only
+          width: 50
+      - handle: reference
+        field:
+          type: text
+          display: Our reference in the payment
+          visibility: read_only
+          width: 50
+      - handle: transaction_id
+        field:
+          type: text
+          display: Bank's transaction ID
+          visibility: read_only
+          width: 50
+      - handle: description
+        field:
+          type: text
+          display: Description / transfer message
+          visibility: read_only
+          width: 50
+      - handle: message
+        field:
+          type: textarea
+          display: Bank's message, or what Claude read on the receipt
+          visibility: read_only
+  sidebar:
+    display: Sidebar
+    sections:
+    - fields:
+      - handle: date
+        field:
+          type: date
+          display: Paid
+          time_enabled: true
+          visibility: read_only
+      - handle: test
+        field:
+          type: toggle
+          display: Test payment
+          instructions: Made with the bank's test merchant, not real money for us.
+          visibility: read_only
+          listable: hidden
+      - handle: reading_cost
+        field:
+          type: text
+          display: Reading cost
+          instructions: What reading the receipt with Claude cost.
+          visibility: read_only
+          listable: hidden

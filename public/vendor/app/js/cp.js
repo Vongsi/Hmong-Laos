@@ -162,3 +162,26 @@ Statamic.booting(() => {
         photoButton('photo_right', t('Photo: right, text beside it'), icon(fill(12.5, 4, 9, 8) + lines('M2.5 5h7M2.5 9h7M2.5 16h19M2.5 20h19')), { align: 'right' }),
     ]);
 });
+
+/*
+ * Dashboard → WhatsApp updates to buyers (app/Widgets/WhatsAppSender.php): while the shop's phone isn't linked the
+ * code to scan changes every half minute, so reload the box every few seconds; once linked, now and then for the
+ * latest messages. Not while a test number is being typed.
+ */
+(() => {
+    // Not straight away: the box came with the page (and with the outcome of "Send a test", shown once).
+    let last = Date.now();
+    setInterval(async () => {
+        const box = document.querySelector('[data-whatsapp-sender]');
+        if (!box || document.hidden || box.contains(document.activeElement)) return;
+        const state = box.querySelector('[data-state]')?.dataset.state;
+        if (state === 'not_set_up' || Date.now() - last < (state === 'ready' ? 30000 : 4000)) return;
+        last = Date.now();
+        try {
+            const response = await fetch(box.dataset.whatsappSender, { headers: { Accept: 'text/html' }, credentials: 'same-origin' });
+            if (response.ok) box.innerHTML = await response.text();
+        } catch (error) {
+            // offline for a moment: try again next time
+        }
+    }, 1000);
+})();

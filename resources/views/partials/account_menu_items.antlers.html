@@ -1,0 +1,11 @@
+{{# The items of the My account menu (header and phone tab bar, layout.antlers.html) #}}
+<div class="menu">
+    <a href="{{ base }}account">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+        <span>{{ trans key="site.nav.profile" }}</span>
+    </a>
+    <a class="menu-out" href="{{ user:logout_url :redirect="site:url" }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        <span>{{ trans key="site.nav.logout" }}</span>
+    </a>
+</div>

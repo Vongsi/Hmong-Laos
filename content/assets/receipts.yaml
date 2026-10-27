@@ -1,0 +1,7 @@
+title: Receipts
+disk: receipts
+allow_uploads: false
+allow_downloading: true
+allow_renaming: false
+allow_moving: false
+create_folders: false

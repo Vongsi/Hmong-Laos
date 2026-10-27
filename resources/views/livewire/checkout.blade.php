@@ -12,6 +12,7 @@
                 <label class="field">{{ __('site.shop.phone') }}
                     <input type="tel" wire:model="phone" maxlength="40" autocomplete="tel">
                 </label>
+                @if ($whatsappUpdates)<p class="small muted" style="margin-top:-8px">{{ __('site.shop.phone_whatsapp') }}</p>@endif
                 @error('phone') <p class="error small">{{ $message }}</p> @enderror
                 <label class="field">{{ __('site.shop.email') }}
                     <input type="email" wire:model="email" maxlength="150" autocomplete="email">

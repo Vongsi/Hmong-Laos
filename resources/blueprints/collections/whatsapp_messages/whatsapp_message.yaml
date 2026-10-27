@@ -1,0 +1,151 @@
+title: 'WhatsApp message'
+tabs:
+  main:
+    display: Message
+    sections:
+    - display: 'WhatsApp message'
+      instructions: 'Every WhatsApp message the shop''s number sent or tried to send a buyer, with its text, newest first: order updates, tests from the dashboard and messages sent again. Written by the website (App\Shop\WhatsApp), read only. How far it got, like the ticks in WhatsApp: Sent ✓ (reached WhatsApp, not on their phone yet), Delivered ✓✓ (on their phone), Read ✓✓ blue (only shown when the buyer has read receipts on, and the shop''s WhatsApp too: many people turn them off, so Delivered doesn''t mean unread). "NOT SENT": the team was emailed the message, ready to send by hand. To send one again: ⋯ → Resend.'
+      fields:
+      - handle: title
+        field:
+          type: text
+          display: Message
+          visibility: read_only
+      - handle: result
+        field:
+          type: select
+          display: Result
+          visibility: read_only
+          listable: true
+          width: 33
+          options:
+            queued: 'Waiting: with the sender'
+            sent: 'Sent ✓ (not on their phone yet)'
+            delivered: 'Delivered ✓✓'
+            read: 'Read ✓✓ (blue)'
+            failed: 'NOT SENT'
+      - handle: to
+        field:
+          type: text
+          display: 'To (WhatsApp number)'
+          visibility: read_only
+          listable: true
+          width: 33
+      - handle: customer
+        field:
+          type: text
+          display: Customer
+          visibility: read_only
+          listable: true
+          width: 33
+      - handle: error
+        field:
+          type: text
+          display: 'Why it wasn''t sent'
+          visibility: read_only
+          if:
+            result: failed
+      - handle: message
+        field:
+          type: textarea
+          display: 'Message (as sent)'
+          visibility: read_only
+      - handle: about
+        field:
+          type: text
+          display: About
+          instructions: 'The order updates in this message.'
+          visibility: read_only
+          listable: true
+          width: 50
+      - handle: for_order
+        field:
+          type: entries
+          display: Order
+          collections:
+            - orders
+          max_items: 1
+          mode: default
+          visibility: read_only
+          listable: true
+          width: 50
+  sidebar:
+    display: Sidebar
+    sections:
+    - fields:
+      - handle: date
+        field:
+          type: date
+          display: Handed to the sender
+          time_enabled: true
+          time_seconds_enabled: true
+          visibility: read_only
+      - handle: result_at
+        field:
+          type: date
+          display: 'Sent / given up'
+          time_enabled: true
+          time_seconds_enabled: true
+          visibility: read_only
+      - handle: delivered_at
+        field:
+          type: date
+          display: 'Delivered (on their phone)'
+          time_enabled: true
+          time_seconds_enabled: true
+          visibility: read_only
+      - handle: read_at
+        field:
+          type: date
+          display: 'Read'
+          instructions: 'Only when the buyer has read receipts on.'
+          time_enabled: true
+          time_seconds_enabled: true
+          visibility: read_only
+      - handle: resend_of
+        field:
+          type: entries
+          display: 'Sent again from'
+          collections:
+            - whatsapp_messages
+          max_items: 1
+          mode: default
+          visibility: read_only
+      - handle: resent_as
+        field:
+          type: entries
+          display: 'Sent again as'
+          collections:
+            - whatsapp_messages
+          mode: default
+          visibility: read_only
+      - handle: kind
+        field:
+          type: select
+          display: Kind
+          visibility: read_only
+          listable: hidden
+          options:
+            order: Order update
+            test: Test from the dashboard
+      - handle: sent_by
+        field:
+          type: text
+          display: 'Sent by'
+          instructions: 'Who sent this test or resend. Empty: the website, for an order update.'
+          visibility: read_only
+      - handle: language
+        field:
+          type: select
+          display: Language
+          visibility: read_only
+          options:
+            hmn: Hmong
+            lo: Lao
+            en: English
+      - handle: order_number
+        field:
+          type: text
+          display: 'Order number'
+          instructions: 'Kept even if the order is deleted.'
+          visibility: read_only

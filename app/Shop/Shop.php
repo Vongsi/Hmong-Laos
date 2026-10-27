@@ -102,6 +102,8 @@ class Shop
     public static function paymentMethods(string $site): array
     {
         return array_values(array_filter([
+            // BCEL One first: paid in seconds and confirmed automatically (OnePay).
+            OnePay::configured() && self::setting($site, 'enable_onepay') === true ? 'onepay' : null,
             self::setting($site, 'enable_transfer') !== false ? 'transfer' : null,
             self::setting($site, 'enable_cash') !== false ? 'cash' : null,
         ]));
@@ -136,16 +138,8 @@ class Shop
     /** A wa.me link that opens WhatsApp with a message to the customer. Lao numbers like "020 5555 1234" get +856. */
     public static function whatsappUrl(?string $phone, string $text): ?string
     {
-        $digits = preg_replace('/\D/', '', (string) $phone);
+        $digits = WhatsApp::number($phone);
 
-        if (str_starts_with($digits, '00')) {
-            $digits = substr($digits, 2);
-        } elseif (str_starts_with($digits, '0')) {
-            $digits = '856'.substr($digits, 1);
-        } elseif (! str_starts_with($digits, '856') && strlen($digits) <= 10) {
-            $digits = '856'.$digits;
-        }
-
-        return strlen($digits) >= 8 ? 'https://wa.me/'.$digits.'?text='.rawurlencode($text) : null;
+        return $digits ? 'https://wa.me/'.$digits.'?text='.rawurlencode($text) : null;
     }
 }

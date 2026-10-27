@@ -168,7 +168,7 @@ tabs:
         field:
           type: select
           display: Order status
-          instructions: 'The first time you set "Sent / ready to pick up", the customer gets an email (if they gave one) and you get an email with a ready-made WhatsApp message for them.'
+          instructions: 'The customer gets a WhatsApp message when you set Confirmed, Sent / ready to pick up, Completed or Cancelled (once each; see WhatsApp messages below). The first time you set "Sent / ready to pick up", they also get an email (if they gave one) and you get an email with the WhatsApp message ready to send by hand.'
           listable: true
           default: new
           options:
@@ -177,18 +177,34 @@ tabs:
             shipped: Sent / ready to pick up
             completed: Completed
             cancelled: Cancelled
+      - handle: cancel_note
+        field:
+          type: textarea
+          display: Cancelled by the customer
+          instructions: When and why the customer cancelled on their order page. Cancelling (by them or by you) puts the items back in stock, unless the order was already sent.
+          visibility: read_only
+          if:
+            status: cancelled
       - handle: payment_status
         field:
           type: select
           display: Payment
-          instructions: '"Customer says paid" means they reported a transfer: check your bank before setting Paid.'
+          instructions: '"Customer says paid" means they reported a transfer: check your bank before setting Paid. If they added a receipt, see Receipt and Receipt check below. If the payment is wrong, choose "Not accepted" and write the customer a message.'
           listable: true
           default: pending
           options:
             pending: Not paid yet
             reported: Customer says paid
             paid: Paid
+            rejected: 'Not accepted: customer asked to pay again'
             refunded: Refunded
+      - handle: payment_reply
+        field:
+          type: textarea
+          display: Message to the customer about the payment
+          instructions: 'What is wrong and what to do, written for the customer in their language (not the Receipt check: that is for the team and can mention other orders). For example: "The receipt shows 1 ₭, but 3,800,000 ₭ is due. Please pay the rest and add the new receipt." When you save, the customer gets it on WhatsApp (when WhatsApp updates are on), by email (if they gave one) and on their order page, where they can pay or add a receipt again, and you get an email with a WhatsApp message ready to send them. Sent once; it goes again only after they report a new payment.'
+          if:
+            payment_status: rejected
       - handle: payment_method
         field:
           type: select
@@ -196,6 +212,7 @@ tabs:
           visibility: read_only
           listable: true
           options:
+            onepay: BCEL One (OnePay QR)
             transfer: Bank transfer / QR
             cash: Cash on delivery or pick-up
       - handle: payment_note
@@ -203,6 +220,57 @@ tabs:
           type: textarea
           display: Customer's payment message
           visibility: read_only
+      - handle: receipts
+        field:
+          type: assets
+          display: Receipts
+          instructions: Every receipt the customer added, newest first (kept privately, in Assets → Receipts). The customer can see their own on their order page.
+          container: receipts
+          mode: grid
+          visibility: computed
+          if:
+            payment_method: transfer
+      - handle: receipt_check
+        field:
+          type: textarea
+          display: Receipt check (latest receipt)
+          instructions: 'Automatic pre-check of the latest receipt against this order (amount, our account, time, references), for the team only. A picture can be edited: confirm the payment in the bank app before setting Paid.'
+          visibility: read_only
+          if:
+            payment_method: transfer
+      - handle: payment_log
+        field:
+          type: textarea
+          display: Payment history
+          instructions: What the customer reported (messages, receipts) and what the team answered, oldest first. The customer sees the same on their order page, without the automatic checks.
+          visibility: computed
+          unless:
+            payment_method: cash
+      - handle: whatsapp_messages
+        field:
+          type: entries
+          display: WhatsApp messages to the customer
+          instructions: 'Sent by themselves from the shop''s WhatsApp number when the order changes (Shop settings → WhatsApp updates), oldest first; open one to read it. "NOT SENT": you got an email with the message ready to send by hand. All of them: Collections → WhatsApp messages.'
+          collections:
+            - whatsapp_messages
+          mode: default
+          visibility: computed
+      - handle: onepay_ref
+        field:
+          type: text
+          display: BCEL One reference
+          instructions: In the order's QR code; BCEL sends it back with the payment.
+          visibility: read_only
+          if:
+            payment_method: onepay
+      - handle: onepay_payment
+        field:
+          type: textarea
+          display: BCEL One payment
+          instructions: The payment message from BCEL, as received.
+          visibility: read_only
+          if:
+            payment_method: onepay
       - handle: paid_at
         field:
           type: date
