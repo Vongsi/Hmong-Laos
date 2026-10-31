@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Auth\SocialSignIn;
 use App\Models\User;
 use App\Shop\SellerPayouts;
 use App\Shop\Shop;
@@ -14,12 +15,14 @@ use Livewire\Component;
 use Statamic\Facades\Entry;
 use Statamic\Facades\Site;
 use Statamic\Facades\Term;
+use Statamic\Facades\User as Members;
 
 /**
  * The member's own account page: their details (mobile number, province, clan, district or village), Members-page
  * listing, language for notifications, and password. The mobile number, clan and district stay between the member
  * and the team (checkout fills the number in); the Members page shows only name and province. Only these fields
- * can be changed here; roles, email and the rest stay with the team.
+ * can be changed here; roles, email and the rest stay with the team. Members who joined with Facebook without an email
+ * can add one; everyone can connect or disconnect Facebook and Google (App\Auth\SocialSignIn).
  */
 class Account extends Component
 {
@@ -27,6 +30,9 @@ class Account extends Component
     public string $site;
 
     public string $name = '';
+
+    /** Only for members who joined with Facebook without an email: adding one. */
+    public string $email = '';
 
     public string $phone = '';
 
@@ -59,9 +65,14 @@ class Account extends Component
 
     public bool $payoutSaved = false;
 
+    /** What happened when they came back from connecting or disconnecting Facebook or Google. */
+    #[Locked]
+    public ?array $signInNotice = null;
+
     public function mount(): void
     {
         $this->site = Site::current()->handle();
+        $this->signInNotice = self::signInNotice();
 
         if ($user = $this->user()) {
             $this->name = (string) $user->name;
@@ -89,12 +100,23 @@ class Account extends Component
             'clan' => ['nullable', 'string', 'max:60'],
             'area' => ['nullable', 'string', 'max:100'],
             'preferredLang' => ['nullable', Rule::in(['hm', 'lo', 'en'])],
+            // Only members without one yet (joined with Facebook, no email there) can set it here.
+            'email' => SocialSignIn::isPlaceholder($user->email)
+                ? ['nullable', 'email', 'max:150', Rule::unique('users', 'email')->ignore($user->id)]
+                : ['prohibited'],
         ], [
             'name.required' => __('site.shop.required'),
             '*.max' => __('site.shop.invalid'),
             '*.in' => __('site.shop.invalid'),
             'phone.regex' => __('site.shop.invalid'),
+            'email.email' => __('site.shop.invalid'),
+            'email.unique' => __('site.auth.email_taken'),
         ]);
+
+        if (SocialSignIn::isPlaceholder($user->email) && trim($this->email) !== '') {
+            $user->forceFill(['email' => strtolower(trim($this->email))]);
+            $this->email = '';
+        }
 
         $user->forceFill([
             'name' => trim($this->name),
@@ -157,6 +179,30 @@ class Account extends Component
         $this->payoutSaved = true;
     }
 
+    /**
+     * Statamic says how connecting or disconnecting went, in English only (it has no Lao or Hmong): the same, in the
+     * member's language.
+     */
+    private static function signInNotice(): ?array
+    {
+        $messages = ['oauth_connected' => true, 'oauth_already_connected' => true, 'oauth_disconnected' => true, 'oauth_belongs_to_another_user' => false, 'oauth_connect_unsupported' => false];
+        foreach (['success', 'error'] as $flash) {
+            $said = session($flash);
+            if (! is_string($said) || $said === '') {
+                continue;
+            }
+            foreach (SocialSignIn::LABELS as $label) {
+                foreach ($messages as $key => $ok) {
+                    if ($said === \Statamic\trans('statamic::messages.'.$key, ['provider' => $label])) {
+                        return ['ok' => $ok, 'text' => __('site.auth.'.$key, ['provider' => $label])];
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     private function user(): ?User
     {
         return Auth::id() ? User::find(Auth::id()) : null;
@@ -169,8 +215,23 @@ class Account extends Component
             ->mapWithKeys(fn ($term) => [$term->in('en')?->title() ?? $term->title() => $term->in($this->site)?->title() ?? $term->title()])
             ->sort();
 
+        $user = $this->user();
+        $member = $user ? Members::find($user->id) : null;
+        $connected = $member ? SocialSignIn::connected($member) : [];
+
         return view('livewire.account', [
-            'user' => $this->user(),
+            'user' => $user,
+            // Joined with Facebook without an email: "Signed in with Facebook", and a field to add one.
+            'noEmailVia' => SocialSignIn::placeholderProvider($user?->email),
+            // Facebook and Google (once their keys are set): connected or not, and whether it can be disconnected.
+            'signIns' => collect(SocialSignIn::available())->map(fn (string $name) => (object) [
+                'name' => $name,
+                'label' => SocialSignIn::LABELS[$name],
+                'connected' => in_array($name, $connected, true),
+                'canDisconnect' => $member && SocialSignIn::canDisconnect($member, $name),
+                'connectUrl' => route('statamic.oauth.login', $name).'?'.http_build_query(['redirect' => parse_url(Shop::url($this->site, 'account'), PHP_URL_PATH).'#sign-in']),
+                'disconnectUrl' => route('statamic.oauth.disconnect', $name),
+            ])->all(),
             'provinces' => $provinces,
             'joinUrl' => Shop::url($this->site, 'join'),
             'membersUrl' => Shop::url($this->site, 'members'),

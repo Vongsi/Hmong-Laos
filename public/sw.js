@@ -42,7 +42,7 @@ self.addEventListener('fetch', (event) => {
       fetch(req).then((res) => {
         if (res.ok && !res.redirected) {
           const copy = res.clone();
-          caches.open(PAGES).then((c) => c.put(req, copy)).then(() => trim(PAGES, MAX_PAGES));
+          caches.open(PAGES).then((c) => c.put(req, copy)).then(() => trim(PAGES, MAX_PAGES)).catch(() => {});
         }
         return res;
       }).catch(() => caches.match(req).then((hit) => hit || caches.match('/offline.html')))
@@ -56,7 +56,7 @@ self.addEventListener('fetch', (event) => {
       caches.match(req).then((hit) => hit || fetch(req).then((res) => {
         if (res.ok) {
           const copy = res.clone();
-          caches.open(IMAGES).then((c) => c.put(req, copy)).then(() => trim(IMAGES, MAX_IMAGES));
+          caches.open(IMAGES).then((c) => c.put(req, copy)).then(() => trim(IMAGES, MAX_IMAGES)).catch(() => {});
         }
         return res;
       }))
@@ -64,14 +64,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // CSS, JS and icons: serve the saved copy right away and refresh it in the background.
+  // CSS, JS and icons: serve the saved copy right away and refresh it in the background. While offline (or while the
+  // server restarts) the refresh fails quietly; without a saved copy the request fails as it would without this worker.
   if (/^\/(css|js|icons|images)\//.test(url.pathname)) {
-    event.respondWith(
-      caches.open(STATIC).then((cache) => cache.match(req).then((hit) => {
-        const fresh = fetch(req).then((res) => { if (res.ok) cache.put(req, res.clone()); return res; });
-        return hit || fresh;
-      }))
-    );
+    const fresh = fetch(req).then((res) => {
+      if (res.ok) {
+        const copy = res.clone();
+        caches.open(STATIC).then((c) => c.put(req, copy)).catch(() => {});
+      }
+      return res;
+    });
+    event.waitUntil(fresh.then(() => {}, () => {}));
+    event.respondWith(caches.open(STATIC).then((c) => c.match(req)).then((hit) => hit || fresh));
   }
 });
 

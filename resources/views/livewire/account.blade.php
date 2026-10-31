@@ -5,7 +5,7 @@
         <form class="join-card account-details" wire:submit="saveProfile">
             <div>
                 <h2 class="h-sm" style="margin:0">{{ __('site.auth.profile') }}</h2>
-                <p class="muted small" style="margin:4px 0 0">{{ __('site.auth.signed_in_as', ['email' => $user->email]) }}</p>
+                <p class="muted small" style="margin:4px 0 0">{{ $noEmailVia ? __('site.auth.signed_in_with', ['provider' => $noEmailVia]) : __('site.auth.signed_in_as', ['email' => $user->email]) }}</p>
             </div>
             <div class="form-grid">
                 <label class="field">{{ __('site.auth.name') }}
@@ -16,6 +16,14 @@
                     <input wire:model="phone" type="tel" maxlength="40" autocomplete="tel" placeholder="020 …">
                     @error('phone') <span class="error small">{{ $message }}</span> @enderror
                 </label>
+                @if ($noEmailVia)
+                    {{-- Joined with Facebook without an email (App\Auth\SocialSignIn): add one, optional. --}}
+                    <label class="field">{{ __('site.auth.add_email') }}
+                        <input wire:model="email" type="email" maxlength="150" autocomplete="email">
+                        <span class="muted small">{{ __('site.auth.add_email_help') }}</span>
+                        @error('email') <span class="error small">{{ $message }}</span> @enderror
+                    </label>
+                @endif
                 <label class="field">{{ __('site.auth.province') }}
                     <select wire:model="province">
                         <option value="">—</option>
@@ -76,6 +84,36 @@
                 @if ($passwordChanged)<p class="flash small" role="status">{{ __('site.auth.password_changed') }}</p>@endif
             </form>
         </details>
+
+        @if ($signIns)
+            {{-- Facebook and Google: connect to sign in with them too, or disconnect (App\Auth\SocialSignIn; the links
+                 and the DELETE are Statamic's own OAuth routes, which may first ask to confirm it's them). --}}
+            <div id="sign-in" class="join-card">
+                <div>
+                    <h2 class="h-sm" style="margin:0">{{ __('site.auth.sign_in_methods') }}</h2>
+                    <p class="muted small" style="margin:4px 0 0">{{ __('site.auth.sign_in_methods_help') }}</p>
+                </div>
+                @if ($signInNotice)
+                    <p class="{{ $signInNotice['ok'] ? 'flash' : 'error' }} small" role="status" style="margin:0">{{ $signInNotice['text'] }}</p>
+                @endif
+                @foreach ($signIns as $signIn)
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+                        <span><b>{{ $signIn->label }}</b> · <span class="muted small">{{ $signIn->connected ? __('site.auth.connected') : __('site.auth.not_connected') }}</span></span>
+                        @if (! $signIn->connected)
+                            <a class="btn ghost" style="padding:6px 14px;font-size:14px" href="{{ $signIn->connectUrl }}">{{ __('site.auth.connect', ['provider' => $signIn->label]) }}</a>
+                        @elseif ($signIn->canDisconnect)
+                            <form method="POST" action="{{ $signIn->disconnectUrl }}" style="margin:0" onsubmit="return confirm(@js(__('site.auth.disconnect_confirm', ['provider' => $signIn->label])))">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn ghost" style="padding:6px 14px;font-size:14px" type="submit">{{ __('site.auth.disconnect') }}</button>
+                            </form>
+                        @else
+                            <span class="muted small">{{ __('site.auth.only_sign_in') }}</span>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @endif
 
         @if ($isSeller)
             {{-- Where the team sends their money for products sold (App\Shop\SellerPayouts). --}}
