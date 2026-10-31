@@ -20,6 +20,13 @@ Route::middleware('statamic.web')->group(function () {
             Route::statamic(ltrim($prefix.'/account/'.$list, '/'), 'account-list', ['list' => $list, 'title' => trans($title, [], $site->lang())])
                 ->name('account.'.$list.'.'.$site->handle());
         }
+        // Privacy policy and how to have your data deleted (/privacy, /lo/delete-my-data…): their text is in
+        // resources/views/partials/legal/, one file per language, so it is deployed and reviewed like code. Facebook
+        // and Google ask for both addresses when the site uses their sign-in.
+        foreach (['privacy' => 'privacy', 'delete-my-data' => 'data_deletion'] as $slug => $page) {
+            Route::statamic(ltrim($prefix.'/'.$slug, '/'), 'legal', ['title' => trans("site.legal.{$page}", [], $site->lang()), 'body' => "legal/{$page}_".$site->lang()])
+                ->name("legal.{$page}.{$site->handle()}");
+        }
     }
 });
 

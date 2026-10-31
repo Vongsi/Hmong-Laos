@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Auth\SocialSignIn;
 use App\Shop\Cart;
 use App\Shop\PlaceOrder;
 use App\Shop\Shop;
@@ -40,7 +41,8 @@ class Checkout extends Component
 
         if ($user = Auth::user()) {
             $this->name = (string) $user->name;
-            $this->email = (string) $user->email;
+            // Not the placeholder of a member who joined with Facebook without an email (App\Auth\SocialSignIn).
+            $this->email = SocialSignIn::isPlaceholder($user->email) ? '' : (string) $user->email;
             $this->phone = (string) $user->phone;
         }
     }

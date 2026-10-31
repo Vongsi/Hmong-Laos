@@ -137,6 +137,12 @@ return [
         'no_match' => 'No members match your search.',
         'join_prompt' => 'Join to see who is in the community.',
     ],
+    // Privacy policy and "Delete my data" (routes/web.php; their text: resources/views/partials/legal/).
+    'legal' => [
+        'privacy' => 'Privacy policy',
+        'data_deletion' => 'Delete my data',
+        'your_data' => 'How we look after your data:',
+    ],
     'auth' => [
         'join_body' => 'Join to comment, like posts, sign up for events and see who else is here. It takes a minute.',
         'sign_in' => 'Sign in',
@@ -184,6 +190,25 @@ return [
         'wrong_password' => 'That is not your current password.',
         'password_changed' => 'Your password was changed.',
         'social_password' => 'Joined with Facebook or Google? Use "Forgot your password?" on the sign-in page to set one.',
+        // Facebook and Google sign-in (App\Auth\SocialSignIn, My account).
+        'signed_in_with' => 'Signed in with :provider',
+        'add_email' => 'Email (optional)',
+        'add_email_help' => 'You joined with Facebook without an email. Add one to get updates by email, and to be able to sign in with a password too ("Forgot your password?" sets it).',
+        'email_taken' => 'This email already belongs to another account.',
+        'sign_in_methods' => 'Sign-in methods',
+        'sign_in_methods_help' => 'Connect Facebook or Google to sign in with them too.',
+        'connected' => 'Connected',
+        'not_connected' => 'Not connected',
+        'connect' => 'Connect :provider',
+        'disconnect' => 'Disconnect',
+        'disconnect_confirm' => 'Disconnect :provider? You won\'t be able to sign in with it until you connect it again.',
+        'only_sign_in' => 'Your only way to sign in: add an email first',
+        'oauth_connected' => ':provider is connected. You can now sign in with it.',
+        'oauth_already_connected' => 'Your :provider account is already connected.',
+        'oauth_disconnected' => ':provider is disconnected.',
+        'oauth_belongs_to_another_user' => 'This :provider account is already connected to another member.',
+        'oauth_connect_unsupported' => ':provider can\'t be connected here.',
+        'oauth_email_taken' => 'This email already has an account here. Sign in below with your email and password, then connect Facebook or Google on My account.',
     ],
     'popup' => [
         'eyebrow' => 'Important',

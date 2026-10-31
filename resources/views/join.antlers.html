@@ -13,6 +13,8 @@
         <div class="join-card">
             <h2>{{ trans key="site.join.title" }}</h2>
             <p class="muted">{{ trans key="site.auth.join_body" }}</p>
+            {{# Back from Facebook or Google with an email that already has an account (App\Http\Middleware\OAuthErrorsToJoinPage). #}}
+            {{ if session:oauth_problem == 'email_taken' }}<p class="flash" role="alert">{{ trans key="site.auth.oauth_email_taken" }}</p>{{ /if }}
             {{# Social sign-in only shows once its keys are set in .env (FACEBOOK_CLIENT_ID, GOOGLE_CLIENT_ID). #}}
             {{ if config:services.facebook.client_id }}
                 <a class="sso" href="{{ oauth:facebook :redirect="base" }}"><span class="ico" style="background:#1877F2">f</span><span>{{ trans key="site.join.facebook" }}</span><span class="rec">{{ trans key="site.join.recommended" }}</span></a>
@@ -44,7 +46,7 @@
                 <p class="muted small">{{ trans key="site.auth.password_rules" }}</p>
                 <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off">
                 <button class="btn red" type="submit">{{ trans key="site.auth.create_button" }}</button>
-                <p class="muted small">{{ trans key="site.auth.agree" }} <a href="{{ base }}rules">{{ trans key="site.nav.rules" }}</a></p>
+                <p class="muted small">{{ trans key="site.auth.agree" }} <a href="{{ base }}rules">{{ trans key="site.nav.rules" }}</a><br>{{ trans key="site.legal.your_data" }} <a href="{{ base }}privacy">{{ trans key="site.legal.privacy" }}</a></p>
             {{ /user:register_form }}
         </div>
     {{ /if }}

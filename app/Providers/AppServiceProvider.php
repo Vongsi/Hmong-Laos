@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Auth\SocialSignIn;
 use App\Bard\PhotoNode;
 use App\Bard\StatamicPhotoNode;
 use App\Http\Controllers\CP\SellerPayoutController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\CP\WhatsAppController;
 use App\Listeners\NotifyEntryByPush;
 use App\Listeners\SendOrderWhatsApp;
 use App\Listeners\ShareEntryToFacebook;
+use App\Listeners\SkipPlaceholderEmails;
 use App\Listeners\TrackCashHandIn;
 use App\Listeners\TrackMemberSubmission;
 use App\Listeners\TrackOrderDelivery;
@@ -24,6 +26,7 @@ use App\Shop\WhatsApp;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\DevCommands;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
@@ -158,6 +161,11 @@ class AppServiceProvider extends ServiceProvider
 
             return $limits;
         });
+
+        // Joining with Facebook or Google, also without an email (App\Auth\SocialSignIn); mail never goes to the
+        // placeholder address such members get.
+        SocialSignIn::register();
+        Event::listen(MessageSending::class, SkipPlaceholderEmails::class);
 
         // Sign-up accepts any profile field a form sends; new members always start unlisted on the
         // Members page and "never seen". They change the first themselves on their Account page.

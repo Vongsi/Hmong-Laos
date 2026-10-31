@@ -40,7 +40,9 @@ return [
     |
     */
 
-    'merge_user_data' => true,
+    // Off: the name a member sets on My account stays; it isn't replaced by their Facebook or Google name at each
+    // sign-in. (New members still start with that name: App\Auth\SocialSignIn.)
+    'merge_user_data' => false,
 
     /*
     |--------------------------------------------------------------------------

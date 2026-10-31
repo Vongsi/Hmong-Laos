@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\WhatsAppCallbackController;
+use App\Http\Middleware\OAuthErrorsToJoinPage;
 use App\Http\Middleware\TrackLastSeen;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -21,7 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Members sign in on the Join page (there is no separate login route).
         $middleware->redirectGuestsTo('/join');
-        $middleware->web(append: TrackLastSeen::class);
+        $middleware->web(append: [TrackLastSeen::class, OAuthErrorsToJoinPage::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

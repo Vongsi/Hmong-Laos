@@ -1,0 +1,7 @@
+{{# How to reach us, for the privacy pages: from Globals → Site settings, and the Contact section of About. #}}
+<ul>
+    {{ if settings:contact_email }}<li>{{ trans key="site.contact.email" }}: <a href="mailto:{{ settings:contact_email }}">{{ settings:contact_email }}</a></li>{{ /if }}
+    {{ if settings:contact_phone }}<li>{{ trans key="site.contact.phone" }}: {{ settings:contact_phone }}</li>{{ /if }}
+    {{ if settings:facebook_url }}<li>Facebook: <a href="{{ settings:facebook_url }}" target="_blank" rel="noopener">{{ settings:facebook_url }}</a></li>{{ /if }}
+    <li><a href="{{ site:url | ensure_right('/') }}about#contact">{{ trans key="site.nav.contact" }}</a></li>
+</ul>

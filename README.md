@@ -58,7 +58,13 @@ Emails (orders, password resets) are written to `storage/logs/laravel.log` while
 
 ## Social login
 
-Facebook and Google work through Statamic OAuth (Laravel Socialite). Create an app with each provider, set the callback to `https://your-domain/oauth/{facebook|google}/callback`, and fill the `FACEBOOK_*` / `GOOGLE_*` keys in `.env`. The buttons appear on `/join` and the control panel login.
+Facebook and Google work through Statamic OAuth (Laravel Socialite). Create an app with each provider, set the callback to `https://your-domain/oauth/{facebook|google}/callback`, and fill the `FACEBOOK_*` / `GOOGLE_*` keys in `.env`. The buttons appear on `/join` and the control panel login. Both providers ask for the **Privacy policy** (`/en/privacy`) and Facebook also for **Delete my data** (`/en/delete-my-data`): pages in every language (`/privacy`, `/lo/privacy`…; `routes/web.php`, template `legal.antlers.html`, text in `resources/views/partials/legal/`, contacts from Globals → Site settings), linked in the footer and on Join.
+
+- **No email from Facebook** (`app/Auth/SocialSignIn.php`): many accounts in Laos have only a phone number. Such members get a placeholder email that can never receive mail (`facebook-<id>@no-email.invalid`); it is never shown (My account says "Signed in with Facebook" and offers to add an email; checkout leaves the email empty), and mail to it is dropped (`app/Listeners/SkipPlaceholderEmails.php`).
+- **Sign-in methods** on My account: connect Facebook or Google (Statamic links it to the signed-in member), or disconnect it, unless it is their only way in (no email to reset a password with). Statamic may first ask them to confirm it's them (an elevated session). Its messages are shown in the member's language.
+- **Email already has an account**: tapping Facebook or Google with an email that already joined with a password brings them back to Join in their language, telling them to sign in and connect it on My account (`app/Http/Middleware/OAuthErrorsToJoinPage.php`). Statamic doesn't link the two by itself, so nobody can take over an account through a Facebook or Google account with the same email.
+- A member's name isn't replaced by their Facebook or Google name at each sign-in (`merge_user_data` off in `config/statamic/oauth.php`).
+- Which member is connected to what is kept in `storage/statamic/oauth/` (shared between releases).
 
 Apple and TikTok need the `socialiteproviders/apple` and `socialiteproviders/tiktok` packages; they are not installed yet. Phone number login is also still to do.
 
