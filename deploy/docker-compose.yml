@@ -1,0 +1,130 @@
+# The live site on the VPS (deploy/README.md), started and updated by deploy/deploy.sh.
+# Settings: deploy/.env (domain, database, WhatsApp token: see deploy/.env.example) and the site's own .env.
+name: dah
+
+x-site: &site
+  image: dah-site
+  pull_policy: never
+  restart: unless-stopped
+  # These win over the same keys in the site's .env, so the database password lives in deploy/.env only.
+  environment:
+    SERVER_NAME: ${SERVER_NAME}
+    ACME_EMAIL: ${ACME_EMAIL}
+    DB_CONNECTION: mysql
+    DB_HOST: mariadb
+    DB_PORT: "3306"
+    DB_DATABASE: ${DB_DATABASE}
+    DB_USERNAME: ${DB_USERNAME}
+    DB_PASSWORD: ${DB_PASSWORD}
+    WHATSAPP_SENDER_URL: http://whatsapp:3100
+    WHATSAPP_SENDER_TOKEN: ${WHATSAPP_SENDER_TOKEN}
+    REVERB_SERVER_HOST: 0.0.0.0
+    REVERB_SERVER_PORT: "8080"
+  volumes:
+    - ../.env:/app/.env:ro
+    - storage:/app/storage
+    - assets:/app/public/assets
+  depends_on:
+    mariadb:
+      condition: service_healthy
+  # The image's own check asks the web server, which only the app container runs.
+  healthcheck:
+    disable: true
+  logging: &logging
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  # The website, with HTTPS (deploy/Caddyfile). Its image is the one the other PHP containers run too.
+  app:
+    <<: *site
+    pull_policy: missing
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ../.env:/app/.env:ro
+      - storage:/app/storage
+      - assets:/app/public/assets
+      - caddy_data:/data
+      - caddy_config:/config
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost:2019/metrics"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Live features: online counts, who is typing, new comments.
+  reverb:
+    <<: *site
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 8080) ? 0 : 1);"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Timed jobs (routes/console.php): Facebook posts, phone notifications, the BCEL catch-up every minute.
+  scheduler:
+    <<: *site
+    command: ["php", "artisan", "schedule:work"]
+
+  # BCEL One payments as they arrive. Without the OnePay settings it stops straight away, so it waits five
+  # minutes before Docker starts it again; the scheduler still checks for payments every minute.
+  onepay:
+    <<: *site
+    command: ["sh", "-c", "php artisan onepay:listen; sleep 300"]
+
+  # Order updates and sign-in codes on WhatsApp (whatsapp-sender/). Only the site can reach it.
+  whatsapp:
+    build:
+      context: ../whatsapp-sender
+    image: dah-whatsapp
+    restart: unless-stopped
+    environment:
+      HOST: 0.0.0.0
+      PORT: "3100"
+      TOKEN: ${WHATSAPP_SENDER_TOKEN}
+      CALLBACK_URL: https://${SERVER_NAME}/whatsapp/status
+      DATA_DIR: /data
+      CHROME_PATH: /usr/bin/chromium
+      CHROME_NO_SANDBOX: "true"
+    volumes:
+      - whatsapp:/data
+    shm_size: "512m"
+    logging: *logging
+
+  # The database. Not reachable from outside the server.
+  mariadb:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_DATABASE}
+      MARIADB_USER: ${DB_USERNAME}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    volumes:
+      - mariadb:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    logging: *logging
+
+# Everything that must outlast a deploy. deploy/backup.sh copies the database and the uploads every night.
+volumes:
+  storage:
+  assets:
+  mariadb:
+  whatsapp:
+  caddy_data:
+  caddy_config:

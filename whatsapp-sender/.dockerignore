@@ -1,0 +1,6 @@
+# The image gets the code only; the linked session and settings stay on the server (see Dockerfile).
+node_modules
+data
+.wwebjs_auth
+.wwebjs_cache
+.env

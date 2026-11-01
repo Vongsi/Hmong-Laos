@@ -9,7 +9,7 @@
         {{ if popup:date }}<p class="muted small">{{ popup:date | sanitize }}</p>{{ /if }}
         {{ if popup:text }}<p>{{ popup:text | sanitize }}</p>{{ /if }}
         <div class="row-wrap">
-            {{ if popup:link }}<a class="btn red" href="{{ popup:link | sanitize }}" data-popup-seen>{{ popup:button | sanitize }}</a>{{ /if }}
+            {{ if popup:link }}<a class="btn green" href="{{ popup:link | sanitize }}" data-popup-seen>{{ popup:button | sanitize }}</a>{{ /if }}
             <form method="dialog"><button class="btn ghost">{{ trans key="site.popup.close" }}</button></form>
         </div>
     </div>

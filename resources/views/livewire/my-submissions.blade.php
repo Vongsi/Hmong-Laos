@@ -11,5 +11,5 @@
         <p class="muted small">{{ __('site.'.$group.'.account_hint') }}</p>
     @endforelse
     @include('livewire.partials.pager')
-    <a class="btn ghost" style="align-self:flex-start" href="{{ $pageUrl }}">+ {{ __($group === 'sell' ? 'site.sell.add' : 'site.auth.add_post') }}</a>
+    <a class="btn green" style="align-self:flex-start" href="{{ $pageUrl }}">+ {{ __($group === 'sell' ? 'site.sell.add' : 'site.auth.add_post') }}</a>
 </section>

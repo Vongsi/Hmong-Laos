@@ -27,7 +27,7 @@
                 <span class="sr">{{ __('site.shop.quantity') }}</span>
                 <input type="number" inputmode="numeric" min="1" max="{{ $available ?? \App\Shop\Cart::MAX_QUANTITY }}" wire:model="quantity">
             </label>
-            <button class="btn red" type="submit" wire:loading.attr="disabled">{{ __('site.shop.add') }}</button>
+            <button class="btn green" type="submit" wire:loading.attr="disabled">{{ __('site.shop.add') }}</button>
         </div>
         @error('quantity') <p class="error small">{{ $message }}</p> @enderror
         @if ($added)

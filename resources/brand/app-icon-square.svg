@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Daim Av Hlub">
+  <rect width="100" height="100" fill="#1E2656"/>
+  <g transform="translate(20 20) scale(0.6)">
+    <path fill="#FFFFFF" fill-rule="evenodd" d="M50 5 L95 50 L50 95 L5 50 Z M50 17 L83 50 L50 83 L17 50 Z"/>
+    <path fill="#EE6A80" d="M50 23 L58 31 L50 39 L42 31 Z M69 42 L77 50 L69 58 L61 50 Z M50 61 L58 69 L50 77 L42 69 Z M31 42 L39 50 L31 58 L23 50 Z"/>
+    <path fill="#5CC596" d="M50 43.5 L56.5 50 L50 56.5 L43.5 50 Z"/>
+  </g>
+</svg>

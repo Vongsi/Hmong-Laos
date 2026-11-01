@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -31,9 +32,11 @@ class OAuthErrorsToJoinPage
 
         $response = $next($request);
 
-        if ($request->session()->get('error') === __('statamic::messages.oauth_email_exists')) {
+        // Said in the address (?signin=email_taken) rather than the session, so the Join page shows it for sure.
+        if ($request->session()->get('error') === __('statamic::messages.oauth_email_exists') && $response instanceof RedirectResponse) {
             $request->session()->forget('error');
-            $request->session()->flash('oauth_problem', 'email_taken');
+            $target = $response->getTargetUrl();
+            $response->setTargetUrl($target.(str_contains($target, '?') ? '&' : '?').'signin=email_taken');
         }
 
         return $response;

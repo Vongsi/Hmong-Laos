@@ -13,11 +13,11 @@
                     <input wire:model="findNumber" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="DAH-…">
                 </label>
                 <label class="field">{{ __('site.shop.find_phone') }}
-                    <input wire:model="findPhone" type="tel" maxlength="40" autocomplete="tel">
+                    <input wire:model="findPhone" type="tel" maxlength="40" autocomplete="tel" placeholder="{{ __('site.ph.phone') }}">
                 </label>
                 @error('findNumber') <p class="error small">{{ $message }}</p> @enderror
                 @error('findPhone') <p class="error small">{{ $message }}</p> @enderror
-                <button class="btn" type="submit" wire:loading.attr="disabled" style="align-self:flex-start">{{ __('site.shop.find_button') }}</button>
+                <button class="btn green" type="submit" wire:loading.attr="disabled" style="align-self:flex-start">{{ __('site.shop.find_button') }}</button>
             </form>
         </section>
         <section class="panel device-orders" data-device-orders wire:ignore hidden>
@@ -72,7 +72,7 @@
                             </div>
                             @if ($courier['track_url'] ?? null)
                                 <div class="stack" style="gap:6px">
-                                    <a class="btn" style="align-self:flex-start" href="{{ $courier['track_url'] }}" target="_blank" rel="noopener" data-copy-also="{{ $order->get('tracking_number') }}">{{ __('site.shop.track_on', ['courier' => $courier['name']]) }} ↗</a>
+                                    <a class="btn green" style="align-self:flex-start" href="{{ $courier['track_url'] }}" target="_blank" rel="noopener" data-copy-also="{{ $order->get('tracking_number') }}">{{ __('site.shop.track_on', ['courier' => $courier['name']]) }} ↗</a>
                                     <p class="muted small">{{ __('site.shop.track_hint', ['courier' => $courier['name']]) }}</p>
                                 </div>
                             @endif
@@ -117,7 +117,7 @@
                         <div class="onepay-qr" role="img" aria-label="{{ __('site.shop.onepay_qr') }}">{!! $onepay['svg'] !!}</div>
                         <div class="stack" style="gap:10px">
                             <p>{{ __('site.shop.onepay_steps', ['number' => $order->get('title')]) }}</p>
-                            <a class="btn red onepay-app" href="onepay://qr/{{ $onepay['code'] }}">{{ __('site.shop.onepay_open_app') }}</a>
+                            <a class="btn green onepay-app" href="onepay://qr/{{ $onepay['code'] }}">{{ __('site.shop.onepay_open_app') }}</a>
                             <p class="muted small">{{ __('site.shop.onepay_valid_until', ['time' => $onepay['expires']->format('H:i')]) }}</p>
                             <p class="onepay-waiting" role="status"><span class="spinner" aria-hidden="true"></span>{{ __('site.shop.onepay_waiting') }}</p>
                         </div>
@@ -159,11 +159,11 @@
                             @endif
                         @enderror
                         <label class="field">{{ __('site.shop.paid_label') }}
-                            <input wire:model="paymentNote" maxlength="500">
+                            <input wire:model="paymentNote" maxlength="500" placeholder="{{ __('site.ph.payment_note') }}">
                         </label>
                         @error('paymentNote') <p class="error small">{{ $message }}</p> @enderror
                         <p class="muted small">{{ __($readingReceipts ? 'site.shop.receipt_kept_checked' : 'site.shop.receipt_kept') }}</p>
-                        <button class="btn" type="submit" wire:loading.attr="disabled" wire:target="reportPayment,receipt" style="align-self:flex-start">{{ __('site.shop.paid_button') }}</button>
+                        <button class="btn green" type="submit" wire:loading.attr="disabled" wire:target="reportPayment,receipt" style="align-self:flex-start">{{ __('site.shop.paid_button') }}</button>
                     </form>
                 </section>
             @else
@@ -185,7 +185,7 @@
                         <p id="cancel-final"><b>{{ __('site.shop.cancel_final') }}</b></p>
                         <p class="muted small">{{ __('site.shop.cancel_paid_warning') }}</p>
                         <label class="field">{{ __('site.shop.cancel_reason') }}
-                            <input wire:model="cancelReason" maxlength="300">
+                            <input wire:model="cancelReason" maxlength="300" placeholder="{{ __('site.ph.cancel_reason') }}">
                         </label>
                         @error('cancelReason') <p class="error small">{{ $message }}</p> @enderror
                         <div class="modal-actions">

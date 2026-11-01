@@ -167,10 +167,11 @@ class AppServiceProvider extends ServiceProvider
         SocialSignIn::register();
         Event::listen(MessageSending::class, SkipPlaceholderEmails::class);
 
-        // Sign-up accepts any profile field a form sends; new members always start unlisted on the
-        // Members page and "never seen". They change the first themselves on their Account page.
+        // Sign-up accepts any profile field a form sends; new members always start listed on the Members page
+        // (signed-in members see their name, province and when they're online) and "never seen". They can hide
+        // themselves on the Members page or My account. Joining with Facebook, Google or WhatsApp does the same.
         Event::listen(UserRegistering::class, function (UserRegistering $event) {
-            $event->user->set('show_in_directory', false);
+            $event->user->set('show_in_directory', true);
             $event->user->set('last_seen_at', null);
         });
 

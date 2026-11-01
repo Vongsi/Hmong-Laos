@@ -23,7 +23,7 @@ class ResendWhatsAppMessage extends Action
 
     public function visibleTo($item)
     {
-        return $item instanceof Entry && $item->collectionHandle() === WhatsApp::COLLECTION;
+        return $item instanceof Entry && $item->collectionHandle() === WhatsApp::COLLECTION && $item->get('kind') !== 'code';
     }
 
     public function visibleToBulk($items)
