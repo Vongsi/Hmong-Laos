@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Support\PlainText;
+use App\Support\ProfilePhoto;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -33,6 +34,9 @@ class User extends Authenticatable
                 }
             }
         });
+
+        // Their profile photo goes with the account.
+        static::deleted(fn (User $user) => ProfilePhoto::forget($user->avatar, $user->id));
     }
 
     /**

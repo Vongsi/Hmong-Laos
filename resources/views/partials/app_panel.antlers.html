@@ -6,7 +6,7 @@
         <h2 class="h-sm">{{ trans key="site.app.title" :brand="brand_name" }}</h2>
         <p class="muted">{{ trans key="site.app.body" }}</p>
         <div class="row-wrap">
-            <button class="btn red" type="button" data-app-install hidden>{{ trans key="site.app.install" }}</button>
+            <button class="btn green" type="button" data-app-install hidden>{{ trans key="site.app.install" }}</button>
             {{ if logged_in }}
                 <button class="btn ghost" type="button" data-push-toggle hidden aria-pressed="false"
                         data-label-on="{{ trans key='site.app.notify_on' }}"

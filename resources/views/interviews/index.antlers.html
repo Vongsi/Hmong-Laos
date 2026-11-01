@@ -1,10 +1,14 @@
 {{ base = site:url | ensure_right('/') }}
 {{ list_url = url }}
 <div class="stack" style="gap:24px">
-    <div class="stack" style="gap:8px">
-        <span class="eyebrow">{{ trans key="site.nav.inspire" }}</span>
-        <h1>{{ trans key="site.inspire.title" }}</h1>
-        <p class="muted" style="max-width:60ch;font-size:16px">{{ trans key="site.inspire.intro" }}</p>
+    {{# Title and intro, with the "share" button on the right, like Feed and Events. #}}
+    <div class="page-actions">
+        <div class="stack" style="gap:8px;flex:1 1 520px;min-width:0">
+            <span class="eyebrow">{{ trans key="site.nav.inspire" }}</span>
+            <h1>{{ trans key="site.inspire.title" }}</h1>
+            <p class="muted" style="max-width:60ch;font-size:16px">{{ trans key="site.inspire.intro" }}</p>
+        </div>
+        <a class="btn green" href="{{ base }}share?type=story">+ {{ trans key="site.contribute.inspire_button" }}</a>
     </div>
     <nav class="chips">
         <a class="chip" href="{{ url }}" {{ if !get:topic }}aria-current="true"{{ /if }}>{{ trans key="site.inspire.all" }}</a>
@@ -19,7 +23,7 @@
     <div class="panel" style="flex-direction:row;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px">
         <div class="stack" style="gap:4px"><h3>{{ trans key="site.inspire.suggest_title" }}</h3><p class="muted small">{{ trans key="site.inspire.suggest_body" }}</p></div>
         <div class="chips">
-            <a class="btn red" href="{{ base }}share?type=story">+ {{ trans key="site.contribute.inspire_button" }}</a>
+            <a class="btn green" href="{{ base }}share?type=story">+ {{ trans key="site.contribute.inspire_button" }}</a>
             <a class="btn ghost" href="{{ base }}about#contact">{{ trans key="site.inspire.suggest" }}</a>
         </div>
     </div>

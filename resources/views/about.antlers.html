@@ -20,11 +20,21 @@
         {{ form:contact class="stack" attr:style="gap:12px" }}
             {{ if success }}<p class="flash" role="status">{{ trans key="site.contact.sent" }}</p>{{ /if }}
             {{ if errors }}<div class="flash">{{ errors }}<p class="error small">{{ value }}</p>{{ /errors }}</div>{{ /if }}
-            {{ fields }}
-                <label class="field" for="{{ id }}">{{ display }}{{ field }}</label>
-            {{ /fields }}
+            {{# The form's fields (resources/blueprints/forms/contact.yaml) written out, so labels, choices and examples are
+                in the page's language; Statamic still checks them against the blueprint. #}}
+            <label class="field" for="contact-name">{{ trans key="site.auth.name" }}<input id="contact-name" name="name" value="{{ old:name | sanitize }}" maxlength="100" autocomplete="name" placeholder="{{ trans key='site.auth.ph_name' }}" required></label>
+            <label class="field" for="contact-reach">{{ trans key="site.contact.f_reach" }}<input id="contact-reach" name="reach" value="{{ old:reach | sanitize }}" maxlength="150" autocomplete="email" placeholder="{{ trans key='site.auth.ph_email_or_mobile' }}" required></label>
+            <label class="field" for="contact-topic">{{ trans key="site.contact.f_topic" }}
+                <select id="contact-topic" name="topic">
+                    <option value="question">{{ trans key="site.contact.topic_question" }}</option>
+                    <option value="story" {{ if old:topic == 'story' }}selected{{ /if }}>{{ trans key="site.contact.topic_story" }}</option>
+                    <option value="volunteer" {{ if old:topic == 'volunteer' }}selected{{ /if }}>{{ trans key="site.contact.topic_volunteer" }}</option>
+                    <option value="problem" {{ if old:topic == 'problem' }}selected{{ /if }}>{{ trans key="site.contact.topic_problem" }}</option>
+                </select>
+            </label>
+            <label class="field" for="contact-message">{{ trans key="site.contact.f_message" }}<textarea id="contact-message" name="message" rows="5" maxlength="3000" placeholder="{{ trans key='site.ph.message' }}" required>{{ old:message | sanitize }}</textarea></label>
             <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off">
-            <button class="btn red" type="submit">{{ trans key="site.contact.send" }}</button>
+            <button class="btn green" type="submit">{{ trans key="site.contact.send" }}</button>
         {{ /form:contact }}
     </section>
 </div>

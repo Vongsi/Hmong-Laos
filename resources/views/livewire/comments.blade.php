@@ -10,10 +10,10 @@
             <div class="avatar">{{ mb_strtoupper(mb_substr(auth()->user()->name ?? '?', 0, 2)) }}</div>
             <div>
                 @if ($replyTo)
-                    <p class="muted small">{{ __('site.comments.replying') }} <button type="button" class="link" wire:click="cancelReply">{{ __('site.comments.cancel') }}</button></p>
+                    <p class="muted small">{{ __('site.comments.replying') }} <button type="button" class="link" style="color:var(--red)" wire:click="cancelReply">{{ __('site.comments.cancel') }}</button></p>
                 @endif
                 <label for="cmt-body" class="muted small">{{ __('site.comments.label') }}</label>
-                <textarea id="cmt-body" wire:model="body" rows="3" maxlength="2000"></textarea>
+                <textarea id="cmt-body" wire:model="body" rows="3" maxlength="2000" placeholder="{{ __('site.ph.comment') }}"></textarea>
                 <p class="typing muted small" wire:ignore aria-live="polite"
                    data-typing-one="{{ __('site.comments.typing_one') }}"
                    data-typing-two="{{ __('site.comments.typing_two') }}"
@@ -21,7 +21,7 @@
                 @error('body') <p class="error small">{{ $message }}</p> @enderror
                 <div class="row">
                     <span class="muted small">{{ __('site.comments.be_kind') }}</span>
-                    <button class="btn" type="submit" wire:loading.attr="disabled">{{ __('site.comments.post') }}</button>
+                    <button class="btn green" type="submit" wire:loading.attr="disabled">{{ __('site.comments.post') }}</button>
                 </div>
             </div>
         </form>

@@ -8,9 +8,12 @@ use App\Support\PlainText;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
+use Statamic\Contracts\Entries\Entry as EntryContract;
 use Statamic\Facades\Entry;
 use Statamic\Facades\Site;
 use Statamic\Facades\Term;
@@ -69,6 +72,15 @@ class SellerProducts extends Component
     /** What the file picker just added; moved into $photos. */
     public array $upload = [];
 
+    /** The photos in the seller's order, the first being the main one: "k:<path>" saved, "n:<file name>" new. */
+    public array $order = [];
+
+    /** Colour slug => that colour's photo already saved (asset path), when changing a product. */
+    public array $colourPhotos = [];
+
+    /** Colour slug => a new photo chosen for that colour. */
+    public array $colourUploads = [];
+
     public bool $sent = false;
 
     public function mount(): void
@@ -102,6 +114,8 @@ class SellerProducts extends Component
         $this->maker = (string) $product->get('maker');
         $this->contact = (string) $product->get('maker_contact');
         $this->keptPhotos = array_values((array) $product->get('images'));
+        $this->order = $this->photoOrder();
+        $this->colourPhotos = collect(Shop::colours($product, $this->site))->pluck('photo', 'slug')->filter()->all();
         $this->mode = 'form';
     }
 
@@ -113,21 +127,74 @@ class SellerProducts extends Component
 
     public function updatedUpload(): void
     {
-        $this->validate(['upload.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:8192']], $this->messages());
-        $this->photos = array_slice(array_merge($this->photos, $this->upload), 0, self::MAX_PHOTOS - count($this->keptPhotos));
-        $this->upload = [];
+        try {
+            $this->validate(['upload.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:8192']], $this->messages());
+        } finally {
+            // Refused or not, the picker starts empty again, so one photo that's too big doesn't block the next ones.
+            $chosen = $this->upload;
+            $this->upload = [];
+        }
+        $this->photos = array_slice(array_merge($this->photos, $chosen), 0, self::MAX_PHOTOS - count($this->keptPhotos));
+        $this->order = $this->photoOrder();
     }
 
-    public function removeKept(int $index): void
+    public function removePhoto(string $key): void
     {
-        unset($this->keptPhotos[$index]);
-        $this->keptPhotos = array_values($this->keptPhotos);
+        $this->keptPhotos = array_values(array_filter($this->keptPhotos, fn ($path) => 'k:'.$path !== $key));
+        $this->photos = array_values(array_filter($this->newPhotos(), fn ($file) => 'n:'.$file->getFilename() !== $key));
+        $this->order = $this->photoOrder();
     }
 
-    public function removeNew(int $index): void
+    /** Moves a photo one place earlier (-1) or later (1); the first one is the main photo. */
+    public function movePhoto(string $key, int $step): void
     {
-        unset($this->photos[$index]);
-        $this->photos = array_values($this->photos);
+        $order = $this->photoOrder();
+        $from = array_search($key, $order, true);
+        $to = $from === false ? null : $from + ($step < 0 ? -1 : 1);
+        if ($to === null || ! isset($order[$to])) {
+            return;
+        }
+        [$order[$from], $order[$to]] = [$order[$to], $order[$from]];
+        $this->order = $order;
+    }
+
+    public function updatedColourUploads($value, string $slug): void
+    {
+        try {
+            $this->validate(['colourUploads.'.$slug => ['image', 'mimes:jpg,jpeg,png,webp', 'max:8192']], $this->messages());
+        } catch (ValidationException $e) {
+            unset($this->colourUploads[$slug]);
+
+            throw $e;
+        }
+    }
+
+    public function removeColourPhoto(string $slug): void
+    {
+        unset($this->colourUploads[$slug], $this->colourPhotos[$slug]);
+    }
+
+    /** The new photos that really are uploads. */
+    private function newPhotos(): array
+    {
+        return array_values(array_filter($this->photos, fn ($file) => $file instanceof TemporaryUploadedFile));
+    }
+
+    /** Every photo's key in the seller's order: the order they chose, then any photo not in it yet. */
+    private function photoOrder(): array
+    {
+        $keys = array_merge(
+            array_map(fn ($path) => 'k:'.$path, $this->keptPhotos),
+            array_map(fn ($file) => 'n:'.$file->getFilename(), $this->newPhotos()),
+        );
+
+        return array_values(array_unique(array_merge(array_intersect($this->order, $keys), $keys)));
+    }
+
+    /** A product's photos and its colours' photos (asset paths). */
+    private static function allPhotos(EntryContract $product): array
+    {
+        return array_merge((array) $product->get('images'), collect((array) $product->get('colour_options'))->pluck('photo')->flatten()->filter()->all());
     }
 
     public function save(): void
@@ -153,6 +220,8 @@ class SellerProducts extends Component
             'contact' => ['required', 'string', 'max:60'],
             'photos' => ['array', 'max:'.(self::MAX_PHOTOS - count($kept))],
             'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
+            'colourUploads' => ['array'],
+            'colourUploads.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
         ], $this->messages());
 
         if (PlainText::line($this->title) === '' || PlainText::line($this->contact) === '') {
@@ -171,10 +240,31 @@ class SellerProducts extends Component
             return;
         }
 
-        $images = array_merge($kept, self::storePhotos($this->photos, self::photoFolder('products', $user->getAuthIdentifier())));
+        $folder = self::photoFolder('products', $user->getAuthIdentifier());
+        $before = $product ? self::allPhotos($product) : [];
+        // The photos in the order the seller put them in.
+        $new = collect($this->newPhotos())->keyBy(fn ($file) => $file->getFilename());
+        $images = [];
+        foreach ($this->photoOrder() as $key) {
+            $name = substr($key, 2);
+            if (str_starts_with($key, 'k:')) {
+                array_push($images, ...array_intersect([$name], $kept));
+            } elseif ($new->has($name)) {
+                array_push($images, ...self::storePhotos([$new[$name]], $folder));
+            }
+        }
+        // Each colour's photo: a new one, or the one it had (the seller's or one the team added), unless removed.
+        $hadColourPhotos = $product ? collect(Shop::colours($product, $this->site))->pluck('photo', 'slug') : collect();
+        $colourOptions = array_map(function ($slug) use ($hadColourPhotos, $folder) {
+            $upload = $this->colourUploads[$slug] ?? null;
+            $had = $hadColourPhotos[$slug] ?? null;
+            $photo = $upload instanceof TemporaryUploadedFile
+                ? (self::storePhotos([$upload], $folder)[0] ?? null)
+                : ($had !== null && ($this->colourPhotos[$slug] ?? null) === $had ? $had : null);
+
+            return array_filter(['colour' => $slug, 'photo' => $photo]);
+        }, array_values($this->colours));
         $sizes = array_values(array_unique(array_filter(array_map(fn ($size) => PlainText::line($size), explode(',', $this->sizes)))));
-        // Keep any colour photo a moderator added for a colour the seller still offers.
-        $colourPhotos = $product ? collect(Shop::colours($product, $this->site))->pluck('photo', 'slug') : collect();
 
         $data = [
             'title' => PlainText::line($this->title),
@@ -184,7 +274,7 @@ class SellerProducts extends Component
             'price' => (int) $this->price,
             'stock' => $this->stock === '' ? null : (int) $this->stock,
             'sizes' => $sizes,
-            'colour_options' => array_map(fn ($slug) => array_filter(['colour' => $slug, 'photo' => $colourPhotos[$slug] ?? null]), array_values($this->colours)),
+            'colour_options' => $colourOptions,
             'product_categories' => $this->category ? [$this->category] : [],
             'provinces' => $this->province ? [$this->province] : [],
             'maker' => PlainText::line($this->maker) ?: PlainText::line($user->name),
@@ -206,6 +296,8 @@ class SellerProducts extends Component
                 ->slug($slug)->date(now())->published(false)->data($data);
             $product->save();
         }
+        // Photos the seller removed or replaced (only their own uploads; never one the team added).
+        self::deleteOwnPhotos(array_diff($before, self::allPhotos($product)), $folder);
 
         self::tellTeam($product, $this->editing ? 'Product changed, ready to review again' : 'New product to review', [
             'Sent by: '.$data['submitted_by_name'],
@@ -219,14 +311,14 @@ class SellerProducts extends Component
     public function withdraw(string $id): void
     {
         $product = $this->ownDraft($id, ['products']);
-        self::deleteOwnPhotos((array) $product->get('images'), self::photoFolder('products', Auth::id()));
+        self::deleteOwnPhotos(self::allPhotos($product), self::photoFolder('products', Auth::id()));
         // With the Lao and English versions made when it was sent.
         self::deleteSubmission($product);
     }
 
     private function resetForm(): void
     {
-        $this->reset('editing', 'title', 'summary', 'description', 'price', 'stock', 'sizes', 'colours', 'category', 'province', 'maker', 'contact', 'keptPhotos', 'photos', 'upload', 'sent');
+        $this->reset('editing', 'title', 'summary', 'description', 'price', 'stock', 'sizes', 'colours', 'category', 'province', 'maker', 'contact', 'keptPhotos', 'photos', 'upload', 'order', 'colourPhotos', 'colourUploads', 'sent');
         $this->resetErrorBag();
     }
 
@@ -244,6 +336,9 @@ class SellerProducts extends Component
             'upload.*.image' => __('site.sell.photo_type'),
             'upload.*.mimes' => __('site.sell.photo_type'),
             'upload.*.max' => __('site.sell.photo_size'),
+            'colourUploads.*.image' => __('site.sell.photo_type'),
+            'colourUploads.*.mimes' => __('site.sell.photo_type'),
+            'colourUploads.*.max' => __('site.sell.photo_size'),
         ];
     }
 
@@ -267,15 +362,26 @@ class SellerProducts extends Component
             'url' => $p->published() ? ($p->in($this->site) ?? $p)->url() : null,
         ]);
 
+        $colourOptions = collect(Term::query()->where('taxonomy', 'colours')->get())
+            ->map(fn ($t) => ['slug' => $t->slug(), 'name' => ($t->in($this->site) ?? $t)->title(), 'swatch' => $t->in(Site::default()->handle())?->get('swatch')])
+            ->sortBy('name')->values();
+        $preview = fn ($file) => $file instanceof TemporaryUploadedFile && $file->isPreviewable() ? $file->temporaryUrl() : null;
+        $new = collect($this->newPhotos())->keyBy(fn ($file) => $file->getFilename());
+
         return view('livewire.seller-products', [
             'user' => Auth::user(),
             'mine' => $mine,
-            'colourOptions' => collect(Term::query()->where('taxonomy', 'colours')->get())
-                ->map(fn ($t) => ['slug' => $t->slug(), 'name' => ($t->in($this->site) ?? $t)->title(), 'swatch' => $t->in(Site::default()->handle())?->get('swatch')])
-                ->sortBy('name')->values(),
+            'colourOptions' => $colourOptions,
             'categoryOptions' => $this->options('product_categories'),
             'provinceOptions' => $this->options('provinces'),
-            'keptThumbs' => array_map(fn ($path) => Shop::photoUrl($path, 160, 160), $this->keptPhotos),
+            // The photos in the seller's order, with a small preview of each.
+            'tiles' => array_map(fn ($key) => ['key' => $key, 'src' => str_starts_with($key, 'k:')
+                ? Shop::photoUrl(substr($key, 2), 160, 160)
+                : $preview($new[substr($key, 2)] ?? null)], $this->photoOrder()),
+            // A photo slot for each colour the seller ticked.
+            'colourRows' => $colourOptions->whereIn('slug', $this->colours)->map(fn ($c) => $c + ['src' => isset($this->colourUploads[$c['slug']])
+                ? $preview($this->colourUploads[$c['slug']])
+                : (isset($this->colourPhotos[$c['slug']]) ? Shop::photoUrl($this->colourPhotos[$c['slug']], 160, 160) : null)])->values(),
             'maxPhotos' => self::MAX_PHOTOS,
             'joinUrl' => Shop::url($this->site, 'join'),
         ]);

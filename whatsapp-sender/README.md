@@ -10,6 +10,7 @@ WhatsApp's terms don't allow unofficial clients like this one for businesses, an
 
 - Use a **number only for the shop** (a separate SIM), never someone's personal WhatsApp. If it is blocked, the shop loses only that number.
 - Send **only order updates to people who ordered**, never adverts or messages to lists. Buyers who expect a message don't report it.
+- **Sign-in codes** ("Continue with WhatsApp" on the website) go to whoever types a number, so they carry the most risk: the website limits them (3 an hour per number, 10 an hour per network address) and this sender to `PRIORITY_DAILY_LIMIT` a day. If the shop's number is ever blocked, members who only sign in with WhatsApp can't sign in until it's linked again: that's the moment to move codes to the official WhatsApp API (paid, about US$0.013 a code).
 - Keep the pace: one message at a time, 8 to 15 seconds apart, at most 200 a day (all adjustable, see Settings).
 - Keep the phone switched on and connected now and then: WhatsApp unlinks computers whose phone has been offline for about 14 days.
 
@@ -92,6 +93,8 @@ Chrome needs about 300 to 500 MB of memory.
 | `DAILY_LIMIT` | `200` | Most messages a day (Laos time). |
 | `MAX_AGE_HOURS` | `12` | Drop messages still waiting after this long. |
 | `STALL_MINUTES` | `3` | Starting or loading without progress this long: start again (the link is kept). |
+| `PRIORITY_GAP_SECONDS` | `1.5` | Sign-in codes: this long after the last message, ahead of everything waiting. |
+| `PRIORITY_DAILY_LIMIT` | `300` | Most sign-in codes a day (on top of `DAILY_LIMIT`). |
 | `DRY_RUN` | `false` | Pretend to send. |
 | `CHROME_PATH` | Puppeteer's Chrome | Another Chrome. |
 | `CHROME_NO_SANDBOX` | `false` | Only if Chrome can't start otherwise. |
@@ -102,7 +105,7 @@ Chrome needs about 300 to 500 MB of memory.
 All with `Authorization: Bearer <TOKEN>`.
 
 - `GET /status`: `status` (`starting`, `qr`, `ready`, `disconnected`), `me` (the linked number), `qr` (the code as a PNG data URL), `queued`, `sent_today`, `daily_limit`, `recent` (the last 10 results).
-- `POST /messages` `{ "id": "…", "to": "8562055551234", "text": "…", "ref": "<order id>" }`: queued (202). The same `id` again changes nothing. `to` is the number with its country code, digits only.
+- `POST /messages` `{ "id": "…", "to": "8562055551234", "text": "…", "ref": "<order id>" }`: queued (202). The same `id` again changes nothing. `to` is the number with its country code, digits only. A sign-in code adds `"priority": true` (ahead of everything else, no "typing…", within `PRIORITY_GAP_SECONDS`) and `"ttl": 600` (dropped if not sent within that many seconds). `GET /status` counts them apart as `codes_today`.
 - `POST /logout`: unlinks the number.
 
 It reports each step to `CALLBACK_URL` as `{ id, ref, to, status: "sent" | "delivered" | "read" | "failed", error, at, wa_id, queued_at, done_at, delivered_at, read_at }` (`at`: when that step happened), trying again a few times if the website doesn't answer. The website only moves a message forward, so steps arriving late or twice change nothing.

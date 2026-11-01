@@ -34,7 +34,7 @@ a{color:var(--indigo)}
 .site-head{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
 .head-in{max-width:1080px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);cursor:pointer;background:none;border:0;padding:0}
-.brand svg{width:34px;height:34px;flex:none}
+.brand svg{width:40px;height:40px;flex:none}
 .brand-name{font-family:var(--display);font-weight:800;font-size:21px;line-height:1}
 .brand-sub{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
 .nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
@@ -52,6 +52,8 @@ select option{background-color:var(--surface);color:var(--ink)}
 .head-actions{display:flex;gap:10px;align-items:center}
 .btn{border:0;border-radius:10px;padding:9px 16px;font-weight:700;cursor:pointer;background:var(--indigo);color:var(--on-accent)}
 .btn.red{background:var(--red)}
+/* "Add / share / sell" buttons (Feed, Events, Inspire, Sell with us). */
+.btn.green{background:var(--green)}
 .btn.ghost{background:none;border:1px solid var(--line);color:var(--ink)}
 /* Pop-up confirmation (cancel order): centred on computers, a sheet sliding up from the bottom on phones. */
 .modal-backdrop{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(10,12,30,.55);backdrop-filter:blur(2px);animation:modal-fade .15s ease-out}
@@ -145,6 +147,18 @@ p{margin:0}
 .groups{display:flex;gap:10px;flex-wrap:wrap}
 .group{display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
 .avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;flex:none;font-size:14px}
+/* A member's profile photo inside the circle (App\Support\ProfilePhoto); initials when there is none. */
+.avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.avatar.avatar-lg{width:88px;height:88px;font-size:28px}
+.photo-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+/* The crop window (public/js/photo-crop.js). */
+.crop-dialog{border:0;border-radius:18px;padding:20px;width:min(92vw,360px);background:var(--surface);color:var(--ink);box-shadow:0 20px 60px rgba(10,12,30,.35)}
+.crop-dialog::backdrop{background:rgba(10,12,30,.55)}
+.crop-dialog[open]{display:flex;flex-direction:column;gap:12px}
+.crop-stage{display:block;width:100%;max-width:300px;aspect-ratio:1;margin:0 auto;border-radius:14px;touch-action:none;cursor:grab;background:var(--surface-2)}
+.crop-stage:active{cursor:grabbing}
+.crop-stage:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+.crop-dialog input[type=range]{width:100%;accent-color:var(--indigo)}
 
 /* feed */
 .feed-layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start}
@@ -193,6 +207,32 @@ p{margin:0}
 .cmt-form textarea{width:100%;min-height:74px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface);resize:vertical}
 .cmt-form .row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
 
+/* Site map: a tree of the main sections (resources/views/sitemap.antlers.html). Leaf links get an empty
+   ::before the width of the chevron so they line up with the branches beside them. */
+.sitemap-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.sitemap-tools{display:flex;gap:8px}
+.sitemap-tools .btn{padding:7px 12px;font-size:13px}
+.site-tree,.site-tree ul{list-style:none;margin:0;padding:0}
+.site-tree{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:6px}
+.site-tree>li+li{border-top:1px solid var(--line)}
+.site-tree summary{list-style:none;cursor:pointer}
+.site-tree summary::-webkit-details-marker{display:none}
+.site-tree a,.site-tree summary{display:flex;align-items:center;gap:10px;min-height:42px;padding:9px 10px;border-radius:10px;color:var(--ink);text-decoration:none}
+.site-tree a:hover,.site-tree summary:hover{background:var(--surface-2)}
+.site-tree a::before{content:"";width:16px;flex:none}
+.site-tree>li>a,.site-tree>li>details>summary{min-height:52px;font-weight:700;font-size:16px}
+.site-tree .chev{width:16px;height:16px;flex:none;color:var(--ink-2);transition:transform .15s}
+.site-tree details[open]>summary>.chev{transform:rotate(90deg)}
+.site-tree .node-icon{width:20px;height:20px;flex:none;color:var(--ink-2)}
+.site-tree details details>summary{font-weight:600;color:var(--ink-2)}
+.site-tree details>ul{margin:0 0 6px 18px;padding-left:14px;border-left:1px solid var(--line)}
+.site-tree details>ul>li{position:relative}
+.site-tree details>ul>li::before{content:"";position:absolute;left:-14px;top:21px;width:10px;border-top:1px solid var(--line)}
+.site-tree li>.muted{display:block;padding:9px 10px 9px 36px}
+.site-tree .node-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.site-tree .node-meta{margin-left:auto;padding-left:12px;color:var(--ink-2);font-size:13px;white-space:nowrap}
+.site-tree .add{color:var(--green);font-weight:700}
+
 /* plan view */
 .plan{display:flex;flex-direction:column;gap:28px}
 .sitemap{overflow-x:auto}
@@ -208,9 +248,15 @@ p{margin:0}
 .note{background:var(--surface-2);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--ink-2)}
 .note.warn{border-left:4px solid var(--red);color:var(--ink)}
 
-/* join / sign in */
-.join{max-width:440px;margin:8px auto 0;display:flex;flex-direction:column;gap:18px}
+/* join / sign in, Share, Sell with us: the page's full width, like the other pages. On the sign-in pages the
+   cards sit side by side (sign in | create an account; a single card takes the left half), stacked on phones. */
+.join{display:flex;flex-direction:column;gap:20px}
+.join-head{display:flex;flex-direction:column;gap:8px}
+.join-head p{margin:0;max-width:62ch;font-size:16px}
+.join-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+@media (max-width:860px){.join-grid{grid-template-columns:minmax(0,1fr)}}
 .join-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:14px}
+.join-card h2{font-size:22px}
 .sso{display:flex;align-items:center;gap:12px;width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer;text-align:left}
 .sso:hover{border-color:var(--indigo)}
 .sso .ico{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:14px;flex:none}
@@ -281,6 +327,18 @@ footer{border-top:1px solid var(--line);background:var(--surface)}
   .grid3{grid-template-columns:1fr 1fr}
   .culture{grid-template-columns:1fr 1fr}
   .phase,.feat{grid-template-columns:1fr}
+}
+/* When the header doesn't fit on one row (measured in layout.antlers.html), it first tightens up: the tagline goes
+   (the name and logo stay) and the menu and gaps get narrower, which is enough for the longer Hmong words with the
+   cart. Only if that still doesn't fit does the menu get its own row under the logo, instead of wrapping wherever it
+   runs out of room; on tablets always (this also works without JavaScript). */
+.head-tight{column-gap:12px}
+.head-tight .brand-sub{display:none}
+.head-tight .nav a{padding-inline:6px}
+.head-tight .head-actions{gap:6px}
+.head-stacked .nav{order:3;width:100%;margin-left:0;overflow-x:auto;flex-wrap:nowrap}
+.head-stacked .head-actions{margin-left:auto}
+@media (max-width:860px){
   .nav{order:3;width:100%;margin-left:0;overflow-x:auto;flex-wrap:nowrap}
   .head-actions{margin-left:auto}
 }
@@ -363,6 +421,10 @@ a.btn{text-decoration:none;display:inline-block}
 .account-menu > summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 .account-menu > summary::-webkit-details-marker{display:none}
 .account-menu .chev{width:14px;height:14px;transition:transform .15s}
+/* In the header My account is an icon (its name is read out and shown on hover) so the header stays on one row. */
+.account-menu .acct-icon{width:18px;height:18px;flex:none}
+.head-actions .account-menu > summary{padding:8px 12px}
+.head-actions .account-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .account-menu[open] .chev{transform:rotate(180deg)}
 .account-menu .menu{position:absolute;right:0;top:calc(100% + 8px);z-index:60;min-width:210px;padding:6px;display:flex;flex-direction:column;gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 36px rgba(10,12,30,.18);animation:modal-fade .12s ease-out}
 .account-menu .menu a{display:flex;flex-direction:row;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;color:var(--ink);font-size:15px;font-weight:600;text-decoration:none;white-space:nowrap}
@@ -395,6 +457,8 @@ a.btn{text-decoration:none;display:inline-block}
 .online-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);flex:none}
 .online-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--ink);background:var(--surface);text-decoration:none;white-space:nowrap}
 .online-pill:hover{border-color:var(--indigo)}
+/* The count only ("● 3"); the word is read out, and the pill says "Members online now" on hover. */
+.online-pill .online-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .members-summary{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;color:var(--ink-2)}
 .online-now{display:inline-flex;align-items:center;gap:8px}
 .online-now b{color:var(--ink)}
@@ -411,8 +475,23 @@ a.btn{text-decoration:none;display:inline-block}
 .member .status-live{display:none;color:var(--green);font-weight:700}
 .member-info{display:flex;flex-direction:column;min-width:0}
 .member-info b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Grid / list switch beside the filters; the list is the same member markup as rows in one box. */
+.view-switch{display:inline-flex;margin-left:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:3px;gap:2px}
+.view-switch button{display:grid;place-items:center;width:38px;height:36px;border:0;border-radius:8px;background:none;color:var(--ink-2);cursor:pointer}
+.view-switch button[aria-pressed="true"]{background:var(--chip);color:var(--ink)}
+.member-list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.member-list .member{border:0;border-radius:0;padding:10px 14px}
+.member-list .member+.member{border-top:1px solid var(--line)}
+.member-list .member .avatar{width:36px;height:36px;font-size:13px}
+.member-list .member-info{flex:1;flex-direction:row;align-items:baseline;justify-content:space-between;gap:4px 16px;flex-wrap:wrap}
+.members-range{margin:0;text-align:center}
+.members-range+.pagination{margin-top:0}
+.pagination .btn{min-width:42px;padding:9px 12px;text-align:center}
+.page-current{cursor:default}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .tone-0{background:#1E2656}.tone-1{background:#B8263F}.tone-2{background:#2E7A58}.tone-3{background:#8C5A12}
 @media (max-width:640px){
+  .member-list .member-info{flex-direction:column;align-items:flex-start;gap:0}
   .online-pill{padding:6px 10px}
   .online-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 }
@@ -573,6 +652,20 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 .sell-add label{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:100%;font-weight:600;text-align:center;color:var(--ink-2);cursor:pointer;border:2px dashed var(--line);border-radius:10px}
 .sell-add label span[aria-hidden]{font-size:26px;line-height:1}
 .sell-add label:focus-within,.sell-add label:hover{border-color:var(--indigo);color:var(--indigo)}
+/* ‹ › under each photo move it one place; the first one is the main photo. */
+.sell-photo-move{position:absolute;bottom:4px;width:28px;height:28px;padding:0 0 2px;font-size:20px;font-weight:700;line-height:1;color:#fff;cursor:pointer;background:rgba(10,12,28,.62);border:0;border-radius:50%}
+.sell-photo-move.earlier{left:4px}
+.sell-photo-move.later{right:4px}
+.sell-photo-x:focus-visible,.sell-photo-move:focus-visible{outline:2px solid var(--pink);outline-offset:1px}
+/* A photo for each colour the seller offers. */
+.colour-photos{display:flex;flex-direction:column;gap:8px}
+.colour-photos ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.colour-photos li{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.colour-photo{position:relative;flex:none;display:grid;place-items:center;width:56px;height:56px;overflow:hidden;cursor:pointer;background:var(--surface-2);border-radius:10px}
+.colour-photo img{width:100%;height:100%;object-fit:cover}
+.colour-photo.empty{font-size:24px;color:var(--ink-2);background:none;border:2px dashed var(--line)}
+.colour-photo:hover,.colour-photo:focus-within{outline:2px solid var(--indigo);outline-offset:2px}
+.colour-photo-name{display:inline-flex;align-items:center;gap:8px;font-weight:600}
 .sell-status{align-self:flex-start;margin-top:2px;padding:2px 9px;font-size:12px;font-weight:700;background:var(--surface-2);border-radius:999px}
 .sell-status.live{color:var(--green);background:color-mix(in srgb,var(--green) 15%,transparent)}
 .sell-status.waiting{color:var(--indigo);background:color-mix(in srgb,var(--indigo) 13%,transparent)}
@@ -628,8 +721,8 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 /* Share: news, events and stories from members */
 .share-types{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
 .share-type{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px 16px;text-align:left;color:var(--ink);cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:14px}
-.share-type b{font-size:16px;color:var(--red)}
-.share-type:hover,.share-type:focus-visible{border-color:var(--indigo)}
+.share-type b{font-size:16px;color:var(--green)}
+.share-type:hover,.share-type:focus-visible{border-color:var(--green)}
 .share-photo{display:flex;flex-wrap:wrap;gap:10px}
 .share-photo-preview{position:relative;width:132px;aspect-ratio:1;overflow:hidden;background:var(--surface-2);border-radius:12px}
 .share-photo-preview img{display:block;width:100%;height:100%;object-fit:cover}
@@ -640,6 +733,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 .share-qa-pair{display:flex;flex-direction:column;gap:8px;padding:12px;background:var(--surface-2);border-radius:12px}
 .field input[type=datetime-local]{min-width:0;width:100%}
 .page-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.page-actions > .btn{margin-left:auto}
 
 /* Rich text boxes (Share: news and events) */
 .rte{font-weight:500;background:var(--surface);border:1px solid var(--line);border-radius:10px}
@@ -651,6 +745,8 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 .rte-btn[aria-pressed="true"]{color:var(--bg);background:var(--ink)}
 .rte-btn:disabled{opacity:.4;cursor:default}
 .rte-body{position:relative}
+/* Example text over the empty editor (resources/views/livewire/member-posts.blade.php, public/js/rich-text.js). */
+.rte-placeholder{position:absolute;inset:0 0 auto 0;margin:0;padding:10px 12px;color:var(--ink-2);opacity:.8;pointer-events:none}
 .rte-area{display:flow-root;min-height:130px;padding:10px 12px;outline:none;overflow-wrap:anywhere}
 .rte.tall .rte-area{min-height:220px}
 .rte-area>:first-child{margin-top:0}
@@ -669,10 +765,9 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 .rte-status{margin:0;padding:6px 12px;font-size:13px;font-weight:600;color:var(--ink-2);border-top:1px solid var(--line)}
 .rte-status.error{color:var(--red)}
 
-/* Share and Sell with us: the full page width, like the other pages (main), not the narrow sign-in box */
-.join.page-wide{max-width:none;margin-top:0}
 @media (min-width:900px){
   .rte .rte-area{min-height:200px;padding:14px 18px;font-size:16px}
+  .rte .rte-placeholder{padding:14px 18px;font-size:16px}
   .rte.tall .rte-area{min-height:420px}
 }
 

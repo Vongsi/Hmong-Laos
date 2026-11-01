@@ -1,11 +1,14 @@
 {{ base = site:url | ensure_right('/') }}
 {{ list_url = url }}
+{{# Title and the "share" button across the whole page (the button at its right edge, like Events and Inspire), then
+    the news with the sidebar beside it. #}}
+<div class="stack" style="gap:16px">
+<div class="page-actions">
+    <h1 style="font-size:32px">{{ trans key="site.nav.feed" }}</h1>
+    <a class="btn green" href="{{ base }}share?type=post">+ {{ trans key="site.contribute.feed_button" }}</a>
+</div>
 <div class="feed-layout">
     <div class="stack" style="gap:16px">
-        <div class="page-actions">
-            <h1 style="font-size:32px">{{ trans key="site.nav.feed" }}</h1>
-            <a class="btn red" href="{{ base }}share?type=post">+ {{ trans key="site.contribute.feed_button" }}</a>
-        </div>
         <form class="chips" method="get" action="{{ url }}">
             <label class="prov"><span class="sr">{{ trans key="site.feed.province" }}</span>
                 <select name="province" data-filter-select>
@@ -50,4 +53,5 @@
             <a class="link" href="{{ base }}rules">{{ trans key="site.nav.rules" }} →</a>
         </div>
     </aside>
+</div>
 </div>

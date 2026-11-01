@@ -1,17 +1,18 @@
 {{ base = site:url | ensure_right('/') }}
 <div class="stack" style="gap:18px">
-    <div class="sec-head">
+    {{# Title and the "add" button (right), then the province filter, like the Feed page. #}}
+    <div class="page-actions">
         <h1 style="font-size:32px">{{ trans key="site.events.title" }}</h1>
-        <a class="btn red" href="{{ base }}share?type=event">+ {{ trans key="site.contribute.events_button" }}</a>
-        <form method="get" action="{{ url }}">
-            <label class="prov"><span class="sr">{{ trans key="site.feed.province" }}</span>
-                <select name="province" data-filter-select>
-                    <option value="">{{ trans key="site.feed.all_provinces" }}</option>
-                    {{ taxonomy:provinces sort="title" }}<option value="{{ slug }}" {{ if get:province == slug }}selected{{ /if }}>{{ title }}</option>{{ /taxonomy:provinces }}
-                </select>
-            </label>
-        </form>
+        <a class="btn green" href="{{ base }}share?type=event">+ {{ trans key="site.contribute.events_button" }}</a>
     </div>
+    <form class="chips" method="get" action="{{ url }}">
+        <label class="prov"><span class="sr">{{ trans key="site.feed.province" }}</span>
+            <select name="province" data-filter-select>
+                <option value="">{{ trans key="site.feed.all_provinces" }}</option>
+                {{ taxonomy:provinces sort="title" }}<option value="{{ slug }}" {{ if get:province == slug }}selected{{ /if }}>{{ title }}</option>{{ /taxonomy:provinces }}
+            </select>
+        </label>
+    </form>
     <div class="grid3">
         {{ collection:events start_date:is_after="now" :taxonomy:provinces="get:province" }}
             {{ partial:event_card }}

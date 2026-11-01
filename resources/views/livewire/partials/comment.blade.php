@@ -12,7 +12,7 @@
                     <button type="button" wire:click="startReply({{ $comment->id }})">{{ __('site.comments.reply') }}</button>
                 @endunless
                 @if (auth()->id() == $comment->user_id)
-                    <button type="button" wire:click="delete({{ $comment->id }})" wire:confirm="{{ __('site.comments.confirm_delete') }}">{{ __('site.comments.delete') }}</button>
+                    <button type="button" style="color:var(--red)" wire:click="delete({{ $comment->id }})" wire:confirm="{{ __('site.comments.confirm_delete') }}">{{ __('site.comments.delete') }}</button>
                 @else
                     <button type="button" wire:click="report({{ $comment->id }})">{{ __('site.comments.report') }}</button>
                 @endif

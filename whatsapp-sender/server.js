@@ -42,6 +42,10 @@ const config = {
     webVersion: process.env.WA_WEB_VERSION || '',
     // Starting or loading without progress for this long: start again (the link is kept).
     stallMinutes: Number(process.env.STALL_MINUTES || 3),
+    // Sign-in codes ("priority" messages): ahead of everything else, this many seconds apart, at most this many a day
+    // (on top of DAILY_LIMIT), and dropped once their own time (ttl) is up.
+    priorityGapSeconds: Number(process.env.PRIORITY_GAP_SECONDS || 1.5),
+    priorityDailyLimit: Number(process.env.PRIORITY_DAILY_LIMIT || 300),
 };
 
 if (config.token.length < 24) {
@@ -225,14 +229,27 @@ async function restart(delay) {
 
 let working = false;
 let nextAt = 0;
+let lastSentAt = 0;
 
-const sentToday = () => history.filter((item) => item.status === 'sent' && laosDay(new Date(item.done_at)) === laosDay()).length;
+// A pause between messages that a sign-in code cuts short.
+let wake = null;
+const nap = (ms) => new Promise((resolve) => {
+    const timer = setTimeout(resolve, ms);
+    wake = () => {
+        clearTimeout(timer);
+        resolve();
+    };
+});
+
+// Sent today (Laos time): ordinary messages, or sign-in codes, each against its own limit.
+const sentToday = (priority = false) => history.filter((item) => item.status === 'sent' && Boolean(item.priority) === priority && laosDay(new Date(item.done_at)) === laosDay()).length;
+const expired = (message) => Date.parse(message.queued_at) + (message.ttl ? message.ttl * 1_000 : config.maxAgeHours * 3_600_000) < Date.now();
 
 // wa_id: WhatsApp's own id for the message, to follow its ticks.
 function finish(message, status, error = null, waId = null) {
     queue = queue.filter((item) => item.id !== message.id);
     const now = new Date().toISOString();
-    const item = { id: message.id, ref: message.ref, to: message.to, status, error, wa_id: waId, queued_at: message.queued_at, done_at: now, delivered_at: null, read_at: null };
+    const item = { id: message.id, ref: message.ref, to: message.to, status, error, wa_id: waId, queued_at: message.queued_at, done_at: now, delivered_at: null, read_at: null, ...(message.priority ? { priority: true } : {}) };
     history = [...history, item].slice(-300);
     persist();
     log(`${message.id} → +${message.to}: ${status}${error ? ` (${error})` : ''}`);
@@ -314,13 +331,15 @@ async function deliver(message) {
     if (!wid) {
         throw Object.assign(new Error('This number is not on WhatsApp'), { final: true });
     }
-    // A moment of "typing…", like a person.
-    try {
-        const chat = await client.getChatById(wid._serialized);
-        await chat.sendStateTyping();
-        await sleep(Math.min(3_000, 800 + message.text.length * 15));
-    } catch {
-        // a new chat has nothing to show it on
+    // A moment of "typing…", like a person; not for a sign-in code, which someone is waiting for.
+    if (!message.priority) {
+        try {
+            const chat = await client.getChatById(wid._serialized);
+            await chat.sendStateTyping();
+            await sleep(Math.min(3_000, 800 + message.text.length * 15));
+        } catch {
+            // a new chat has nothing to show it on
+        }
     }
     const sentAt = Date.now();
     const sent = await client.sendMessage(wid._serialized, message.text, { linkPreview: false });
@@ -413,24 +432,34 @@ async function work() {
     }
     working = true;
     try {
-        const tooOld = Date.now() - config.maxAgeHours * 3_600_000;
-        for (const message of queue.filter((item) => Date.parse(item.queued_at) < tooOld)) {
-            finish(message, 'failed', `Not sent within ${config.maxAgeHours} hours (WhatsApp not linked, or the daily limit was reached)`);
+        const tooLate = (message) => (message.ttl
+            ? 'Not sent in time (a sign-in code that expired)'
+            : `Not sent within ${config.maxAgeHours} hours (WhatsApp not linked, or the daily limit was reached)`);
+        for (const message of queue.filter(expired)) {
+            finish(message, 'failed', tooLate(message));
         }
 
         while (queue.length && state.status === 'ready') {
-            if (sentToday() >= config.dailyLimit) {
+            const message = queue[0];
+            if (expired(message)) {
+                finish(message, 'failed', tooLate(message));
+                continue;
+            }
+            if (message.priority && sentToday(true) >= config.priorityDailyLimit) {
+                finish(message, 'failed', 'Too many sign-in codes today');
+                continue;
+            }
+            if (!message.priority && sentToday() >= config.dailyLimit) {
                 state.pausedUntil = 'tomorrow (daily limit reached)';
                 break;
             }
             state.pausedUntil = null;
-            const wait = nextAt - Date.now();
-            if (wait > 0) {
-                await sleep(wait);
-            }
-            const message = queue[0];
-            if (!message) {
-                break;
+            // Ordinary messages wait their pause; a sign-in code only a moment after the last message. A code coming in
+            // during a pause cuts it short, and this looks again at what is first.
+            const readyAt = message.priority ? lastSentAt + config.priorityGapSeconds * 1_000 : nextAt;
+            if (readyAt > Date.now()) {
+                await nap(readyAt - Date.now());
+                continue;
             }
             try {
                 const waId = await deliver(message);
@@ -445,13 +474,16 @@ async function work() {
                 if (error.final || message.attempts >= 3) {
                     finish(message, 'failed', error.message);
                 } else {
-                    // Try again on the next round, after the others.
-                    queue = [...queue.filter((item) => item.id !== message.id), message];
+                    // Try again: a sign-in code stays first; anything else goes after the others.
+                    if (!message.priority) {
+                        queue = [...queue.filter((item) => item.id !== message.id), message];
+                    }
                     persist();
                     log(`${message.id}: attempt ${message.attempts} failed (${error.message}), will try again.`);
                 }
             }
-            nextAt = Date.now() + (config.gapSeconds + Math.random() * config.jitterSeconds) * 1_000;
+            lastSentAt = Date.now();
+            nextAt = lastSentAt + (config.gapSeconds + Math.random() * config.jitterSeconds) * 1_000;
         }
     } finally {
         working = false;
@@ -532,6 +564,7 @@ const routes = {
         queued: queue.length,
         paused_until: state.pausedUntil,
         sent_today: sentToday(),
+        codes_today: sentToday(true),
         daily_limit: config.dailyLimit,
         recent: history.slice(-10).reverse(),
     }],
@@ -549,7 +582,17 @@ const routes = {
         if (known) {
             return [200, { id, status: known.status ?? 'queued' }];
         }
-        queue.push({ id, to, text, ref: input.ref ? String(input.ref).slice(0, 100) : null, queued_at: new Date().toISOString(), attempts: 0 });
+        // priority: a sign-in code, ahead of everything else; ttl: seconds after which it's no use (30 to 3600).
+        const priority = input.priority === true;
+        const ttl = Number.isInteger(input.ttl) ? Math.min(3_600, Math.max(30, input.ttl)) : null;
+        const message = { id, to, text, ref: input.ref ? String(input.ref).slice(0, 100) : null, queued_at: new Date().toISOString(), attempts: 0, ...(priority ? { priority } : {}), ...(ttl ? { ttl } : {}) };
+        if (priority) {
+            const first = queue.findIndex((item) => !item.priority);
+            queue.splice(first === -1 ? queue.length : first, 0, message);
+            wake?.();
+        } else {
+            queue.push(message);
+        }
         persist();
         setImmediate(work);
 

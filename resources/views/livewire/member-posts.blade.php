@@ -27,7 +27,7 @@
 
             @if ($type === 'story')
                 <label class="field">{{ __('site.contribute.person') }}
-                    <input wire:model="person" maxlength="120" autocomplete="off">
+                    <input wire:model="person" maxlength="120" autocomplete="off" placeholder="{{ __('site.ph.person') }}">
                 </label>
                 @error('person') <p class="error small">{{ $message }}</p> @enderror
                 <label class="field">{{ __('site.contribute.role') }}
@@ -37,12 +37,12 @@
             @endif
 
             <label class="field">{{ __('site.contribute.title_'.$type) }}
-                <input wire:model="title" maxlength="150">
+                <input wire:model="title" maxlength="150" placeholder="{{ __('site.ph.title_'.$type) }}">
             </label>
             @error('title') <p class="error small">{{ $message }}</p> @enderror
 
             <label class="field">{{ __('site.contribute.summary_'.$type) }}
-                <textarea wire:model="summary" rows="2" maxlength="500"></textarea>
+                <textarea wire:model="summary" rows="2" maxlength="500" placeholder="{{ __('site.ph.summary_'.$type) }}"></textarea>
             </label>
             @error('summary') <p class="error small">{{ $message }}</p> @enderror
 
@@ -58,7 +58,7 @@
                 @error('starts') <p class="error small">{{ $message }}</p> @enderror
                 @error('ends') <p class="error small">{{ $message }}</p> @enderror
                 <label class="field">{{ __('site.contribute.venue') }}
-                    <input wire:model="venue" maxlength="200">
+                    <input wire:model="venue" maxlength="200" placeholder="{{ __('site.ph.venue') }}">
                 </label>
                 @error('venue') <p class="error small">{{ $message }}</p> @enderror
                 <label class="field">{{ __('site.contribute.map') }}
@@ -97,6 +97,8 @@
                             <input class="sr" type="file" x-ref="photoInput" accept="image/jpeg,image/png,image/webp" multiple tabindex="-1" aria-hidden="true" @change="addPhotos([...$event.target.files])">
                         </div>
                         <div class="rte-body">
+                            {{-- Example text while the editor is empty (the editor has no placeholder of its own). --}}
+                            <p class="rte-placeholder" x-show="empty" aria-hidden="true">{{ __('site.ph.body_'.$type) }}</p>
                             <div x-ref="area"></div>
                             {{-- Shown next to a photo when it is tapped (TipTap bubble menu). --}}
                             <div x-ref="photoMenu" class="rte-photomenu" role="toolbar" aria-label="{{ __('site.contribute.photo_menu') }}" style="visibility:hidden">
@@ -134,7 +136,7 @@
             @if ($type === 'event')
                 <div class="sell-row">
                     <label class="field">{{ __('site.contribute.phone') }}
-                        <input type="tel" wire:model="phone" maxlength="40">
+                        <input type="tel" wire:model="phone" maxlength="40" placeholder="{{ __('site.ph.phone') }}">
                     </label>
                     <label class="field">{{ __('site.contribute.fee') }}
                         <input wire:model="fee" maxlength="60" placeholder="{{ __('site.events.free') }}">
@@ -152,10 +154,10 @@
                     @foreach ($qa as $i => $pair)
                         <div class="share-qa-pair" wire:key="qa-{{ $i }}">
                             <label class="field">{{ __('site.contribute.question', ['n' => $i + 1]) }}
-                                <input wire:model="qa.{{ $i }}.question" maxlength="300">
+                                <input wire:model="qa.{{ $i }}.question" maxlength="300" placeholder="{{ __('site.ph.question') }}">
                             </label>
                             <label class="field">{{ __('site.contribute.answer') }}
-                                <textarea wire:model="qa.{{ $i }}.answer" rows="4" maxlength="5000"></textarea>
+                                <textarea wire:model="qa.{{ $i }}.answer" rows="4" maxlength="5000" placeholder="{{ __('site.ph.answer') }}"></textarea>
                             </label>
                             @error('qa.'.$i) <p class="error small">{{ $message }}</p> @enderror
                             @if (count($qa) > 1)
@@ -208,8 +210,8 @@
             <p class="muted small">{{ __('site.contribute.rules') }} <a href="{{ $rulesUrl }}">{{ __('site.nav.rules') }}</a></p>
             @error('form') <p class="error small" role="alert">{{ $message }}</p> @enderror
             <div class="sell-actions">
-                <button class="btn red" type="submit" wire:loading.attr="disabled" wire:target="save,photo,textPhoto,storeTextPhoto">{{ __('site.contribute.send') }}</button>
-                <button class="btn ghost" type="button" wire:click="cancel">{{ __('site.contribute.cancel') }}</button>
+                <button class="btn green" type="submit" wire:loading.attr="disabled" wire:target="save,photo,textPhoto,storeTextPhoto">{{ __('site.contribute.send') }}</button>
+                <button class="btn red" type="button" wire:click="cancel">{{ __('site.contribute.cancel') }}</button>
             </div>
         </form>
     @else
