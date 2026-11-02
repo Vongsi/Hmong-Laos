@@ -14,10 +14,10 @@
     <meta property="og:title" content="{{ if is_homepage }}{{ trans key='site.brand' }} · {{ trans key='site.tagline' }}{{ else }}{{ title | sanitize }}{{ /if }}">
     <meta property="og:description" content="{{ if meta_desc }}{{ meta_desc | strip_tags | safe_truncate(200) | sanitize }}{{ else }}{{ trans key='site.tagline' }}{{ /if }}">
     <meta property="og:locale" content="{{ site:locale }}">
-    {{ if image }}{{ image }}<meta property="og:image" content="{{ glide:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /image }}
-    {{ elseif cover }}{{ cover }}<meta property="og:image" content="{{ glide:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /cover }}
-    {{ elseif portrait }}{{ portrait }}<meta property="og:image" content="{{ glide:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /portrait }}
-    {{ elseif images }}{{ images limit="1" }}<meta property="og:image" content="{{ glide:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /images }}
+    {{ if image }}{{ image }}<meta property="og:image" content="{{ watermarked:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /image }}
+    {{ elseif cover }}{{ cover }}<meta property="og:image" content="{{ watermarked:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /cover }}
+    {{ elseif portrait }}{{ portrait }}<meta property="og:image" content="{{ watermarked:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /portrait }}
+    {{ elseif images }}{{ images limit="1" }}<meta property="og:image" content="{{ watermarked:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /images }}
     {{ else }}<meta property="og:image" content="{{ config:app.url }}/images/og-default.png">
     {{ /if }}
     <meta property="og:image:width" content="1200">
@@ -31,13 +31,14 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
     <meta name="csrf-token" content="{{ csrf_token }}">
     {{ if logged_in && config:webpush.vapid.public_key }}<meta name="vapid-key" content="{{ config:webpush.vapid.public_key }}">{{ /if }}
     <script>try{var t=localStorage.getItem('hl-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&family=Figtree:wght@400;500;600;700&family=Noto+Sans+Lao:wght@400;600;700&display=swap">
-    <link rel="stylesheet" href="/css/site.css?v=37">
+    <link rel="stylesheet" href="/css/site.css?v=52">
     {{# Background photo from Globals → Appearance (a planned season's, or the default) #}}
     {{ page_background }}<style>:root{--page-bg:url("{{ bg:large }}");--page-veil:{{ bg:veil }}%}@media (max-width:640px){:root{--page-bg:url("{{ bg:small }}")}}</style>{{ /page_background }}
     {{ livewire:styles }}
@@ -46,11 +47,11 @@
 <header class="site-head">
     <div class="head-in">
         <a class="brand" href="{{ base }}">
-            <svg viewBox="0 0 40 40" aria-hidden="true">
-                <rect x="2" y="2" width="36" height="36" rx="8" fill="var(--indigo)"/>
-                <path d="M20 7 L33 20 L20 33 L7 20 Z" fill="var(--red)"/>
-                <path d="M20 13 L27 20 L20 27 L13 20 Z" fill="var(--surface)"/>
-                <path d="M20 17 L23 20 L20 23 L17 20 Z" fill="var(--green)"/>
+            {{# The paj ntaub diamond (resources/brand/symbol.svg), in the theme's colours so it follows dark mode. #}}
+            <svg viewBox="0 0 100 100" aria-hidden="true">
+                <path fill="var(--indigo)" fill-rule="evenodd" d="M50 5 L95 50 L50 95 L5 50 Z M50 17 L83 50 L50 83 L17 50 Z"/>
+                <path fill="var(--red)" d="M50 23 L58 31 L50 39 L42 31 Z M69 42 L77 50 L69 58 L61 50 Z M50 61 L58 69 L50 77 L42 69 Z M31 42 L39 50 L31 58 L23 50 Z"/>
+                <path fill="var(--green)" d="M50 43.5 L56.5 50 L50 56.5 L43.5 50 Z"/>
             </svg>
             <span>
                 <span class="brand-name">{{ trans key="site.brand" }}</span><br>
@@ -61,11 +62,12 @@
             <a href="{{ base }}" {{ if is_homepage }}aria-current="page"{{ /if }}>{{ trans key="site.nav.home" }}</a>
             <a href="{{ base }}xov-xwm" {{ if uri | starts_with('/xov-xwm') }}aria-current="page"{{ /if }}>{{ trans key="site.nav.feed" }}</a>
             <a href="{{ base }}events" {{ if uri | starts_with('/events') }}aria-current="page"{{ /if }}>{{ trans key="site.nav.events" }}</a>
-            <a href="{{ base }}products" {{ if uri | starts_with('/products') }}aria-current="page"{{ /if }}>{{ trans key="site.nav.products" }}</a>
             <a href="{{ base }}inspire" {{ if uri | starts_with('/inspire') }}aria-current="page"{{ /if }}>{{ trans key="site.nav.inspire" }}</a>
+            <a href="{{ base }}products" {{ if uri | starts_with('/products') }}aria-current="page"{{ /if }}>{{ trans key="site.nav.products" }}</a>
         </nav>
+        {{# Kept small so the header stays on one row on a computer: the online count is a dot and a number, My account an
+            icon (their words are still there for screen readers and on hover), and the cart sits just before it. #}}
         <div class="head-actions">
-            {{ livewire:cart-count }}
             {{ if logged_in }}
                 {{# Shown by live.js once the live connection is up #}}
                 <a class="online-pill" href="{{ base }}members" title="{{ trans key='site.members.online_title' }}" data-online-pill hidden>
@@ -81,24 +83,68 @@
                 <span class="sr">{{ trans key="site.nav.language" }}</span>
                 <select id="lang-select">
                     {{ current_site = site:handle }}
-                    {{ locales all="true" self="true" }}
-                        <option value="{{ url ?? locale:url }}" {{ if locale:handle == current_site }}selected{{ /if }}>{{ locale:name }}</option>
-                    {{ /locales }}
+                    {{ if locale_path }}
+                        {{# Pages made in routes/web.php (privacy, the account lists) have no entry for locales to follow; they are at the same path on every site. #}}
+                        {{ sites }}
+                            <option value="{{ url | ensure_right('/') }}{{ locale_path }}" {{ if handle == current_site }}selected{{ /if }}>{{ name }}</option>
+                        {{ /sites }}
+                    {{ else }}
+                        {{ locales all="true" self="true" }}
+                            <option value="{{ url ?? locale:url }}" {{ if locale:handle == current_site }}selected{{ /if }}>{{ locale:name }}</option>
+                        {{ /locales }}
+                    {{ /if }}
                 </select>
             </label>
+            {{ livewire:cart-count }}
             {{ if logged_in }}
                 {{# My account menu: My profile and Sign out (public/js/site.js closes it on a tap elsewhere or Escape) #}}
                 <details class="account-menu">
-                    <summary class="btn ghost" {{ if uri | starts_with('/account') }}aria-current="page"{{ /if }}>{{ trans key="site.nav.account" }}<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+                    <summary class="btn ghost" {{ if uri | starts_with('/account') }}aria-current="page"{{ /if }} title="{{ trans key='site.nav.account' }}"><svg class="acct-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="account-label">{{ trans key="site.nav.account" }}</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
                     {{ partial:account_menu_items }}
                 </details>
             {{ else }}
-                <a class="btn" href="{{ base }}join">{{ trans key="site.nav.join" }}</a>
+                <a class="btn green" href="{{ base }}join">{{ trans key="site.nav.join" }}</a>
             {{ /if }}
         </div>
     </div>
     <div class="pajntaub" aria-hidden="true"></div>
 </header>
+<script>
+/* The header on one row when everything fits; if not, tightened up (.head-tight: no tagline, a narrower menu), and
+   only if that's still too wide, the menu on its own row under the logo (.head-stacked). Measured rather than set by
+   screen width, because it depends on the language, whether someone is signed in and whether the cart is showing.
+   Checked again on resize, once the fonts load and when the cart appears. */
+(function () {
+    var head = document.querySelector('.head-in');
+    if (!head || !window.ResizeObserver) return;
+    var brand = head.querySelector('.brand'), nav = head.querySelector('.nav'), actions = head.querySelector('.head-actions');
+    function fits(withMenu) {
+        var style = getComputedStyle(head), gap = parseFloat(style.columnGap) || 0;
+        var room = head.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+        var need = brand.getBoundingClientRect().width + actions.getBoundingClientRect().width + gap;
+        if (withMenu) {
+            need += gap + (nav.children.length - 1) * (parseFloat(getComputedStyle(nav).columnGap) || 0);
+            for (var i = 0; i < nav.children.length; i++) need += nav.children[i].getBoundingClientRect().width;
+        }
+        return need <= room + 0.5;
+    }
+    function fit() {
+        head.classList.remove('head-tight', 'head-stacked');
+        if (getComputedStyle(nav).display === 'none') return; // phones: the tab bar
+        if (getComputedStyle(nav).order !== '3') { // tablets always have the menu on its own row (site.css)
+            if (fits(true)) return;
+            head.classList.add('head-tight');
+            if (fits(true)) return;
+            head.classList.replace('head-tight', 'head-stacked');
+        }
+        if (!fits(false)) head.classList.add('head-tight'); // the logo and buttons above the menu
+    }
+    new ResizeObserver(fit).observe(head);
+    new ResizeObserver(fit).observe(actions);
+    if (document.fonts) document.fonts.ready.then(fit);
+    fit();
+})();
+</script>
 
 <main>
     {{ template_content }}
@@ -110,7 +156,6 @@
         <ul class="foot-links">
             <li><a href="{{ base }}about" {{ if uri == '/about' }}aria-current="page"{{ /if }}>{{ trans key="site.nav.about" }}</a></li>
             <li><a href="{{ base }}rules" {{ if uri == '/rules' }}aria-current="page"{{ /if }}>{{ trans key="site.nav.rules" }}</a></li>
-            <li><a href="{{ base }}about#contact">{{ trans key="site.nav.contact" }}</a></li>
             <li><a href="{{ base }}members" {{ if uri == '/members' }}aria-current="page"{{ /if }}>{{ trans key="site.nav.members" }}</a></li>
             <li><a href="{{ base }}sitemap" {{ if uri == '/sitemap' }}aria-current="page"{{ /if }}>{{ trans key="site.nav.sitemap" }}</a></li>
             <li><a href="{{ base }}privacy" {{ if uri == '/privacy' }}aria-current="page"{{ /if }}>{{ trans key="site.legal.privacy" }}</a></li>
@@ -123,8 +168,8 @@
     <a href="{{ base }}" {{ if is_homepage }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg><span>{{ trans key="site.nav.home" }}</span></a>
     <a href="{{ base }}xov-xwm" {{ if uri | starts_with('/xov-xwm') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h10M7 17h6"/></svg><span>{{ trans key="site.nav.feed" }}</span></a>
     <a href="{{ base }}events" {{ if uri | starts_with('/events') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>{{ trans key="site.nav.events" }}</span></a>
-    <a href="{{ base }}products" {{ if uri | starts_with('/products') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>{{ trans key="site.nav.products" }}</span></a>
     <a href="{{ base }}inspire" {{ if uri | starts_with('/inspire') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg><span>{{ trans key="site.nav.inspire" }}</span></a>
+    <a href="{{ base }}products" {{ if uri | starts_with('/products') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span>{{ trans key="site.nav.products" }}</span></a>
     {{ if logged_in }}
         {{# The same menu on phones, opening upwards #}}
         <details class="account-menu">
@@ -135,7 +180,7 @@
         <a href="{{ base }}join" {{ if uri | starts_with('/join') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>{{ trans key="site.nav.join" }}</span></a>
     {{ /if }}
 </nav>
-<script src="/js/site.js?v=10"></script>
+<script src="/js/site.js?v=11"></script>
 <script src="/js/app.js?v=2"></script>
 {{ livewire:scripts }}
 {{ if logged_in }}

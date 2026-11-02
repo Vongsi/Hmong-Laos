@@ -128,6 +128,7 @@ tabs:
           options:
             order: Order update
             test: Test from the dashboard
+            code: 'Sign-in code (the code itself is never kept)'
       - handle: sent_by
         field:
           type: text

@@ -1,7 +1,7 @@
 {{# data-photos: tap a photo to see it large (public/js/site.js). #}}
 <div class="evt-layout" data-photos {{ partial:photo_viewer_labels }}>
     <div class="stack" style="gap:18px">
-        {{ if cover }}{{ cover }}<img class="cover" style="aspect-ratio:21/9" src="{{ glide:url width='1400' height='600' fit='crop_focal' }}" data-full="{{ glide:url width='2000' height='2000' fit='max' }}" alt="{{ alt ?? '' }}">{{ /cover }}{{ else }}<div class="ph b" style="aspect-ratio:21/9"></div>{{ /if }}
+        {{ if cover }}{{ cover }}<img class="cover" style="aspect-ratio:21/9" src="{{ watermarked:url width='1400' height='600' fit='crop_focal' }}" data-full="{{ watermarked:url width='2000' height='2000' fit='max' }}" alt="{{ alt ?? '' }}">{{ /cover }}{{ else }}<div class="ph b" style="aspect-ratio:21/9"></div>{{ /if }}
         <div class="stack" style="gap:8px">
             {{ provinces }}<span class="eyebrow">{{ title }}</span>{{ /provinces }}
             <h1 style="font-size:clamp(28px,4vw,40px)">{{ title }}</h1>

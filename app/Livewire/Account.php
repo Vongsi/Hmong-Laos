@@ -3,29 +3,36 @@
 namespace App\Livewire;
 
 use App\Auth\SocialSignIn;
+use App\Auth\WhatsAppCodes;
 use App\Models\User;
 use App\Shop\SellerPayouts;
 use App\Shop\Shop;
+use App\Support\Countries;
+use App\Support\ProfilePhoto;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Statamic\Facades\Entry;
 use Statamic\Facades\Site;
 use Statamic\Facades\Term;
 use Statamic\Facades\User as Members;
 
 /**
- * The member's own account page: their details (mobile number, province, clan, district or village), Members-page
- * listing, language for notifications, and password. The mobile number, clan and district stay between the member
- * and the team (checkout fills the number in); the Members page shows only name and province. Only these fields
+ * The member's own account page: their details (mobile number, country, and in Laos their province, clan, district or
+ * village), Members-page listing, language for notifications, and password. The mobile number, clan and district stay
+ * between the member and the team (checkout fills the number in); the Members page shows only name and province (or
+ * country, for members outside Laos). Only these fields
  * can be changed here; roles, email and the rest stay with the team. Members who joined with Facebook without an email
  * can add one; everyone can connect or disconnect Facebook and Google (App\Auth\SocialSignIn).
  */
 class Account extends Component
 {
+    use WithFileUploads;
+
     #[Locked]
     public string $site;
 
@@ -35,6 +42,9 @@ class Account extends Component
     public string $email = '';
 
     public string $phone = '';
+
+    /** Three-letter code (App\Support\Countries); the province is only asked in Laos. */
+    public string $country = '';
 
     public string $province = '';
 
@@ -55,6 +65,11 @@ class Account extends Component
     public bool $saved = false;
 
     public bool $passwordChanged = false;
+
+    /** The profile photo, already cropped to a square in the browser (public/js/photo-crop.js). */
+    public $photo;
+
+    public ?string $photoNotice = null;
 
     /** Where the team sends a seller's money (App\Shop\SellerPayouts); shown to members who sell. */
     public string $payoutBank = '';
@@ -78,6 +93,7 @@ class Account extends Component
             $this->name = (string) $user->name;
             $this->phone = (string) $user->phone;
             $this->province = (string) $user->province;
+            $this->country = (string) ($user->country ?: ($user->province ? Countries::LAOS : ''));
             $this->clan = (string) $user->clan;
             $this->area = (string) $user->area;
             $this->payoutBank = (string) $user->payout_bank;
@@ -96,6 +112,7 @@ class Account extends Component
         $this->validate([
             'name' => ['required', 'string', 'max:100'],
             'phone' => ['nullable', 'string', 'max:40', 'regex:/^[0-9+()\-\s]{6,40}$/'],
+            'country' => ['nullable', Rule::in(array_keys(Countries::options($this->site)))],
             'province' => ['nullable', 'string', 'max:100'],
             'clan' => ['nullable', 'string', 'max:60'],
             'area' => ['nullable', 'string', 'max:100'],
@@ -118,9 +135,16 @@ class Account extends Component
             $this->email = '';
         }
 
+        // A province means Laos; members elsewhere have their country only.
+        $this->country = $this->country ?: ($this->province ? Countries::LAOS : '');
+        if ($this->country !== Countries::LAOS) {
+            $this->province = '';
+        }
+
         $user->forceFill([
             'name' => trim($this->name),
             'phone' => trim($this->phone) ?: null,
+            'country' => $this->country ?: null,
             'province' => $this->province ?: null,
             'clan' => trim($this->clan) ?: null,
             'area' => trim($this->area) ?: null,
@@ -131,14 +155,41 @@ class Account extends Component
         $this->saved = true;
     }
 
+    /** Their new profile photo (App\Support\ProfilePhoto), uploaded by the crop window. */
+    public function savePhoto(): void
+    {
+        $user = $this->user();
+        abort_unless($user, 403);
+        $this->photoNotice = null;
+
+        $this->validate(['photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240']], ['photo.*' => __('site.auth.photo_error')]);
+        try {
+            ProfilePhoto::store($user, $this->photo);
+            $this->photoNotice = __('site.auth.photo_saved');
+        } catch (\Throwable $e) {
+            report($e);
+            $this->addError('photo', __('site.auth.photo_error'));
+        }
+        $this->reset('photo');
+    }
+
+    public function removePhoto(): void
+    {
+        $user = $this->user();
+        abort_unless($user, 403);
+        ProfilePhoto::remove($user);
+        $this->photoNotice = __('site.auth.photo_removed');
+    }
+
     public function changePassword(): void
     {
         $user = $this->user();
         abort_unless($user, 403);
         $this->passwordChanged = false;
+        $askCurrent = self::asksCurrentPassword();
 
         $this->validate([
-            'currentPassword' => ['required', 'string'],
+            'currentPassword' => $askCurrent ? ['required', 'string'] : ['nullable'],
             'newPassword' => ['required', 'string', Password::min(8), 'same:newPasswordConfirmation'],
         ], [
             '*.required' => __('site.shop.required'),
@@ -146,7 +197,7 @@ class Account extends Component
             'newPassword.same' => __('site.auth.password_mismatch'),
         ]);
 
-        if (! Hash::check($this->currentPassword, $user->password)) {
+        if ($askCurrent && ! Hash::check($this->currentPassword, (string) $user->password)) {
             $this->addError('currentPassword', __('site.auth.wrong_password'));
 
             return;
@@ -156,6 +207,16 @@ class Account extends Component
 
         $this->reset('currentPassword', 'newPassword', 'newPasswordConfirmation');
         $this->passwordChanged = true;
+    }
+
+    /**
+     * The current password, unless they signed in within the last 15 minutes (Statamic's "elevated session": any
+     * sign-in, a WhatsApp code too). So members without one (Facebook, Google, WhatsApp) or who forgot it, and
+     * have no email for a reset link, choose a new one after signing in.
+     */
+    public static function asksCurrentPassword(): bool
+    {
+        return ! request()->hasElevatedSession();
     }
 
     public function savePayout(): void
@@ -223,6 +284,8 @@ class Account extends Component
             'user' => $user,
             // Joined with Facebook without an email: "Signed in with Facebook", and a field to add one.
             'noEmailVia' => SocialSignIn::placeholderProvider($user?->email),
+            // Their WhatsApp sign-in number (App\Livewire\WhatsAppSignIn), once the WhatsApp sender is set up.
+            'whatsappSignIn' => WhatsAppCodes::enabled(),
             // Facebook and Google (once their keys are set): connected or not, and whether it can be disconnected.
             'signIns' => collect(SocialSignIn::available())->map(fn (string $name) => (object) [
                 'name' => $name,
@@ -233,9 +296,15 @@ class Account extends Component
                 'disconnectUrl' => route('statamic.oauth.disconnect', $name),
             ])->all(),
             'provinces' => $provinces,
+            // Laos, then where many Hmong live, then every country, all in the visitor's language.
+            'countries' => $countries = Countries::options($this->site),
+            'commonCountries' => array_intersect_key($countries, array_flip(Countries::COMMON)),
+            'inLaos' => in_array($this->country, ['', Countries::LAOS], true),
             'joinUrl' => Shop::url($this->site, 'join'),
             'membersUrl' => Shop::url($this->site, 'members'),
             // Members who sell (or were paid before) say where their money goes.
+            'askCurrentPassword' => self::asksCurrentPassword(),
+            'photoUrl' => ProfilePhoto::url($user?->avatar, 192),
             'isSeller' => Auth::check() && (Entry::query()->where('collection', 'products')->whereJsonContains('submitted_by', (string) Auth::id())->exists()
                 || Entry::query()->where('collection', SellerPayouts::COLLECTION)->whereJsonContains('seller', (string) Auth::id())->exists()),
         ]);

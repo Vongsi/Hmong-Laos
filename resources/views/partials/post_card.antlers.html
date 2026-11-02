@@ -6,7 +6,7 @@
     </div>
     <h3><a href="{{ url }}" style="color:inherit;text-decoration:none">{{ title }}</a></h3>
     {{ if excerpt }}<p>{{ excerpt }}</p>{{ /if }}
-    {{ if image }}<a href="{{ url }}">{{ image }}<img class="cover" src="{{ glide:url width='900' height='560' fit='crop_focal' }}" alt="{{ alt ?? '' }}" loading="lazy">{{ /image }}</a>{{ /if }}
+    {{ if image }}<a href="{{ url }}">{{ image }}<img class="cover" src="{{ watermarked:url width='900' height='560' fit='crop_focal' }}" alt="{{ alt ?? '' }}" loading="lazy">{{ /image }}</a>{{ /if }}
     <div class="post-actions">
         {{ livewire:like-button :entry-id="id" :key="id" }}
         <a class="like" href="{{ url }}#comments">💬 {{ trans key="site.feed.comments" }}</a>

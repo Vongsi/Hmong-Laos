@@ -123,4 +123,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'file'),
     ],
 
+    // The Daim Av Hlub mark on the site's photos (App\Support\Watermark).
+    'photo_watermark' => (bool) env('PHOTO_WATERMARK', true),
+
 ];

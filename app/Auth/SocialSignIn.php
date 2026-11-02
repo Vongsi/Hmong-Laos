@@ -2,6 +2,7 @@
 
 namespace App\Auth;
 
+use App\Models\User as UserModel;
 use Closure;
 use Statamic\Contracts\Auth\User as StatamicUser;
 use Statamic\Facades\OAuth;
@@ -26,6 +27,9 @@ class SocialSignIn
 
     const LABELS = ['facebook' => 'Facebook', 'google' => 'Google'];
 
+    /** Who a placeholder email came from: Facebook, or joining with a WhatsApp code (App\Livewire\WhatsAppSignIn). */
+    const PLACEHOLDER_LABELS = self::LABELS + ['whatsapp' => 'WhatsApp'];
+
     /** New members from Facebook or Google: their name, and their email or a placeholder. */
     public static function register(): void
     {
@@ -33,7 +37,11 @@ class SocialSignIn
         foreach (OAuth::providers()->keys() as $name) {
             OAuth::provider($name)?->withUser(fn ($socialite) => User::make()
                 ->email($socialite->getEmail() ?: self::placeholder($name, (string) $socialite->getId()))
-                ->data(['name' => $socialite->getName() ?: $socialite->getNickname() ?: self::LABELS[$name] ?? $name]));
+                ->data([
+                    'name' => $socialite->getName() ?: $socialite->getNickname() ?: self::LABELS[$name] ?? $name,
+                    // Listed on the Members page, like everyone who joins (they can hide themselves).
+                    'show_in_directory' => true,
+                ]));
         }
     }
 
@@ -50,7 +58,7 @@ class SocialSignIn
     /** "Facebook" for a member who joined with Facebook and has no email yet. */
     public static function placeholderProvider(?string $email): ?string
     {
-        return self::isPlaceholder($email) ? self::LABELS[strtok((string) $email, '-')] ?? null : null;
+        return self::isPlaceholder($email) ? self::PLACEHOLDER_LABELS[strtok((string) $email, '-')] ?? null : null;
     }
 
     /** The providers set up in .env (their keys filled in), in button order. */
@@ -66,12 +74,23 @@ class SocialSignIn
     }
 
     /**
-     * Whether disconnecting $name would still leave a way in: another provider, or an email they can set a password
-     * with ("Forgot your password?").
+     * Whether disconnecting $name would still leave a way in: another provider, their WhatsApp number, or an email they
+     * can set a password with ("Forgot your password?").
      */
     public static function canDisconnect(StatamicUser $user, string $name): bool
     {
-        return ! self::isPlaceholder($user->email()) || count(array_diff(self::connected($user), [$name])) > 0;
+        return ! self::isPlaceholder($user->email()) || count(array_diff(self::connected($user), [$name])) > 0 || self::hasWhatsApp($user);
+    }
+
+    /** Whether removing their WhatsApp number would still leave a way in: an email, or Facebook or Google. */
+    public static function canRemoveWhatsApp(StatamicUser $user): bool
+    {
+        return ! self::isPlaceholder($user->email()) || self::connected($user) !== [];
+    }
+
+    public static function hasWhatsApp(StatamicUser $user): bool
+    {
+        return filled(UserModel::find($user->id())?->whatsapp);
     }
 
     /** Statamic keeps who is connected to what in storage/statamic/oauth/<provider>.php: read it its own way. */

@@ -1,6 +1,6 @@
 // Daim Av Hlub service worker: offline reading of pages already visited, fast repeat visits,
 // and push notifications for new events and announcements.
-const VERSION = 'hl-v2';
+const VERSION = 'hl-v3';
 const STATIC = VERSION + '-static';
 const PAGES = VERSION + '-pages';
 const IMAGES = VERSION + '-images';

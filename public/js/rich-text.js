@@ -43,6 +43,8 @@
 
         return {
             active: {},
+            // Nothing written yet: the page shows example text over the editor.
+            empty: !wire.get(property),
             ready: false,
             uploading: 0,
             failed: false,
@@ -144,6 +146,7 @@
 
             refresh() {
                 if (!editor) return;
+                this.empty = editor.isEmpty;
                 this.active = {
                     bold: editor.isActive('bold'),
                     italic: editor.isActive('italic'),

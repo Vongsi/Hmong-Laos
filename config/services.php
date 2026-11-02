@@ -70,6 +70,8 @@ return [
         'token' => env('WHATSAPP_SENDER_TOKEN'),
         // Its linked session, queue and history; outside the release folders with zero-downtime deploys.
         'data_dir' => env('WHATSAPP_SENDER_DATA_DIR'),
+        // "Continue with WhatsApp" on Join: a sign-in code sent through it (App\Auth\WhatsAppCodes).
+        'sign_in' => (bool) env('WHATSAPP_SIGN_IN', true),
     ],
 
 ];

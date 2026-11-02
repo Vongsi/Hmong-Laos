@@ -1,0 +1,17 @@
+# The web server inside the site's image (deploy/Dockerfile): HTTPS for SERVER_NAME with a free certificate from
+# Let's Encrypt that it renews itself, the live features passed on to Reverb, and everything else to PHP.
+{
+	email {$ACME_EMAIL}
+	frankenphp
+}
+
+{$SERVER_NAME} {
+	root * /app/public
+	encode zstd br gzip
+
+	# Laravel Reverb (online counts, typing, new comments): browsers connect to /app/<key>, the site posts to /apps/<id>.
+	@reverb path /app/* /apps/*
+	reverse_proxy @reverb reverb:8080
+
+	php_server
+}

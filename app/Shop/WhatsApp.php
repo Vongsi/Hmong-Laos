@@ -109,6 +109,26 @@ class WhatsApp
             : dispatch(fn () => WhatsApp::queue($id))->afterResponse();
     }
 
+    /**
+     * A sign-in code (App\Auth\WhatsAppCodes): first in the sender's queue, no use after $ttl seconds. Logged like the
+     * other messages, with the code hidden ($logText); never resent. Null, or why the sender didn't take it.
+     */
+    public static function sendCode(string $to, string $text, string $logText, int $ttl, ?string $lang = null): ?string
+    {
+        $message = self::record(['kind' => 'code', 'to' => $to, 'about' => 'Sign-in code', 'message' => $logText, 'language' => $lang]);
+
+        try {
+            self::http()->post('messages', ['id' => $message->id(), 'to' => $to, 'text' => $text, 'priority' => true, 'ttl' => $ttl])->throw();
+
+            return null;
+        } catch (Throwable $e) {
+            $error = 'The WhatsApp sender didn\'t take it ('.Str::limit($e->getMessage(), 150).')';
+            self::report($message->id(), 'failed', $error);
+
+            return $error;
+        }
+    }
+
     /** Hands a logged message to the sender. */
     public static function queue(string $id): void
     {
@@ -256,7 +276,8 @@ class WhatsApp
         if (! self::active()) {
             return 'WhatsApp updates are not set up, or switched off in Shop settings.';
         }
-        if ($original->collectionHandle() !== self::COLLECTION || blank($original->get('message'))) {
+        // A sign-in code is never sent again (its text holds no code, and it would be out of date anyway).
+        if ($original->collectionHandle() !== self::COLLECTION || blank($original->get('message')) || $original->get('kind') === 'code') {
             return 'That isn\'t a WhatsApp message.';
         }
         $number = filled($to) ? self::number($to) : $original->get('to');
@@ -293,7 +314,7 @@ class WhatsApp
     {
         return Entry::query()->where('collection', self::COLLECTION)->whereIn('result', ['failed', 'sent'])
             ->where('date', '>=', now()->subDays(14))->orderBy('date', 'desc')->get()
-            ->reject(fn (EntryContract $message) => filled($message->get('resent_as')))
+            ->reject(fn (EntryContract $message) => filled($message->get('resent_as')) || $message->get('kind') === 'code')
             ->filter(fn (EntryContract $message) => $message->get('result') === 'failed'
                 ? $message->date()->gte(now()->subDays(7))
                 : $message->date()->lte(now()->subDay()))

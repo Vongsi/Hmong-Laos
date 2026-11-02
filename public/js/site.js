@@ -28,6 +28,14 @@
     else window.prompt('', url);
   });
 
+  // Site map: "Open all" / "Close all" for the tree's sections.
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-tree-all]');
+    if (!btn) return;
+    var open = btn.getAttribute('data-tree-all') === 'open';
+    document.querySelectorAll('.site-tree details').forEach(function (d) { d.open = open; });
+  });
+
   // Language dropdown: each option's value is the same page in that language.
   document.addEventListener('change', function (e) {
     if (e.target.id === 'lang-select' && e.target.value) window.location.href = e.target.value;

@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Statamic\Facades\Asset;
 use Statamic\Facades\AssetContainer;
 use Statamic\Fields\Field;
 use Statamic\Fieldtypes\Bard\Augmentor;
@@ -93,7 +94,26 @@ class RichText
     {
         $nodes = is_string($value) ? self::toBard($value) : (is_array($value) ? $value : null);
 
-        return $nodes ? self::augmentor()->renderProsemirrorToHtml(['type' => 'doc', 'content' => array_values($nodes)]) : '';
+        return $nodes ? self::augmentor()->renderProsemirrorToHtml(['type' => 'doc', 'content' => self::plainPhotoAddresses(array_values($nodes))]) : '';
+    }
+
+    /**
+     * Photos as their plain address, which assetPath() reads back when the member saves. On the site they're
+     * shown sized and with the watermark instead (App\Bard\PhotoNode), which the editor mustn't keep.
+     */
+    private static function plainPhotoAddresses(array $nodes): array
+    {
+        return array_map(function ($node) {
+            $src = (string) ($node['attrs']['src'] ?? '');
+            if (($node['type'] ?? null) === 'image' && str_starts_with($src, 'asset::')) {
+                $node['attrs']['src'] = Asset::find(substr($src, strlen('asset::')))?->url() ?? $src;
+            }
+            if (is_array($node['content'] ?? null)) {
+                $node['content'] = self::plainPhotoAddresses($node['content']);
+            }
+
+            return $node;
+        }, $nodes);
     }
 
     /** How many characters of text the content has. */

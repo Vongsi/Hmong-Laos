@@ -1,0 +1,25 @@
+# Only the code goes into the site's image (deploy/Dockerfile). Settings, uploads and everything the site writes
+# live on the server and are mounted at start (deploy/docker-compose.yml).
+.git
+.github
+.env
+.env.*
+!.env.example
+deploy/.env
+node_modules
+vendor
+storage
+bootstrap/cache/*
+!bootstrap/cache/.gitignore
+public/assets/*
+!public/assets/.gitkeep
+public/vendor/statamic
+public/storage
+public/hot
+public/static
+public/img
+whatsapp-sender
+tests
+*.log
+.idea
+.vscode

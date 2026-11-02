@@ -23,7 +23,7 @@
                             <input type="number" inputmode="numeric" min="0" max="{{ $line->available ?? \App\Shop\Cart::MAX_QUANTITY }}" value="{{ $line->quantity }}" wire:change="setQuantity('{{ $line->id }}', $event.target.value)">
                         </label>
                         <b>{{ \App\Shop\Shop::kip($line->lineTotal) }}</b>
-                        <button type="button" class="link small" wire:click="remove('{{ $line->id }}')">{{ __('site.shop.remove') }}</button>
+                        <button type="button" class="link small" style="color:var(--red)" wire:click="remove('{{ $line->id }}')">{{ __('site.shop.remove') }}</button>
                     </div>
                 </li>
             @endforeach
@@ -34,7 +34,7 @@
         </div>
         <div class="row-wrap" style="justify-content:flex-end">
             <a class="btn ghost" href="{{ $productsUrl }}">{{ __('site.shop.browse') }}</a>
-            <a class="btn red" href="{{ $checkoutUrl }}">{{ __('site.shop.checkout') }}</a>
+            <a class="btn green" href="{{ $checkoutUrl }}">{{ __('site.shop.checkout') }}</a>
         </div>
     @endif
 </div>

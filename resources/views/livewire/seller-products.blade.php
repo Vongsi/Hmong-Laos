@@ -8,21 +8,21 @@
 
             <div class="field">
                 <span>{{ __('site.sell.photos', ['max' => $maxPhotos]) }}</span>
-                {{-- The first photo is the main one (CSS labels it). --}}
+                {{-- In the seller's order: the first photo is the main one (CSS labels it), and ‹ › move a photo. --}}
                 <ul class="sell-photos">
-                    @foreach ($keptThumbs as $i => $thumb)
-                        <li wire:key="kept-{{ $keptPhotos[$i] }}" data-main="{{ __('site.sell.main_photo') }}">
-                            @if ($thumb)<img src="{{ $thumb }}" alt="">@endif
-                            <button type="button" class="sell-photo-x" wire:click="removeKept({{ $i }})" aria-label="{{ __('site.sell.photo_remove') }}">×</button>
+                    @foreach ($tiles as $i => $tile)
+                        <li wire:key="photo-{{ $tile['key'] }}" data-main="{{ __('site.sell.main_photo') }}">
+                            @if ($tile['src'])<img src="{{ $tile['src'] }}" alt="">@endif
+                            <button type="button" class="sell-photo-x" wire:click="removePhoto(@js($tile['key']))" aria-label="{{ __('site.sell.photo_remove') }}">×</button>
+                            @if ($i > 0)
+                                <button type="button" class="sell-photo-move earlier" wire:click="movePhoto(@js($tile['key']), -1)" aria-label="{{ __('site.sell.photo_earlier') }}" title="{{ __('site.sell.photo_earlier') }}">‹</button>
+                            @endif
+                            @if ($i < count($tiles) - 1)
+                                <button type="button" class="sell-photo-move later" wire:click="movePhoto(@js($tile['key']), 1)" aria-label="{{ __('site.sell.photo_later') }}" title="{{ __('site.sell.photo_later') }}">›</button>
+                            @endif
                         </li>
                     @endforeach
-                    @foreach ($photos as $i => $photo)
-                        <li wire:key="new-{{ $photo->getFilename() }}" data-main="{{ __('site.sell.main_photo') }}">
-                            @if ($photo->isPreviewable())<img src="{{ $photo->temporaryUrl() }}" alt="">@endif
-                            <button type="button" class="sell-photo-x" wire:click="removeNew({{ $i }})" aria-label="{{ __('site.sell.photo_remove') }}">×</button>
-                        </li>
-                    @endforeach
-                    @if (count($keptPhotos) + count($photos) < $maxPhotos)
+                    @if (count($tiles) < $maxPhotos)
                         <li class="sell-add">
                             <label>
                                 <span aria-hidden="true">+</span>
@@ -40,24 +40,24 @@
             </div>
 
             <label class="field">{{ __('site.sell.name') }}
-                <input wire:model="title" maxlength="120">
+                <input wire:model="title" maxlength="120" placeholder="{{ __('site.ph.product') }}">
             </label>
             @error('title') <p class="error small">{{ $message }}</p> @enderror
             <label class="field">{{ __('site.sell.summary') }}
-                <input wire:model="summary" maxlength="300">
+                <input wire:model="summary" maxlength="300" placeholder="{{ __('site.ph.product_summary') }}">
             </label>
             @error('summary') <p class="error small">{{ $message }}</p> @enderror
             <label class="field">{{ __('site.sell.description') }}
-                <textarea wire:model="description" rows="5" maxlength="5000"></textarea>
+                <textarea wire:model="description" rows="5" maxlength="5000" placeholder="{{ __('site.ph.product_description') }}"></textarea>
             </label>
             @error('description') <p class="error small">{{ $message }}</p> @enderror
 
             <div class="sell-row">
                 <label class="field">{{ __('site.sell.price') }}
-                    <input wire:model="price" inputmode="numeric" maxlength="11">
+                    <input wire:model="price" inputmode="numeric" maxlength="11" placeholder="{{ __('site.ph.price') }}">
                 </label>
                 <label class="field">{{ __('site.sell.stock') }}
-                    <input wire:model="stock" inputmode="numeric" maxlength="6">
+                    <input wire:model="stock" inputmode="numeric" maxlength="6" placeholder="{{ __('site.ph.stock') }}">
                 </label>
             </div>
             @error('price') <p class="error small">{{ $message }}</p> @enderror
@@ -73,10 +73,36 @@
                 <fieldset class="sizes colours">
                     <legend class="small" style="font-weight:600">{{ __('site.sell.colours') }}</legend>
                     @foreach ($colourOptions as $c)
-                        <label class="size"><input type="checkbox" wire:model="colours" value="{{ $c['slug'] }}"><span><i class="swatch" style="--swatch:{{ $c['swatch'] ?: 'transparent' }}" aria-hidden="true"></i>{{ $c['name'] }}</span></label>
+                        <label class="size"><input type="checkbox" wire:model.live="colours" value="{{ $c['slug'] }}"><span><i class="swatch" style="--swatch:{{ $c['swatch'] ?: 'transparent' }}" aria-hidden="true"></i>{{ $c['name'] }}</span></label>
                     @endforeach
                 </fieldset>
                 @error('colours.*') <p class="error small">{{ $message }}</p> @enderror
+                {{-- A photo for each colour ticked: the product page shows it when a buyer picks that colour. --}}
+                @if ($colourRows->isNotEmpty())
+                    <div class="colour-photos">
+                        <span class="small" style="font-weight:600">{{ __('site.sell.colour_photos') }}</span>
+                        <ul>
+                            @foreach ($colourRows as $c)
+                                <li wire:key="colour-photo-{{ $c['slug'] }}">
+                                    <label class="colour-photo{{ $c['src'] ? '' : ' empty' }}" title="{{ __($c['src'] ? 'site.sell.colour_photo_change' : 'site.sell.colour_photo_add', ['colour' => $c['name']]) }}">
+                                        @if ($c['src'])<img src="{{ $c['src'] }}" alt="">@else<span aria-hidden="true">+</span>@endif
+                                        <span class="sr">{{ __($c['src'] ? 'site.sell.colour_photo_change' : 'site.sell.colour_photo_add', ['colour' => $c['name']]) }}</span>
+                                        <input class="sr" type="file" wire:model="colourUploads.{{ $c['slug'] }}" accept="image/jpeg,image/png,image/webp">
+                                    </label>
+                                    <span class="colour-photo-name"><i class="swatch" style="--swatch:{{ $c['swatch'] ?: 'transparent' }}" aria-hidden="true"></i>{{ $c['name'] }}</span>
+                                    <span class="muted small" wire:loading wire:target="colourUploads.{{ $c['slug'] }}">{{ __('site.sell.uploading') }}</span>
+                                    @if ($c['src'])
+                                        <button type="button" class="link small" style="color:var(--red)" wire:click="removeColourPhoto(@js($c['slug']))">{{ __('site.sell.photo_remove') }}</button>
+                                    @endif
+                                </li>
+                            @endforeach
+                        </ul>
+                        <p class="muted small">{{ __('site.sell.colour_photos_help') }}</p>
+                        @if ($errors->first('colourUploads.*'))
+                            <p class="error small">{{ $errors->first('colourUploads.*') }}</p>
+                        @endif
+                    </div>
+                @endif
             @endif
 
             <div class="sell-row">
@@ -99,26 +125,26 @@
             </div>
 
             <label class="field">{{ __('site.sell.maker') }}
-                <input wire:model="maker" maxlength="150">
+                <input wire:model="maker" maxlength="150" placeholder="{{ __('site.ph.maker') }}">
             </label>
             @error('maker') <p class="error small">{{ $message }}</p> @enderror
             <label class="field">{{ __('site.sell.contact') }}
-                <input type="tel" wire:model="contact" maxlength="60" autocomplete="tel">
+                <input type="tel" wire:model="contact" maxlength="60" autocomplete="tel" placeholder="{{ __('site.ph.phone') }}">
             </label>
             @error('contact') <p class="error small">{{ $message }}</p> @enderror
             <p class="muted small">{{ __('site.sell.contact_help') }}</p>
 
             @error('form') <p class="error small" role="alert">{{ $message }}</p> @enderror
             <div class="sell-actions">
-                <button class="btn red" type="submit" wire:loading.attr="disabled" wire:target="save,upload">{{ __('site.sell.send') }}</button>
-                <button class="btn ghost" type="button" wire:click="cancel">{{ __('site.sell.cancel') }}</button>
+                <button class="btn green" type="submit" wire:loading.attr="disabled" wire:target="{{ $colourRows->map(fn ($c) => 'colourUploads.'.$c['slug'])->prepend('save,upload')->implode(',') }}">{{ __('site.sell.send') }}</button>
+                <button class="btn red" type="button" wire:click="cancel">{{ __('site.sell.cancel') }}</button>
             </div>
         </form>
     @else
         @if ($sent)<p class="flash" role="status">{{ __('site.sell.sent') }}</p>@endif
         <div class="sell-head">
             <h2 class="h-sm">{{ __('site.sell.mine') }}</h2>
-            <button class="btn red" type="button" wire:click="create">+ {{ __('site.sell.add') }}</button>
+            <button class="btn green" type="button" wire:click="create">+ {{ __('site.sell.add') }}</button>
         </div>
         @if ($mine->isEmpty())
             <p class="panel muted">{{ __('site.sell.none') }}</p>

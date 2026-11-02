@@ -27,12 +27,33 @@ fields:
       type: assets
       max_files: 1
       container: assets
+      instructions: 'Their profile photo: members add, crop and remove it on My account (kept in avatars/). Shown on the Members page.'
   -
     handle: phone
     field:
       type: text
       display: 'Mobile number (WhatsApp)'
       instructions: 'From My account. Only the team sees it; checkout fills it in for the member.'
+      width: 50
+  -
+    handle: whatsapp
+    field:
+      type: text
+      display: 'WhatsApp sign-in number'
+      instructions: 'The number this member signs in with (a code sent there), with the country code, digits only: 8562055551234. For someone who changed phones, put their new number here. Empty: no WhatsApp sign-in.'
+      width: 50
+      validate:
+        - nullable
+        - 'regex:/^[1-9][0-9]{7,14}$/'
+        - 'unique_user_value:{id}'
+  -
+    handle: whatsapp_verified_at
+    field:
+      type: date
+      display: 'WhatsApp number confirmed'
+      instructions: 'When the member last confirmed it with a code.'
+      time_enabled: true
+      visibility: read_only
       width: 50
   -
     handle: payout_bank
@@ -54,10 +75,22 @@ fields:
       display: 'Payout account number'
       width: 33
   -
+    handle: country
+    field:
+      type: dictionary
+      dictionary:
+        type: countries
+        emojis: false
+      max_items: 1
+      display: Country
+      instructions: 'From My account. Members in Laos also choose a province.'
+      width: 50
+  -
     handle: province
     field:
       type: text
       display: Province
+      instructions: 'In Laos only.'
       width: 50
   -
     handle: clan
@@ -76,7 +109,7 @@ fields:
     field:
       type: toggle
       display: 'Listed on the Members page'
-      instructions: 'Members turn this on themselves on the Members page.'
+      instructions: 'On when they join (signed-in members see their name, photo, province or country and when they''re online); members can turn it off on the Members page or My account.'
       width: 50
   -
     handle: last_seen_at
