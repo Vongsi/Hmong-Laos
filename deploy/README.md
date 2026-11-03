@@ -11,6 +11,7 @@ GitHub goes live by itself, and the database and uploads are backed up every nig
 | `onepay` | BCEL One payments as they arrive |
 | `whatsapp` | Order updates and sign-in codes on WhatsApp (Node.js with Chromium) |
 | `mariadb` | The database (not reachable from the internet) |
+| `turn` | The relay for members' voice and video calls when their networks can't connect directly (coturn; calls stay encrypted). Uses the server's own network, for its UDP ports: 3478 and 49160–49260 must be open in the firewall (part 1). About 50 calls can go through it at once; widen the range (`--max-port` and the firewall) for more. |
 
 What outlasts every deploy is kept in Docker volumes: the database (`dah_mariadb`), uploads (`dah_assets`:
 photos), `dah_storage` (payment receipts, payout proofs, Facebook and Google sign-in links, caches, logs), the
@@ -22,7 +23,8 @@ Files in this folder: `docker-compose.yml` (the containers), `Dockerfile`, `Cadd
 `.env.example` (the server's settings). The WhatsApp sender's image is `whatsapp-sender/Dockerfile`; the GitHub
 side is `.github/workflows/deploy.yml`.
 
-**One rule for the team:** blueprints, collections, forms, navigation and globals *settings* are files in the code.
+**One rule for the team:** blueprints and fieldsets, collections, taxonomies, forms, navigation and globals
+*settings*, sites, asset containers, and user roles and groups are files in the code (`content/`, `resources/`).
 Change them on your computer and push; changes made to them in the live control panel are lost at the next
 deploy. Content (posts, events, products, pages, members, orders) is in the database: edit it on the live site
 as usual.
@@ -53,8 +55,8 @@ chown -R deploy:deploy /home/deploy/.ssh
 curl -fsSL https://get.docker.com | sh
 usermod -aG docker deploy
 
-# Firewall: SSH and the website only.
-ufw allow OpenSSH && ufw allow 80/tcp && ufw allow 443 && ufw --force enable
+# Firewall: SSH, the website, and the call relay (3478, and 49160-49260 UDP for the calls it carries).
+ufw allow OpenSSH && ufw allow 80/tcp && ufw allow 443 && ufw allow 3478 && ufw allow 49160:49260/udp && ufw --force enable
 
 # Where the site lives, and the database copies.
 mkdir -p /opt/dah/backups && chown -R deploy:deploy /opt/dah
@@ -85,7 +87,7 @@ Two files, both only on the server (never committed). Make passwords with `opens
 
 ```bash
 cd /opt/dah/app
-cp deploy/.env.example deploy/.env && nano deploy/.env    # domain, database, WhatsApp token, backups
+cp deploy/.env.example deploy/.env && nano deploy/.env    # domain, database, WhatsApp token, call relay secret, backups
 cp .env.example .env && nano .env                         # the site's own settings
 ```
 

@@ -43,6 +43,31 @@
   }
   online.here(showOnline).joining(showOnline).leaving(showOnline);
 
+  // Private messages (App\Support\Messaging), on this member's own channel. A new message, or a change (read, edited,
+  // deleted, group members), redraws the Messages page (which also updates the badges), or elsewhere just the unread
+  // badges on My account.
+  var chats = {};          // open conversation id -> { channel, line, hide, lastSent }
+  function messagesPage() { return window.Livewire && document.querySelector('.chat'); }
+  function refreshUnread() {
+    fetch('/messages/unread', { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (data) window.dispatchEvent(new CustomEvent('messages-unread', { detail: { count: data.count } }));
+      })
+      .catch(function () {});
+  }
+  echo.private('App.Models.User.' + cfg.userId)
+    .listen('.message.sent', function (e) {
+      var chat = chats[e.conversation];
+      if (chat) { clearTimeout(chat.hide); chat.line.textContent = ''; }
+      if (messagesPage()) window.Livewire.dispatch('message-received', { conversation: e.conversation });
+      else refreshUnread();
+    })
+    .listen('.conversation.updated', function (e) {
+      if (messagesPage()) window.Livewire.dispatch('conversation-updated', { conversation: e.conversation });
+      else refreshUnread();
+    });
+
   var TYPING_TTL = 4000;   // hide a name this long after their last keystroke
   var SEND_EVERY = 1500;   // send at most one "typing" signal per this many ms
 
@@ -102,14 +127,65 @@
     });
   }
 
+  // "… is typing" in the open conversation on the Messages page, over its private channel (routes/channels.php).
+  // The page lists the members' names by id (data-names); in a group, the latest one typing is shown.
+  function setupChat(line) {
+    var id = line.getAttribute('data-live-chat');
+    var chat = { line: line, hide: null, lastSent: 0 };
+    function nameOf(e) {
+      try { return JSON.parse(line.dataset.names || '{}')[e && e.id] || ''; } catch (err) { return ''; }
+    }
+    chat.channel = echo.private('conversation.' + id)
+      .listenForWhisper('typing', function (e) {
+        var name = nameOf(e);
+        if (!name) return;
+        line.textContent = line.dataset.typing.replace(':name', name);
+        clearTimeout(chat.hide);
+        chat.hide = setTimeout(function () { line.textContent = ''; }, TYPING_TTL);
+      })
+      .listenForWhisper('stopped', function () { clearTimeout(chat.hide); line.textContent = ''; });
+    chats[id] = chat;
+  }
+  function openChat() {
+    for (var id in chats) if (chats[id].line.isConnected) return chats[id];
+    return null;
+  }
+  document.addEventListener('input', function (e) {
+    if (!e.target.matches || !e.target.matches('[data-chat-input]')) return;
+    var chat = openChat();
+    if (!chat) return;
+    var now = Date.now();
+    if (e.target.value.trim() === '') { chat.channel.whisper('stopped', { id: cfg.userId }); chat.lastSent = 0; return; }
+    if (now - chat.lastSent < SEND_EVERY) return;
+    chat.lastSent = now;
+    chat.channel.whisper('typing', { id: cfg.userId });
+  });
+  window.addEventListener('chat-sent', function () {
+    var chat = openChat();
+    if (chat) { chat.lastSent = 0; chat.channel.whisper('stopped', { id: cfg.userId }); }
+  });
+
   function init() {
     document.querySelectorAll('[data-live-comments]').forEach(function (box) {
       if (box.dataset.liveReady) return;
       box.dataset.liveReady = '1';
       setup(box);
     });
+    // Conversations open and close as the member moves around the Messages page.
+    for (var id in chats) {
+      if (!chats[id].line.isConnected) { echo.leave('conversation.' + id); delete chats[id]; }
+    }
+    document.querySelectorAll('[data-live-chat]').forEach(function (line) {
+      if (line.dataset.liveReady) return;
+      line.dataset.liveReady = '1';
+      setupChat(line);
+    });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+  // Livewire redraws (the Messages page) add and remove conversations: look again shortly after.
+  var again;
+  new MutationObserver(function () { clearTimeout(again); again = setTimeout(init, 150); })
+    .observe(document.body, { childList: true, subtree: true });
 })();

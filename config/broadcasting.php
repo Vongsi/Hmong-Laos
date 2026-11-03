@@ -35,11 +35,19 @@ return [
             'key' => env('REVERB_APP_KEY'),
             'secret' => env('REVERB_APP_SECRET'),
             'app_id' => env('REVERB_APP_ID'),
+            // Where the site itself sends events (new private messages). On the server the containers reach Reverb
+            // directly (REVERB_INTERNAL_*, deploy/docker-compose.yml); elsewhere the same address browsers use.
             'options' => [
+                'host' => env('REVERB_INTERNAL_HOST', env('REVERB_HOST')),
+                'port' => env('REVERB_INTERNAL_PORT', env('REVERB_PORT', 443)),
+                'scheme' => env('REVERB_INTERNAL_SCHEME', env('REVERB_SCHEME', 'https')),
+                'useTLS' => env('REVERB_INTERNAL_SCHEME', env('REVERB_SCHEME', 'https')) === 'https',
+            ],
+            // Where browsers connect (public/js/live.js, through window.HL_LIVE in layout.antlers.html).
+            'browser' => [
                 'host' => env('REVERB_HOST'),
                 'port' => env('REVERB_PORT', 443),
                 'scheme' => env('REVERB_SCHEME', 'https'),
-                'useTLS' => env('REVERB_SCHEME', 'https') === 'https',
             ],
             'client_options' => [
                 // Guzzle client options: https://docs.guzzlephp.org/en/stable/request-options.html

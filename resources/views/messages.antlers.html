@@ -1,0 +1,6 @@
+{{# The Messages page (routes/web.php → App\Livewire\Messages). data-chat-photos: the full-screen viewer's labels,
+    for photos in messages (public/js/live.js). #}}
+<section class="stack messages-page" style="gap:14px" data-chat-photos {{ partial:photo_viewer_labels }}>
+    <h1 style="font-size:clamp(28px,4.5vw,40px)">{{ title }}</h1>
+    {{ livewire:messages }}
+</section>
