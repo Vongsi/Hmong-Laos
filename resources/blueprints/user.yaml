@@ -112,6 +112,21 @@ fields:
       instructions: 'On when they join (signed-in members see their name, photo, province or country and when they''re online); members can turn it off on the Members page or My account.'
       width: 50
   -
+    handle: accepts_messages
+    field:
+      type: toggle
+      default: true
+      display: 'Accepts new message requests'
+      instructions: 'From My account. Off: only members they already chat with can message them.'
+      width: 50
+  -
+    handle: messages_disabled
+    field:
+      type: toggle
+      display: 'Stopped from sending messages'
+      instructions: 'For the team, for example after reports: on, they can still read their messages but can''t send any.'
+      width: 50
+  -
     handle: last_seen_at
     field:
       type: date

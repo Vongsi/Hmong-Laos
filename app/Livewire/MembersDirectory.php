@@ -84,9 +84,11 @@ class MembersDirectory extends Component
         $members = User::where('show_in_directory', true)
             ->when($search !== '', fn ($query) => $query->where('name', 'like', "%{$search}%"))
             ->when($this->place !== '', fn ($query) => $this->wherePlace($query))
+            // The member themselves first (marked "You"), so they can find their own card.
+            ->orderByRaw('id = ? desc', [(int) Auth::id()])
             ->orderByDesc('last_seen_at')
             ->orderBy('name')
-            ->paginate(self::PER_PAGE, ['id', 'name', 'province', 'country', 'avatar', 'last_seen_at']);
+            ->paginate(self::PER_PAGE, ['id', 'name', 'province', 'country', 'avatar', 'last_seen_at', 'accepts_messages']);
 
         // Only places where someone listed lives: Laos's provinces, then the other countries by name.
         $provinces = User::where('show_in_directory', true)
@@ -110,6 +112,9 @@ class MembersDirectory extends Component
             'countries' => $countries,
             'laos' => Countries::name(Countries::LAOS, $this->site),
             'filtered' => $search !== '' || $this->place !== '',
+            // "Message" on members who accept new messages (App\Livewire\Messages, ?to=).
+            'messagesUrl' => route('messages.'.$this->site),
+            'myId' => (int) Auth::id(),
         ]);
     }
 

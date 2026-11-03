@@ -54,7 +54,7 @@
         @else
             <ul class="{{ $view === 'list' ? 'member-list' : 'member-grid' }}">
                 @foreach ($members as $member)
-                    <li class="member" data-member-key="{{ $member->onlineKey() }}" wire:key="m{{ $member->id }}">
+                    <li class="member {{ $member->id === $myId ? 'member-me' : '' }}" data-member-key="{{ $member->onlineKey() }}" wire:key="m{{ $member->id }}">
                         {{-- Their profile photo (App\Support\ProfilePhoto, twice the size shown for sharp phone screens), or their initials. --}}
                         <span class="avatar tone-{{ $member->id % 4 }}">
                             @if ($member->avatar)
@@ -65,13 +65,19 @@
                             <span class="presence" aria-hidden="true"></span>
                         </span>
                         <span class="member-info">
-                            <b>{{ $member->name ?: __('site.comments.member') }}</b>
+                            <span class="member-name"><b>{{ $member->name ?: __('site.comments.member') }}</b>@if ($member->id === $myId)<span class="member-you">{{ __('site.members.you') }}</span>@endif</span>
                             <span class="muted small">
                                 @if ($where = $this->placeOf($member)){{ $where }} · @endif
                                 <span class="status-live">{{ __('site.members.status_online') }}</span>
                                 <span class="status-seen">{{ $member->last_seen_at ? __('site.members.last_active', ['time' => $member->last_seen_at->diffForHumans()]) : __('site.members.never_active') }}</span>
                             </span>
                         </span>
+                        @if ($member->id !== $myId && $member->accepts_messages)
+                            <a class="member-msg" href="{{ $messagesUrl }}?to={{ $member->id }}" title="{{ __('site.messages.message_member', ['name' => $member->name ?: __('site.comments.member')]) }}">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/></svg>
+                                <span class="member-msg-label">{{ __('site.messages.message') }}</span>
+                            </a>
+                        @endif
                     </li>
                 @endforeach
             </ul>

@@ -38,7 +38,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&family=Figtree:wght@400;500;600;700&family=Noto+Sans+Lao:wght@400;600;700&display=swap">
-    <link rel="stylesheet" href="/css/site.css?v=52">
+    <link rel="stylesheet" href="/css/site.css?v=58">
     {{# Background photo from Globals → Appearance (a planned season's, or the default) #}}
     {{ page_background }}<style>:root{--page-bg:url("{{ bg:large }}");--page-veil:{{ bg:veil }}%}@media (max-width:640px){:root{--page-bg:url("{{ bg:small }}")}}</style>{{ /page_background }}
     {{ livewire:styles }}
@@ -99,7 +99,7 @@
             {{ if logged_in }}
                 {{# My account menu: My profile and Sign out (public/js/site.js closes it on a tap elsewhere or Escape) #}}
                 <details class="account-menu">
-                    <summary class="btn ghost" {{ if uri | starts_with('/account') }}aria-current="page"{{ /if }} title="{{ trans key='site.nav.account' }}"><svg class="acct-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="account-label">{{ trans key="site.nav.account" }}</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+                    <summary class="btn ghost" {{ if uri | starts_with('/account') }}aria-current="page"{{ /if }} title="{{ trans key='site.nav.account' }}"><svg class="acct-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>{{ messages_badge }}<span class="account-label">{{ trans key="site.nav.account" }}</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
                     {{ partial:account_menu_items }}
                 </details>
             {{ else }}
@@ -173,30 +173,33 @@
     {{ if logged_in }}
         {{# The same menu on phones, opening upwards #}}
         <details class="account-menu">
-            <summary {{ if uri | starts_with('/account') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>{{ trans key="site.nav.account" }}</span></summary>
+            <summary {{ if uri | starts_with('/account') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>{{ messages_badge }}<span>{{ trans key="site.nav.account" }}</span></summary>
             {{ partial:account_menu_items }}
         </details>
     {{ else }}
         <a href="{{ base }}join" {{ if uri | starts_with('/join') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>{{ trans key="site.nav.join" }}</span></a>
     {{ /if }}
 </nav>
-<script src="/js/site.js?v=11"></script>
+<script src="/js/site.js?v=14"></script>
 <script src="/js/app.js?v=2"></script>
 {{ livewire:scripts }}
 {{ if logged_in }}
 <script>
 window.HL_LIVE = {
     key: "{{ config:broadcasting.connections.reverb.key }}",
-    host: "{{ config:broadcasting.connections.reverb.options.host }}",
-    port: {{ config:broadcasting.connections.reverb.options.port ?? 443 }},
-    scheme: "{{ config:broadcasting.connections.reverb.options.scheme ?? 'https' }}",
+    host: "{{ config:broadcasting.connections.reverb.browser.host }}",
+    port: {{ config:broadcasting.connections.reverb.browser.port ?? 443 }},
+    scheme: "{{ config:broadcasting.connections.reverb.browser.scheme ?? 'https' }}",
     csrf: "{{ csrf_token }}",
     userId: {{ current_user:id | to_json }}
 };
 </script>
 <script src="/js/vendor/pusher-8.6.0.min.js"></script>
 <script src="/js/vendor/echo-2.5.0.js"></script>
-<script src="/js/live.js?v=2"></script>
+<script src="/js/live.js?v=4"></script>
+{{# Voice and video calls between members: the call screen, on every page so a call can ring anywhere. #}}
+{{ call_labels }}
+<script src="/js/calls.js?v=4"></script>
 {{ /if }}
 </body>
 </html>

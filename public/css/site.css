@@ -806,3 +806,182 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 .spinner{flex:none;width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--indigo);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.spinner{animation:none}}
+
+/* Private messages (resources/views/livewire/messages.blade.php): the conversations and the open one side by
+   side; on phones one or the other (.chat-open). */
+.chat{display:grid;grid-template-columns:minmax(240px,320px) minmax(0,1fr);height:min(calc(100dvh - 230px),760px);min-height:440px;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.chat-list{border-right:1px solid var(--line);overflow-y:auto;padding:6px 8px 10px}
+.chat-list ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.chat-list-head{display:flex;align-items:center;gap:8px;margin:10px 8px 6px;font-family:var(--body);font-size:12.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2)}
+.chat-empty{margin:0;padding:12px 10px}
+.chat-more{margin:8px 10px}
+.chat-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;color:var(--ink);text-decoration:none}
+.chat-item:hover{background:var(--surface-2)}
+.chat-item[aria-current="true"]{background:var(--chip)}
+.chat-item .avatar{width:44px;height:44px;font-size:15px}
+.chat-item-text{flex:1;display:flex;flex-direction:column;min-width:0}
+.chat-item-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.chat-item-top b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-item-top .small{flex:none}
+.chat-item-preview{display:flex;align-items:center;gap:6px;min-width:0;font-size:13.5px;color:var(--ink-2)}
+.chat-item-preview.unread{font-weight:700;color:var(--ink)}
+.chat-item-line{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-unread{flex:none;display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;font-size:11.5px;font-weight:800;color:var(--on-accent);background:var(--red);border-radius:999px;letter-spacing:0}
+.chat-tag{flex:none;padding:1px 7px;font-size:11px;font-weight:700;color:var(--ink-2);background:var(--surface-2);border-radius:999px}
+.chat-thread{display:flex;flex-direction:column;min-width:0;min-height:0}
+.chat-placeholder{margin:auto;padding:24px;text-align:center}
+.chat-head{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.chat-head .avatar{width:40px;height:40px;font-size:14px}
+.chat-head-text{flex:1;display:flex;flex-direction:column;align-items:flex-start;min-width:0;padding:0;color:var(--ink);text-align:left;background:none;border:0}
+button.chat-head-text{cursor:pointer}
+.chat-head-name{max-width:100%;overflow:hidden;font-size:16px;text-overflow:ellipsis;white-space:nowrap}
+.chat-back{display:none;margin-left:-6px;padding:6px;color:var(--ink);cursor:pointer;background:none;border:0;border-radius:10px}
+.chat-menu{position:relative}
+.chat-menu > summary{display:grid;place-items:center;width:38px;height:38px;color:var(--ink-2);cursor:pointer;border-radius:50%;list-style:none}
+.chat-menu > summary::-webkit-details-marker{display:none}
+.chat-menu > summary:hover,.chat-menu[open] > summary{color:var(--ink);background:var(--surface-2)}
+.chat-menu .menu{position:absolute;top:calc(100% + 6px);right:0;z-index:30;display:flex;flex-direction:column;gap:2px;min-width:190px;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(10,12,28,.16)}
+.chat-menu .menu button{padding:10px 12px;font-weight:600;color:var(--ink);text-align:left;cursor:pointer;background:none;border:0;border-radius:10px}
+.chat-menu .menu button:hover,.chat-menu .menu button:focus-visible{background:var(--surface-2)}
+.chat-menu .menu .menu-out{color:var(--red)}
+.chat-messages{flex:1;display:flex;flex-direction:column;gap:6px;min-height:0;padding:14px 16px;overflow-y:auto;background:var(--bg)}
+.chat-messages > .flash{align-self:stretch;margin:0 0 6px}
+.chat-earlier{align-self:center}
+.chat-day{align-self:center;margin:8px 0 2px;font-size:12px;font-weight:700;color:var(--ink-2)}
+.chat-day span{padding:2px 10px;background:var(--surface);border:1px solid var(--line);border-radius:999px}
+.msg{display:flex;align-items:center;gap:4px;max-width:min(80%,560px)}
+.msg.mine{align-self:flex-end}
+.msg.theirs{align-self:flex-start}
+.bubble{display:flex;flex-direction:column;gap:4px;min-width:0;max-width:100%;padding:8px 12px 6px;border-radius:16px;overflow-wrap:anywhere}
+.bubble p{margin:0}
+.bubble time{align-self:flex-end;font-size:11px;opacity:.72}
+.bubble.mine{color:var(--on-accent);background:var(--indigo);border-bottom-right-radius:6px}
+.bubble.theirs{background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:6px}
+.chat-photo{display:block;padding:0;overflow:hidden;cursor:zoom-in;background:none;border:0;border-radius:12px}
+.chat-photo img{display:block;width:auto;max-width:100%;max-height:280px;border-radius:12px}
+.chat-seen{align-self:flex-end;margin:-2px 2px 0;font-size:11.5px;color:var(--ink-2)}
+.chat-typing{min-height:20px;margin:0;padding:0 16px;font-size:12.5px;font-style:italic;color:var(--ink-2);background:var(--bg)}
+.chat-hint{margin:0;padding:8px 16px 0}
+.chat-note{margin:0;padding:12px 16px;color:var(--ink-2);border-top:1px solid var(--line)}
+.chat-request{display:flex;flex-direction:column;gap:10px;padding:12px 16px;border-top:1px solid var(--line)}
+.chat-request p{margin:0}
+.chat-request-actions{display:flex;flex-wrap:wrap;gap:10px}
+.chat-compose{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
+.chat-compose textarea{flex:1;min-width:0;max-height:160px;padding:10px 12px;line-height:1.4;resize:none;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.chat-photo-btn{position:relative;flex:none;display:grid;place-items:center;width:42px;height:42px;color:var(--ink-2);cursor:pointer;border-radius:50%}
+.chat-photo-btn:hover,.chat-photo-btn:focus-within{color:var(--ink);background:var(--surface-2)}
+.chat-attach{position:relative;flex-basis:100%;max-width:84px;height:84px;overflow:hidden;background:var(--surface-2);border-radius:12px}
+.chat-attach img{width:100%;height:100%;object-fit:cover}
+.chat-uploading,.chat-error{margin:0;padding:0 16px 8px}
+@media (max-width:760px){
+  .chat{grid-template-columns:minmax(0,1fr);height:calc(100dvh - 210px);min-height:380px}
+  .chat-thread{display:none}
+  .chat.chat-open .chat-list{display:none}
+  .chat.chat-open .chat-thread{display:flex}
+  .chat-back{display:grid;place-items:center}
+  .msg{max-width:90%}
+  .messages-page:has(.chat-open) > h1{display:none}
+}
+/* "Message" on the Members page, and the unread badge on My account (header, phone tab bar, menu). */
+.member .member-info{flex:1}
+.member-msg{flex:none;display:inline-flex;align-items:center;gap:6px;padding:8px;font-size:13.5px;font-weight:700;color:var(--indigo);text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.member-msg:hover,.member-msg:focus-visible{border-color:var(--indigo)}
+.member-grid .member-msg-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.account-menu > summary{position:relative}
+.msg-badge{position:absolute;top:-6px;right:-6px;display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;font-size:11px;font-weight:800;font-style:normal;line-height:1;color:#fff;background:var(--red);border:2px solid var(--surface);border-radius:999px}
+.msg-badge[hidden]{display:none}
+.tabbar .account-menu > summary .msg-badge{top:0;right:calc(50% - 24px)}
+.account-menu .menu a .msg-badge{position:static;margin-left:auto;border:0}
+/* Groups, editing and deleting (Messages page). */
+.chat-list-top{padding:6px 2px 4px}
+.chat-list-top .btn{width:100%}
+.group-avatar svg{display:block}
+.bubble-from{font-size:12.5px;font-weight:800}
+.from-0{color:var(--indigo)}.from-1{color:var(--red)}.from-2{color:var(--green)}.from-3{color:var(--pink)}
+.bubble.deleted p{font-style:italic;opacity:.75}
+.bubble.editing{outline:2px solid var(--green);outline-offset:2px}
+.bubble-menu{position:relative;flex:none;order:-1}
+.msg.theirs .bubble-menu{order:1}
+.bubble-menu > summary{display:grid;place-items:center;width:28px;height:28px;color:var(--ink-2);cursor:pointer;list-style:none;border-radius:50%;opacity:.55}
+.bubble-menu > summary::-webkit-details-marker{display:none}
+.msg:hover .bubble-menu > summary,.bubble-menu[open] > summary,.bubble-menu > summary:focus-visible{opacity:1;background:var(--surface-2)}
+.bubble-menu .menu{position:absolute;top:calc(100% + 4px);right:0;z-index:30;display:flex;flex-direction:column;gap:2px;min-width:200px;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(10,12,28,.16)}
+.bubble-menu .menu button{padding:10px 12px;font-weight:600;color:var(--ink);text-align:left;cursor:pointer;background:none;border:0;border-radius:10px}
+.bubble-menu .menu button:hover,.bubble-menu .menu button:focus-visible{background:var(--surface-2)}
+.bubble-menu .menu .menu-out{color:var(--red)}
+@media (hover:none){.bubble-menu > summary{opacity:.8}}
+.chat-system{align-self:center;max-width:90%;margin:4px 0;padding:3px 12px;font-size:12.5px;color:var(--ink-2);text-align:center;background:var(--surface-2);border-radius:999px}
+.chat-editing{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0;padding:8px 16px 0;font-size:13px;font-weight:700;color:var(--green)}
+.chat-panel{flex:1;display:flex;flex-direction:column;gap:12px;min-height:0;padding:16px;overflow-y:auto;background:var(--bg)}
+.chat-panel-actions{display:flex;flex-wrap:wrap;gap:10px}
+.people-picker{display:flex;flex-direction:column;gap:8px}
+.people-picker input[type=search]{width:100%;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.people-list,.group-members{list-style:none;margin:0;padding:4px;display:flex;flex-direction:column;gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.people-list{max-height:280px;overflow-y:auto}
+.people-list > .muted{padding:8px 10px}
+.person-pick{display:flex;align-items:center;gap:10px;padding:8px 10px;font-weight:600;cursor:pointer;border-radius:10px}
+.person-pick:hover{background:var(--surface-2)}
+.person-pick input{width:18px;height:18px;accent-color:var(--green)}
+.person-pick .avatar,.group-members .avatar{width:34px;height:34px;font-size:12px}
+.picked{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.picked li{display:inline-flex;align-items:center;gap:2px;padding:4px 4px 4px 12px;font-size:13px;font-weight:600;background:var(--chip);border-radius:999px}
+.picked button{padding:0 6px;font-size:17px;line-height:1;color:var(--ink-2);cursor:pointer;background:none;border:0}
+.group-members li{display:flex;align-items:center;gap:10px;padding:8px 10px}
+.group-member-name{flex:1;min-width:0;overflow:hidden;font-weight:600;text-overflow:ellipsis;white-space:nowrap}
+/* Calls (public/js/calls.js): the buttons in a chat, the notes they leave, and the call screen. */
+.chat-call{display:none;flex:none;place-items:center;width:38px;height:38px;color:var(--green);cursor:pointer;background:none;border:0;border-radius:50%}
+.can-call .chat-call{display:grid}
+.chat-call:hover,.chat-call:focus-visible{background:var(--surface-2)}
+.chat-system.call-note{display:inline-flex;align-items:center;gap:6px}
+.chat-system.missed{color:var(--red)}
+.call-screen{position:fixed;inset:0;width:100%;max-width:none;height:100%;max-height:none;margin:0;padding:0;overflow:hidden;color:#fff;background:#0b0e22;border:0}
+.call-screen::backdrop{background:rgba(5,6,15,.7)}
+@media (min-width:761px){.call-screen{inset:0;width:min(900px,92vw);height:min(640px,86vh);margin:auto;border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.45)}}
+.call-remote{position:absolute;inset:0;display:none;width:100%;height:100%;object-fit:cover;background:#000}
+.call-screen[data-video="1"]:is([data-state=connecting],[data-state=active]) .call-remote{display:block}
+.call-audio{display:none}
+.call-self{position:absolute;right:16px;bottom:120px;z-index:2;display:none;width:min(28vw,170px);aspect-ratio:3/4;object-fit:cover;background:#1b1f3f;border:2px solid rgba(255,255,255,.7);border-radius:14px;transform:scaleX(-1)}
+.call-screen[data-video="1"]:not([data-state=incoming]):not([data-state=ended]) .call-self{display:block}
+.call-info{position:absolute;top:14%;left:0;right:0;z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 20px;text-align:center}
+.call-avatar{width:104px;height:104px;font-size:34px;box-shadow:0 0 0 6px rgba(255,255,255,.08)}
+.call-name{font-family:var(--display);font-size:26px;line-height:1.2}
+.call-status{font-size:15px;opacity:.85}
+.call-screen[data-video="1"][data-state=active] .call-info{top:16px;left:16px;right:auto;flex-direction:row;align-items:center;gap:10px;padding:0;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+.call-screen[data-video="1"][data-state=active] .call-avatar{width:40px;height:40px;font-size:14px}
+.call-screen[data-video="1"][data-state=active] .call-name{font-size:17px}
+.call-actions{position:absolute;bottom:28px;left:0;right:0;z-index:3;display:flex;justify-content:center;gap:18px;padding:0 12px}
+.call-btn{display:none;flex-direction:column;align-items:center;gap:6px;padding:0;font-size:12px;font-weight:600;color:#fff;cursor:pointer;background:none;border:0}
+.call-icon{display:grid;place-items:center;width:62px;height:62px;background:rgba(255,255,255,.16);border-radius:50%}
+.call-btn[aria-pressed="true"] .call-icon{color:#0b0e22;background:#fff}
+.call-accept .call-icon{background:var(--green)}
+.call-decline .call-icon,.call-hangup .call-icon{background:#C62F48}
+.call-btn:focus-visible{outline:none}
+.call-btn:focus-visible .call-icon{outline:3px solid #fff;outline-offset:3px}
+.call-screen[data-state=incoming] :is(.call-accept,.call-decline){display:flex}
+.call-screen:is([data-state=outgoing],[data-state=connecting],[data-state=active]) :is(.call-mute,.call-hangup){display:flex}
+.call-screen[data-video="1"]:is([data-state=outgoing],[data-state=connecting],[data-state=active]) .call-camera{display:flex}
+.call-screen[data-video="1"][data-cameras=many]:is([data-state=outgoing],[data-state=connecting],[data-state=active]) .call-switch{display:flex}
+.call-screen[data-state=incoming] .call-avatar{animation:call-pulse 1.6s ease-in-out infinite}
+@keyframes call-pulse{50%{box-shadow:0 0 0 16px rgba(255,255,255,.06)}}
+@media (prefers-reduced-motion:reduce){.call-screen[data-state=incoming] .call-avatar{animation:none}}
+/* Emojis in chats: the button, the panel (public/js/site.js), and messages of just emojis, shown big. */
+.chat-emoji-btn{flex:none;display:grid;place-items:center;width:42px;height:42px;padding:0;color:var(--ink-2);cursor:pointer;background:none;border:0;border-radius:50%}
+.chat-emoji-btn:hover,.chat-emoji-btn:focus-visible,.chat-emoji-btn[aria-expanded="true"]{color:var(--ink);background:var(--surface-2)}
+.emoji-panel{position:fixed;z-index:70;display:flex;flex-direction:column;overflow:hidden;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 14px 40px rgba(10,12,28,.2)}
+.emoji-panel[hidden]{display:none}
+.emoji-tabs{display:flex;gap:2px;padding:6px;border-bottom:1px solid var(--line)}
+.emoji-tabs button{flex:1;padding:6px 0;font-size:19px;line-height:1;cursor:pointer;background:none;border:0;border-radius:10px;filter:grayscale(.6);opacity:.75}
+.emoji-tabs button[aria-selected="true"]{background:var(--chip);filter:none;opacity:1}
+.emoji-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:2px;max-height:232px;padding:6px;overflow-y:auto}
+.emoji-grid button{height:40px;padding:0;font-size:24px;line-height:1;cursor:pointer;background:none;border:0;border-radius:10px}
+.emoji-grid button:hover,.emoji-grid button:focus-visible{background:var(--surface-2)}
+.emoji-grid:empty::after{content:"🕘";grid-column:1/-1;padding:24px 0;font-size:28px;text-align:center;opacity:.35}
+.bubble.emoji-only{padding:0 2px;background:none;border:0}
+.bubble.emoji-only p{font-size:44px;line-height:1.15}
+.bubble.emoji-only time{color:var(--ink-2)}
+/* The member's own card on the Members page: first, outlined, and marked "You". */
+.member-name{display:flex;align-items:center;gap:6px;min-width:0}
+.member-name b{min-width:0}
+.member-you{flex:none;padding:1px 8px;font-size:11.5px;font-weight:800;color:var(--on-accent);background:var(--green);border-radius:999px}
+.member.member-me{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
+.member-list .member.member-me{background:color-mix(in srgb,var(--green) 7%,var(--surface))}

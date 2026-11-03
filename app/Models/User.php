@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Support\Messaging;
 use App\Support\PlainText;
 use App\Support\ProfilePhoto;
 use Database\Factories\UserFactory;
@@ -35,6 +36,9 @@ class User extends Authenticatable
             }
         });
 
+        // Their chats go with the account, and they leave their groups (photos included).
+        static::deleting(fn (User $user) => Messaging::forgetMember($user));
+
         // Their profile photo goes with the account.
         static::deleted(fn (User $user) => ProfilePhoto::forget($user->avatar, $user->id));
     }
@@ -54,6 +58,8 @@ class User extends Authenticatable
             'last_login' => 'datetime',
             'show_in_directory' => 'boolean',
             'last_seen_at' => 'datetime',
+            'accepts_messages' => 'boolean',
+            'messages_disabled' => 'boolean',
         ];
     }
 

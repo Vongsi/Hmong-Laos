@@ -317,3 +317,171 @@ function photoViewer(t, onClose) {
     });
   });
 })();
+
+// Private messages (App\Livewire\Messages): the unread badges on My account follow the Messages page and live.js
+// (messages-unread); on the page, Enter sends on a computer (Shift+Enter for a new line; phones keep Enter for new
+// lines), the box grows with the text, and photos open full screen.
+(function () {
+  window.addEventListener('messages-unread', function (e) {
+    var n = e.detail ? Number(e.detail.count) || 0 : 0;
+    document.querySelectorAll('[data-unread-messages]').forEach(function (el) {
+      el.textContent = n > 99 ? '99+' : String(n);
+      el.hidden = !n;
+    });
+  });
+
+  function isBox(el) { return el && el.matches && el.matches('[data-chat-input]'); }
+  document.addEventListener('keydown', function (e) {
+    if (!isBox(e.target) || e.key !== 'Enter' || e.shiftKey || e.isComposing) return;
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+    e.preventDefault();
+    if (e.target.form) e.target.form.requestSubmit();
+  });
+  document.addEventListener('input', function (e) {
+    if (!isBox(e.target)) return;
+    e.target.style.height = 'auto';
+    e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px';
+  });
+  window.addEventListener('chat-sent', function () {
+    document.querySelectorAll('[data-chat-input]').forEach(function (box) { box.style.height = ''; });
+  });
+  // Editing one's message: its text is in the box (after Livewire's redraw), ready to change.
+  window.addEventListener('chat-edit', function () {
+    requestAnimationFrame(function () {
+      var box = document.querySelector('[data-chat-input]');
+      if (!box) return;
+      box.focus();
+      box.setSelectionRange(box.value.length, box.value.length);
+      box.style.height = 'auto';
+      box.style.height = Math.min(box.scrollHeight, 160) + 'px';
+    });
+  });
+  // A message's menu (⋯) closes after choosing, or on a tap elsewhere.
+  document.addEventListener('click', function (e) {
+    document.querySelectorAll('.bubble-menu[open], .chat-menu[open]').forEach(function (menu) {
+      if (!menu.contains(e.target) || e.target.closest('.menu button')) menu.removeAttribute('open');
+    });
+  });
+
+  var viewer;
+  document.addEventListener('click', function (e) {
+    var button = e.target.closest && e.target.closest('.chat-photo');
+    if (!button) return;
+    var imgs = [].slice.call(document.querySelectorAll('.chat-messages .chat-photo img'));
+    var wrap = button.closest('[data-chat-photos]');
+    viewer = viewer || photoViewer(wrap ? wrap.dataset : {});
+    viewer.open(imgs.map(function (img) { return { src: img.currentSrc || img.src, alt: '' }; }), imgs.indexOf(button.querySelector('img')));
+  });
+})();
+
+// Emojis for the message box (the 😊 button, [data-emoji-for]): a small panel of common ones, chosen to show on older
+// phones too (nothing newer than 2018), with the ones this device used last first. It sits on the page itself, so
+// Livewire's redraws of the chat leave it alone. Phones also have emojis on their own keyboard.
+(function () {
+  var SETS = {
+    smileys: '😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 😉 😍 🥰 😘 😋 😛 😜 🤪 🤗 🤭 🤔 🤫 😐 😶 🙄 😏 😴 😌 😢 😭 😤 😠 😡 🥺 😱 😳 🥳 😎 🤩 😮 🤒 🤧 🥶 🥵 😷',
+    people: '👍 👎 👏 🙌 🙏 🤝 👋 ✌️ 🤞 👌 🤙 💪 👀 👶 👧 👦 👩 👨 👵 👴 👪 💃 🕺 🙋 🤷 🙆 🙅 🤦',
+    hearts: '❤️ 🧡 💛 💚 💙 💜 🖤 💕 💖 💞 💯 ✨ 🔥 ⭐ 🌟 🎉 🎊 🎁 🎂 🎈 🎶 ✅ ❌ ❗ ❓ 💤',
+    nature: '🍚 🍜 🍲 🍛 🥗 🍗 🍖 🌶️ 🥭 🍌 🍉 🍊 🍍 🥥 ☕ 🍵 🍺 🌸 🌺 🌻 🌾 🌿 🍀 🌳 🌄 ☀️ 🌧️ 🌙 🐓 🐃 🐖 🐕 🐈 🐟',
+    life: '🏠 🏡 🚗 🛵 🚌 ✈️ 📱 📞 📷 💰 🎓 📚 ✏️ ⚽ 🏐 🏆 🥇 🧵 👘 🎵 🎤 🌏 🇱🇦 🎋 🕯️ ⛰️ 🏞️'
+  };
+  var TABS = [['recent', '🕘'], ['smileys', '😊'], ['people', '👋'], ['hearts', '❤️'], ['nature', '🍜'], ['life', '🏠']];
+  var STORE = 'hl-emoji';
+  var panel, grid, button;
+
+  function recent() {
+    try { return JSON.parse(localStorage.getItem(STORE) || '[]'); } catch (e) { return []; }
+  }
+  function remember(emoji) {
+    var list = recent().filter(function (one) { return one !== emoji; });
+    list.unshift(emoji);
+    try { localStorage.setItem(STORE, JSON.stringify(list.slice(0, 24))); } catch (e) { /* private window */ }
+  }
+  function build() {
+    panel = document.createElement('div');
+    panel.className = 'emoji-panel';
+    panel.hidden = true;
+    panel.innerHTML = '<div class="emoji-tabs" role="tablist"></div><div class="emoji-grid" role="tabpanel"></div>';
+    grid = panel.querySelector('.emoji-grid');
+    TABS.forEach(function (tab) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('role', 'tab');
+      b.dataset.tab = tab[0];
+      b.textContent = tab[1];
+      panel.querySelector('.emoji-tabs').appendChild(b);
+    });
+    panel.addEventListener('click', function (e) {
+      var tab = e.target.closest('[data-tab]');
+      if (tab) { show(tab.dataset.tab); return; }
+      var pick = e.target.closest('[data-emoji]');
+      if (pick) insert(pick.dataset.emoji);
+    });
+    document.body.appendChild(panel);
+  }
+  function show(name) {
+    var list = name === 'recent' ? recent() : SETS[name].split(' ');
+    panel.querySelectorAll('[data-tab]').forEach(function (tab) {
+      // The tab's name in the page's language, from the button (data-t-recent, data-t-smileys…).
+      var label = button.dataset['t' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1)] || '';
+      tab.setAttribute('aria-selected', tab.dataset.tab === name ? 'true' : 'false');
+      tab.setAttribute('aria-label', label);
+      tab.title = label;
+    });
+    grid.innerHTML = '';
+    list.forEach(function (emoji) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.emoji = emoji;
+      b.textContent = emoji;
+      grid.appendChild(b);
+    });
+  }
+  function place() {
+    var r = button.getBoundingClientRect();
+    var width = Math.min(336, window.innerWidth - 16);
+    panel.style.width = width + 'px';
+    panel.style.left = Math.max(8, Math.min(r.left, window.innerWidth - width - 8)) + 'px';
+    var height = panel.offsetHeight;
+    panel.style.top = (r.top - height - 8 > 8 ? r.top - height - 8 : r.bottom + 8) + 'px';
+  }
+  function open(b) {
+    if (!panel) build();
+    button = b;
+    show(recent().length ? 'recent' : 'smileys');
+    panel.hidden = false;
+    place();
+    b.setAttribute('aria-expanded', 'true');
+  }
+  function close() {
+    if (!panel || panel.hidden) return;
+    panel.hidden = true;
+    if (button) button.setAttribute('aria-expanded', 'false');
+  }
+  // Into the box where the cursor was, telling Livewire (and the "is typing" line) as typing would.
+  function insert(emoji) {
+    var box = button && document.querySelector(button.dataset.emojiFor);
+    if (!box) return;
+    var start = typeof box.selectionStart === 'number' ? box.selectionStart : box.value.length;
+    var end = typeof box.selectionEnd === 'number' ? box.selectionEnd : start;
+    box.setRangeText(emoji, start, end, 'end');
+    box.dispatchEvent(new Event('input', { bubbles: true }));
+    remember(emoji);
+    // On a computer the cursor goes back to the box; on phones that would open the keyboard over the emojis.
+    if (window.matchMedia('(pointer: fine)').matches) box.focus();
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-emoji-for]');
+    if (b) {
+      e.preventDefault();
+      if (panel && !panel.hidden && button === b) close(); else open(b);
+      return;
+    }
+    if (panel && !panel.hidden && !panel.contains(e.target)) close();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+  window.addEventListener('resize', close);
+  // Sending closes it.
+  window.addEventListener('chat-sent', close);
+})();

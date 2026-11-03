@@ -74,4 +74,12 @@ return [
         'sign_in' => (bool) env('WHATSAPP_SIGN_IN', true),
     ],
 
+    // The relay for calls between members whose networks can't connect directly (coturn, deploy/docker-compose.yml;
+    // App\Support\Calls). The site and the relay share the secret; each member gets a login that expires.
+    'turn' => [
+        'host' => env('TURN_HOST'),
+        'port' => (int) env('TURN_PORT', 3478),
+        'secret' => env('TURN_SECRET'),
+    ],
+
 ];

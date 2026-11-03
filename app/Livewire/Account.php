@@ -56,6 +56,9 @@ class Account extends Component
 
     public bool $listed = false;
 
+    /** New message requests from other members (App\Support\Messaging). */
+    public bool $acceptsMessages = true;
+
     public string $currentPassword = '';
 
     public string $newPassword = '';
@@ -101,6 +104,7 @@ class Account extends Component
             $this->payoutAccountNumber = (string) $user->payout_account_number;
             $this->preferredLang = (string) $user->preferred_lang;
             $this->listed = (bool) $user->show_in_directory;
+            $this->acceptsMessages = (bool) ($user->accepts_messages ?? true);
         }
     }
 
@@ -150,6 +154,7 @@ class Account extends Component
             'area' => trim($this->area) ?: null,
             'preferred_lang' => $this->preferredLang ?: null,
             'show_in_directory' => $this->listed,
+            'accepts_messages' => $this->acceptsMessages,
         ])->save();
 
         $this->saved = true;

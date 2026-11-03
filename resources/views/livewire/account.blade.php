@@ -120,6 +120,11 @@
                 <span>{{ __('site.members.listed') }}</span>
             </label>
             <p class="muted small" style="margin:0">{{ __('site.members.listed_help') }} <a href="{{ $membersUrl }}">{{ __('site.nav.members') }}</a></p>
+            <label class="check">
+                <input type="checkbox" wire:model="acceptsMessages">
+                <span>{{ __('site.messages.accepts') }}</span>
+            </label>
+            <p class="muted small" style="margin:0">{{ __('site.messages.accepts_help') }}</p>
             <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
                 <button class="btn green" type="submit" wire:loading.attr="disabled">{{ __('site.auth.save') }}</button>
                 @if ($saved)<span class="flash small" role="status" style="margin:0">{{ __('site.auth.saved') }}</span>@endif

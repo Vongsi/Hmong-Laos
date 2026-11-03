@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CallsController;
+use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\OrderReceiptController;
 use App\Http\Controllers\PwaController;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +22,9 @@ Route::middleware('statamic.web')->group(function () {
             Route::statamic(ltrim($prefix.'/account/'.$list, '/'), 'account-list', ['list' => $list, 'title' => trans($title, [], $site->lang()), 'locale_path' => 'account/'.$list])
                 ->name('account.'.$list.'.'.$site->handle());
         }
+        // Members' private messages (/messages, /lo/messages…; App\Livewire\Messages, ?c= opens a conversation).
+        Route::statamic(ltrim($prefix.'/messages', '/'), 'messages', ['title' => trans('site.messages.title', [], $site->lang()), 'locale_path' => 'messages'])
+            ->name('messages.'.$site->handle());
         // Privacy policy and how to have your data deleted (/privacy, /lo/delete-my-data…): their text is in
         // resources/views/partials/legal/, one file per language, so it is deployed and reviewed like code. Facebook
         // and Google ask for both addresses when the site uses their sign-in.
@@ -33,4 +38,19 @@ Route::middleware('statamic.web')->group(function () {
 Route::middleware(['auth', 'throttle:20,1'])->group(function () {
     Route::post('push/subscriptions', [PwaController::class, 'subscribe']);
     Route::delete('push/subscriptions', [PwaController::class, 'unsubscribe']);
+});
+
+// Private messages: a photo (its two members only) and the unread count for the badge.
+Route::middleware(['auth', 'throttle:240,1'])->group(function () {
+    Route::get('messages/photo/{message}', [MessagesController::class, 'photo'])->whereNumber('message')->name('messages.photo');
+    Route::get('messages/unread', [MessagesController::class, 'unread'])->name('messages.unread');
+});
+
+// Calls between two members (App\Support\Calls, public/js/calls.js).
+Route::middleware(['auth', 'throttle:120,1'])->prefix('messages/calls')->group(function () {
+    Route::post('/', [CallsController::class, 'start'])->name('calls.start');
+    Route::get('{call}', [CallsController::class, 'show'])->whereNumber('call')->name('calls.show');
+    Route::post('{call}/answer', [CallsController::class, 'answer'])->whereNumber('call')->name('calls.answer');
+    Route::post('{call}/decline', [CallsController::class, 'decline'])->whereNumber('call')->name('calls.decline');
+    Route::post('{call}/end', [CallsController::class, 'end'])->whereNumber('call')->name('calls.end');
 });
