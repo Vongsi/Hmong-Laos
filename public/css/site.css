@@ -36,7 +36,7 @@ a{color:var(--indigo)}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);cursor:pointer;background:none;border:0;padding:0}
 .brand svg{width:40px;height:40px;flex:none}
 .brand-name{font-family:var(--display);font-weight:800;font-size:21px;line-height:1}
-.brand-sub{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.brand-sub{font-size:11px;letter-spacing:.02em;color:var(--ink-2)}
 .nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
 .nav button{background:none;border:0;padding:8px 10px;border-radius:8px;cursor:pointer;font-weight:600;color:var(--ink-2)}
 .nav button[aria-current="page"]{color:var(--ink);background:var(--chip)}

@@ -2,7 +2,6 @@
 
 return [
     'brand' => 'Daim Av Hlub',
-    'tagline' => 'Hmong community of Laos',
     'nav' => [
         'home' => 'Home',
         'feed' => 'Feed',
@@ -26,8 +25,6 @@ return [
     ],
     'hero' => [
         'eyebrow' => 'Nyob zoo! Welcome',
-        'title' => 'The Hmong community of Laos, all in one place',
-        'body' => 'Share news, festivals and everyday life of Hmong families across Laos. Follow events, keep our culture visible, and talk it over in the comments.',
         'cta_feed' => 'Read the news',
         'cta_events' => 'See events',
     ],
@@ -72,7 +69,6 @@ return [
     ],
     'inspire' => [
         'title' => 'People from our community, in their own words',
-        'intro' => 'Interviews with Hmong people from across Laos who have built careers, businesses and families, and what they would tell the next generation.',
         'all' => 'All',
         'featured' => 'Featured',
         'suggest_title' => 'Know someone who inspires you?',

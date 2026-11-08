@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Statamic\Facades\GlobalSet;
 use Statamic\Facades\Site;
 
 class PwaController extends Controller
@@ -18,7 +19,7 @@ class PwaController extends Controller
             'id' => $start,
             'name' => __('site.brand', [], $locale),
             'short_name' => __('site.brand', [], $locale),
-            'description' => __('site.tagline', [], $locale),
+            'description' => (string) GlobalSet::findByHandle('settings')?->in($site->handle())?->value('slogan'),
             'lang' => $site->lang(),
             'start_url' => $start.'?source=app',
             'scope' => '/',

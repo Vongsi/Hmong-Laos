@@ -3,8 +3,8 @@
 <section class="hero">
     <div class="hero-copy">
         <span class="eyebrow">{{ trans key="site.hero.eyebrow" }}</span>
-        <h1>{{ trans key="site.hero.title" }}</h1>
-        <p>{{ trans key="site.hero.body" }}</p>
+        {{ if settings:home_title }}<h1>{{ settings:home_title | sanitize }}</h1>{{ /if }}
+        {{ if settings:home_text }}<p>{{ settings:home_text | sanitize }}</p>{{ /if }}
         <div class="hero-ctas">
             <a class="btn green" href="{{ base }}xov-xwm">{{ trans key="site.hero.cta_feed" }}</a>
             <a class="btn ghost" href="{{ base }}events">{{ trans key="site.hero.cta_events" }}</a>
