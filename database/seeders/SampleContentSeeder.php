@@ -258,11 +258,12 @@ class SampleContentSeeder extends Seeder
         $set->sites(self::SITES)->save();
         foreach (self::SITES as $site) {
             $vars = $set->in($site) ?? $set->makeLocalization($site);
-            $vars->data([
+            // Added to what's there, to keep the wording its migration put in.
+            $vars->data(array_merge($vars->data()->all(), [
                 'contact_email' => 'hello@example.com',
                 'contact_phone' => '+856 20 5555 0123',
                 'facebook_url' => '',
-            ])->save();
+            ]))->save();
         }
     }
 

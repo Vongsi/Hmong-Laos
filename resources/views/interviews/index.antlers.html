@@ -6,7 +6,7 @@
         <div class="stack" style="gap:8px;flex:1 1 520px;min-width:0">
             <span class="eyebrow">{{ trans key="site.nav.inspire" }}</span>
             <h1>{{ trans key="site.inspire.title" }}</h1>
-            <p class="muted" style="max-width:60ch;font-size:16px">{{ trans key="site.inspire.intro" }}</p>
+            {{ if settings:inspire_intro }}<p class="muted" style="max-width:60ch;font-size:16px">{{ settings:inspire_intro | sanitize }}</p>{{ /if }}
         </div>
         <a class="btn green" href="{{ base }}share?type=story">+ {{ trans key="site.contribute.inspire_button" }}</a>
     </div>

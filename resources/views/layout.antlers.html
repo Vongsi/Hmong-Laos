@@ -6,13 +6,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>{{ if title && segment_1 != '' && !(is_homepage) }}{{ title | sanitize }} · {{ /if }}{{ trans key="site.brand" }}</title>
-    <meta name="description" content="{{ if meta_desc }}{{ meta_desc | strip_tags | safe_truncate(160) | sanitize }}{{ else }}{{ trans key='site.tagline' }}{{ /if }}">
+    <meta name="description" content="{{ if meta_desc }}{{ meta_desc | strip_tags | safe_truncate(160) | sanitize }}{{ else }}{{ settings:home_title | sanitize }}{{ /if }}">
     {{# Link preview for Facebook, WhatsApp and others #}}
     <meta property="og:site_name" content="{{ trans key='site.brand' }}">
     <meta property="og:type" content="{{ if collection && collection:handle != 'pages' }}article{{ else }}website{{ /if }}">
     <meta property="og:url" content="{{ permalink ?? current_url }}">
-    <meta property="og:title" content="{{ if is_homepage }}{{ trans key='site.brand' }} · {{ trans key='site.tagline' }}{{ else }}{{ title | sanitize }}{{ /if }}">
-    <meta property="og:description" content="{{ if meta_desc }}{{ meta_desc | strip_tags | safe_truncate(200) | sanitize }}{{ else }}{{ trans key='site.tagline' }}{{ /if }}">
+    <meta property="og:title" content="{{ if is_homepage }}{{ trans key='site.brand' }}{{ if settings:slogan }} · {{ settings:slogan | sanitize }}{{ /if }}{{ else }}{{ title | sanitize }}{{ /if }}">
+    <meta property="og:description" content="{{ if meta_desc }}{{ meta_desc | strip_tags | safe_truncate(200) | sanitize }}{{ else }}{{ settings:home_title | sanitize }}{{ /if }}">
     <meta property="og:locale" content="{{ site:locale }}">
     {{ if image }}{{ image }}<meta property="og:image" content="{{ watermarked:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /image }}
     {{ elseif cover }}{{ cover }}<meta property="og:image" content="{{ watermarked:url width='1200' height='630' fit='crop_focal' absolute='true' }}">{{ /cover }}
@@ -38,7 +38,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&family=Figtree:wght@400;500;600;700&family=Noto+Sans+Lao:wght@400;600;700&display=swap">
-    <link rel="stylesheet" href="/css/site.css?v=58">
+    <link rel="stylesheet" href="/css/site.css?v=59">
     {{# Background photo from Globals → Appearance (a planned season's, or the default) #}}
     {{ page_background }}<style>:root{--page-bg:url("{{ bg:large }}");--page-veil:{{ bg:veil }}%}@media (max-width:640px){:root{--page-bg:url("{{ bg:small }}")}}</style>{{ /page_background }}
     {{ livewire:styles }}
@@ -54,8 +54,8 @@
                 <path fill="var(--green)" d="M50 43.5 L56.5 50 L50 56.5 L43.5 50 Z"/>
             </svg>
             <span>
-                <span class="brand-name">{{ trans key="site.brand" }}</span><br>
-                <span class="brand-sub">{{ trans key="site.tagline" }}</span>
+                <span class="brand-name">{{ trans key="site.brand" }}</span>
+                {{ if settings:slogan }}<br><span class="brand-sub">{{ settings:slogan | sanitize }}</span>{{ /if }}
             </span>
         </a>
         <nav class="nav" aria-label="{{ trans key='site.nav.main' }}">

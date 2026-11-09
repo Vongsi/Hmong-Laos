@@ -1,5 +1,38 @@
 title: Site settings
 fields:
+- handle: wording_section
+  field:
+    type: section
+    display: Site wording
+    instructions: 'Each language has its own wording: choose the language at the top of this page, then save. Changes show on the site straight away.'
+- handle: slogan
+  field:
+    type: text
+    display: Slogan
+    instructions: 'Under the logo on computers and tablets (phones don''t show it), and in link previews of the home page. Keep it short: the Hmong header has room for about 38 letters, and a longer slogan is hidden on computers.'
+    localizable: true
+- handle: home_title
+  field:
+    type: text
+    display: Home page headline
+    instructions: 'The big line on the home page. Also the description in Google and in Facebook and WhatsApp link previews, so say who the site is for.'
+    localizable: true
+- handle: home_text
+  field:
+    type: textarea
+    display: Home page paragraph
+    instructions: Under the headline.
+    localizable: true
+- handle: inspire_intro
+  field:
+    type: textarea
+    display: Inspire page intro
+    instructions: Under the title of the Inspire page.
+    localizable: true
+- handle: contact_section
+  field:
+    type: section
+    display: Contact and social pages
 - handle: contact_email
   field:
     type: text
