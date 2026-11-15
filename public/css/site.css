@@ -75,12 +75,14 @@ body:has(.modal-backdrop){overflow:hidden}
 @media (prefers-reduced-motion:reduce){.modal-backdrop,.modal{animation:none}}
 .btn:disabled{opacity:.6;cursor:default}
 
-/* paj ntaub stitched band: the one decorative flourish */
-.pajntaub{height:14px;background:
-  linear-gradient(135deg,var(--red) 25%,transparent 25%) -7px 0/14px 14px,
-  linear-gradient(225deg,var(--red) 25%,transparent 25%) -7px 0/14px 14px,
-  linear-gradient(315deg,var(--green) 25%,transparent 25%) 0 0/14px 14px,
-  linear-gradient(45deg,var(--green) 25%,var(--indigo) 25%) 0 0/14px 14px}
+/* paj ntaub stitched band: the one decorative flourish. The bottom half of the stepped pattern at the centre of the
+   logo, drawn on a grid and joined to the next one, with its inner pieces in red. In the theme's colours, so it follows
+   dark mode: each <i> is one colour, cut out by a mask. Keep the tile's width and height multiples of 4 and start it at
+   the left edge: otherwise it misses whole screen pixels on 125%, 150% and 175% displays and comes out blurred. */
+.pajntaub{position:relative;height:8px;background:var(--surface)}
+.pajntaub i{position:absolute;inset:0;-webkit-mask:var(--m) repeat-x 0 0/12px 8px;mask:var(--m) repeat-x 0 0/12px 8px}
+.pajntaub i:nth-child(1){background:var(--indigo);--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath shape-rendering='crispEdges' d='M0 1h2v1h-2zM9 1h3v1h-3zM1 2h1v1h-1zM9 2h1v1h-1zM1 3h2v1h-2zM8 3h2v1h-2zM2 4h3v1h-3zM6 4h3v1h-3zM4 5h1v1h-1zM6 5h1v1h-1z'/%3E%3C/svg%3E")}
+.pajntaub i:nth-child(2){background:var(--red);--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath shape-rendering='crispEdges' d='M3 1h2v1h-2zM6 1h2v1h-2zM4 2h1v1h-1zM6 2h1v1h-1z'/%3E%3C/svg%3E")}
 
 main{max-width:1080px;width:100%;margin:0 auto;padding:24px 16px 64px;flex:1 0 auto}
 .view[hidden]{display:none}
@@ -357,7 +359,6 @@ footer{border-top:1px solid var(--line);background:var(--surface)}
   .nav{display:none}
   .head-actions{margin-left:auto;gap:8px}
   .lang select{padding:6px 26px 6px 30px}
-  .pajntaub{height:8px;background-size:8px 8px}
   main{padding-top:18px;padding-bottom:32px}
   .foot-in{flex-direction:column;align-items:flex-start;gap:6px;padding:14px 16px}
   .foot-links{order:-1;gap:0 20px}
