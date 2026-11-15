@@ -65,7 +65,8 @@
                             <span class="presence" aria-hidden="true"></span>
                         </span>
                         <span class="member-info">
-                            <span class="member-name"><b>{{ $member->name ?: __('site.comments.member') }}</b>@if ($member->id === $myId)<span class="member-you">{{ __('site.members.you') }}</span>@endif</span>
+                            {{-- The name opens their profile; the link covers the whole card (site.css). --}}
+                            <span class="member-name"><a class="member-link" href="{{ route($profileRoute, ['member' => $member->id]) }}">{{ $member->name ?: __('site.comments.member') }}</a>@if ($member->id === $myId)<span class="member-you">{{ __('site.members.you') }}</span>@endif</span>
                             <span class="muted small">
                                 @if ($where = $this->placeOf($member)){{ $where }} · @endif
                                 <span class="status-live">{{ __('site.members.status_online') }}</span>

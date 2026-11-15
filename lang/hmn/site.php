@@ -56,6 +56,16 @@ return [
         'everywhere' => 'Txhua qhov chaw',
         'all_laos' => 'Thoob plaws Nplog Teb',
         'abroad' => 'Lwm lub teb chaws',
+        // A member's profile (App\Livewire\MemberProfile).
+        'profile' => 'Tus tswv cuab tus profile',
+        'back' => 'Rov qab mus rau cov tswv cuab',
+        'profile_join' => 'Koom nrog los yog nkag rau hauv kom pom cov tswv cuab tus profile.',
+        'posts' => 'Xov xwm',
+        'no_posts' => 'Tseem tsis tau muaj xov xwm.',
+        'more_posts' => 'Saib ntxiv',
+        'own_profile' => 'No yog qhov uas lwm tus tswv cuab pom koj tus profile.',
+        'own_profile_hidden' => 'Koj tsis nyob hauv cov npe tswv cuab, yog li lwm tus tswv cuab qhib tsis tau nplooj no. Qhib "Muab kuv lub npe tso rau hauv cov npe tswv cuab" ntawm nplooj Cov tswv cuab.',
+        'edit_profile' => 'Hloov kuv cov ntaub ntawv',
     ],
     // Private messages between members (App\Support\Messaging).
     'messages' => [

@@ -149,6 +149,16 @@ return [
         'everywhere' => 'Everywhere',
         'all_laos' => 'All of Laos',
         'abroad' => 'Other countries',
+        // A member's profile (App\Livewire\MemberProfile).
+        'profile' => 'Member profile',
+        'back' => 'Back to members',
+        'profile_join' => 'Join or sign in to see members\' profiles.',
+        'posts' => 'News posts',
+        'no_posts' => 'No news posts yet.',
+        'more_posts' => 'Show more',
+        'own_profile' => 'This is how other signed-in members see your profile.',
+        'own_profile_hidden' => 'You are not in the members list, so other members can\'t open this page. Turn on "Show me in the members list" on the Members page.',
+        'edit_profile' => 'Change my details',
     ],
     // Private messages between members (App\Support\Messaging).
     'messages' => [

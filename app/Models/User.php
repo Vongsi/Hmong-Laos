@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Support\Countries;
 use App\Support\Messaging;
 use App\Support\PlainText;
 use App\Support\ProfilePhoto;
@@ -80,6 +81,14 @@ class User extends Authenticatable
     public function getAuthIdentifierForBroadcasting(): string
     {
         return static::presenceKey($this->getKey(), (string) request()->input('channel_name'));
+    }
+
+    /** Where they live, as listed members show it: their province in Laos, or their country elsewhere. */
+    public function placeName(string $site): ?string
+    {
+        return $this->country && $this->country !== Countries::LAOS
+            ? (Countries::name($this->country, $site) ?? $this->country)
+            : ($this->province ?: null);
     }
 
     /** This member's id on the site-wide "online" channel, used by the Members page for the green dots. */

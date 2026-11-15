@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CallsController;
+use App\Http\Controllers\MemberProfileController;
 use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\OrderReceiptController;
 use App\Http\Controllers\PwaController;
@@ -25,6 +26,11 @@ Route::middleware('statamic.web')->group(function () {
         // Members' private messages (/messages, /lo/messages…; App\Livewire\Messages, ?c= opens a conversation).
         Route::statamic(ltrim($prefix.'/messages', '/'), 'messages', ['title' => trans('site.messages.title', [], $site->lang()), 'locale_path' => 'messages'])
             ->name('messages.'.$site->handle());
+        // A member's profile, from their card on the Members page (/members/12, /lo/members/12…; App\Livewire\MemberProfile).
+        Route::get(ltrim($prefix.'/members/{member}', '/'), MemberProfileController::class)
+            ->whereNumber('member')
+            ->defaults('site', $site->handle())
+            ->name('members.show.'.$site->handle());
         // Privacy policy and how to have your data deleted (/privacy, /lo/delete-my-data…): their text is in
         // resources/views/partials/legal/, one file per language, so it is deployed and reviewed like code. Facebook
         // and Google ask for both addresses when the site uses their sign-in.
