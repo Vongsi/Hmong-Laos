@@ -48,6 +48,7 @@ class HomePopup
         }
 
         $summary = $entry ? ($entry->value('summary') ?: $entry->value('excerpt') ?: $entry->value('intro')) : null;
+        $event = $entry ? self::eventStart($entry) : null;
 
         return [
             'title' => $title,
@@ -55,7 +56,9 @@ class HomePopup
             'image' => self::photo($origin->get('image')) ?? ($entry ? self::entryPhoto($entry) : null),
             'link' => $local->get('button_link') ?: $origin->get('button_link') ?: $entry?->url(),
             'button' => $local->get('button_label') ?: __('site.popup.read_more'),
-            'date' => $entry ? self::eventDate($entry) : null,
+            'date' => $event['date'] ?? null,
+            'start' => $event['start'] ?? null,
+            'venue' => $event['venue'] ?? null,
             // Changes when the team changes the pop-up, so visitors who closed the old one see the new one.
             // Only the shared settings count (they hold the chosen page's id), so it is the same in every language.
             'version' => substr(md5(json_encode($origin->data()->all())), 0, 12),
@@ -91,16 +94,21 @@ class HomePopup
         return $asset ? Image::manipulate($asset, ['w' => 720, 'h' => 400, 'fit' => 'crop_focal', 'fm' => 'jpg', 'q' => 75]) : null;
     }
 
-    /** "14 November 2026, 09:00 · Venue" for events, in the visitor's language where Carbon knows it. */
-    private static function eventDate(EntryContract $entry): ?string
+    /**
+     * An event's start: "14 November 2026, 09:00" in Laos time and the visitor's language where Carbon knows it, the
+     * same moment as ISO 8601 (public/js/site.js adds it in the visitor's own time), and its venue.
+     *
+     * @return array{date: string, start: string, venue: ?string}|null
+     */
+    private static function eventStart(EntryContract $entry): ?array
     {
         if ($entry->collectionHandle() !== 'events' || ! $entry->value('start_date')) {
             return null;
         }
 
         // Saved in UTC; shown in Laos time like the rest of the site.
-        $date = Carbon::parse($entry->value('start_date'), 'UTC')->setTimezone(config('statamic.system.display_timezone') ?: 'UTC')->translatedFormat('j F Y, H:i');
+        $start = Carbon::parse($entry->value('start_date'), 'UTC')->setTimezone(config('statamic.system.display_timezone') ?: 'UTC');
 
-        return $entry->value('venue') ? $date.' · '.$entry->value('venue') : $date;
+        return ['date' => $start->translatedFormat('j F Y, H:i'), 'start' => $start->toIso8601String(), 'venue' => $entry->value('venue') ?: null];
     }
 }

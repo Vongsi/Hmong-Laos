@@ -1,7 +1,7 @@
 {{ base = site:url | ensure_right('/') }}
 {{ meta_desc = excerpt ?: summary ?: intro }}
 <!doctype html>
-<html lang="{{ site:lang }}">
+<html lang="{{ site:lang }}" data-time-laos="{{ trans key='site.time.laos' | sanitize }}" data-time-yours="{{ trans key='site.time.yours' | sanitize }}" data-time-schedule="{{ trans key='site.time.schedule' | sanitize }}" data-time-entered="{{ trans key='site.time.entered' | sanitize }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -39,7 +39,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&family=Figtree:wght@400;500;600;700&family=Noto+Sans+Lao:wght@400;600;700&display=swap">
-    <link rel="stylesheet" href="/css/site.css?v=71">
+    <link rel="stylesheet" href="/css/site.css?v=72">
     {{# Background photo from Globals → Appearance (a planned season's, or the default) #}}
     {{ page_background }}<style>:root{--page-bg:url("{{ bg:large }}");--page-veil:{{ bg:veil }}%}@media (max-width:640px){:root{--page-bg:url("{{ bg:small }}")}}</style>{{ /page_background }}
     {{ livewire:styles }}
@@ -181,7 +181,7 @@
         <a href="{{ base }}join" {{ if uri | starts_with('/join') }}aria-current="page"{{ /if }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>{{ trans key="site.nav.join" }}</span></a>
     {{ /if }}
 </nav>
-<script src="/js/site.js?v=14"></script>
+<script src="/js/site.js?v=15"></script>
 <script src="/js/app.js?v=2"></script>
 {{ livewire:scripts }}
 {{ if logged_in }}

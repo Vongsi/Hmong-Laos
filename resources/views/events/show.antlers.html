@@ -11,7 +11,7 @@
         {{ if schedule }}
             <div class="panel">
                 <h3>{{ trans key="site.events.schedule" }}</h3>
-                <div class="schedule">
+                <div class="schedule" data-laos-times>
                     {{ schedule }}<div class="slot"><time>{{ when }}</time><span>{{ what }}</span></div>{{ /schedule }}
                 </div>
             </div>
@@ -21,7 +21,7 @@
     <aside class="side">
         <div class="panel">
             <dl class="facts">
-                <dt>{{ trans key="site.events.when" }}</dt><dd>{{ start_date format="j M Y, H:i" }}{{ if end_date }} – {{ end_date format="j M Y, H:i" }}{{ /if }}</dd>
+                <dt>{{ trans key="site.events.when" }}</dt><dd><time datetime="{{ start_date format='c' }}"{{ if end_date }} data-end="{{ end_date format='c' }}"{{ /if }} data-time="long">{{ start_date format="j M Y, H:i" }}{{ if end_date }} – {{ end_date format="j M Y, H:i" }}{{ /if }}</time></dd>
                 {{ if venue }}<dt>{{ trans key="site.events.where" }}</dt><dd>{{ venue }}</dd>{{ /if }}
                 <dt>{{ trans key="site.events.entry" }}</dt><dd>{{ entry_fee ?? trans:site.events.free }}</dd>
                 {{ if contact_phone }}<dt>{{ trans key="site.events.contact" }}</dt><dd style="user-select:all">{{ contact_phone }}</dd>{{ /if }}

@@ -11,6 +11,7 @@ use App\Support\Calls;
 use App\Support\MessagePhoto;
 use App\Support\Messaging;
 use App\Support\ProfilePhoto;
+use App\Support\ViewerTime;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
@@ -329,12 +330,12 @@ class Messages extends Component
 
     public function dayLabel(string $day): string
     {
-        $today = now(Messaging::TIMEZONE);
+        $today = now(ViewerTime::zone());
 
         return match ($day) {
             $today->toDateString() => __('site.messages.today'),
             $today->copy()->subDay()->toDateString() => __('site.messages.yesterday'),
-            default => Carbon::parse($day, Messaging::TIMEZONE)->format('j/n/Y'),
+            default => Carbon::parse($day, ViewerTime::zone())->format('j/n/Y'),
         };
     }
 
@@ -410,6 +411,8 @@ class Messages extends Component
                 'call' => ($m->meta['event'] ?? null) === 'call',
                 'missed' => $m->kind === Message::CALL,
                 'time' => Messaging::time($m->created_at)->format('H:i'),
+                // Its time in Laos too, shown on hover, when the member's clock says something else.
+                'laos' => ViewerTime::laosIfDifferent($m->created_at),
             ]
             : (object) [
                 'id' => $m->id,
@@ -425,6 +428,8 @@ class Messages extends Component
                 'emoji' => ! $m->isDeleted() && ! $m->photo && Messaging::emojiOnly($m->body),
                 'canChange' => Messaging::canChange($m, $me),
                 'time' => Messaging::time($m->created_at)->format('H:i'),
+                // Its time in Laos too, shown on hover, when the member's clock says something else.
+                'laos' => ViewerTime::laosIfDifferent($m->created_at),
                 'day' => Messaging::time($m->created_at)->toDateString(),
             ]);
 
@@ -510,7 +515,7 @@ class Messages extends Component
     private function shortTime(CarbonInterface $at): string
     {
         $at = Messaging::time($at);
-        $now = now(Messaging::TIMEZONE);
+        $now = now(ViewerTime::zone());
 
         return match (true) {
             $at->isSameDay($now) => $at->format('H:i'),

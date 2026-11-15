@@ -167,7 +167,7 @@
                                 @if ($m->system)
                                     <p class="chat-system {{ $m->call ? 'call-note' : '' }} {{ $m->missed ? 'missed' : '' }}" wire:key="m{{ $m->id }}">
                                         @if ($m->call)<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>@endif
-                                        <span>{{ $m->text }}@if ($m->call) · {{ $m->time }}@endif</span>
+                                        <span>{{ $m->text }}@if ($m->call) · <time @if ($m->laos) title="{{ __('site.time.laos_at', ['time' => $m->laos]) }}" @endif>{{ $m->time }}</time>@endif</span>
                                     </p>
                                 @else
                                     <div class="msg {{ $m->mine ? 'mine' : 'theirs' }}" wire:key="m{{ $m->id }}">
@@ -193,7 +193,8 @@
                                                 @endif
                                                 @if ($m->body !== null)<p>{!! nl2br(e($m->body)) !!}</p>@endif
                                             @endif
-                                            <time>@if ($m->edited){{ __('site.messages.edited') }} · @endif{{ $m->time }}</time>
+                                            {{-- In the member's own time zone; on hover, Laos time when that's different (App\Support\ViewerTime). --}}
+                                            <time @if ($m->laos) title="{{ __('site.time.laos_at', ['time' => $m->laos]) }}" @endif>@if ($m->edited){{ __('site.messages.edited') }} · @endif{{ $m->time }}</time>
                                         </div>
                                     </div>
                                     @if ($seen && $m->id === $seen['id'])<p class="chat-seen" wire:key="seen-{{ $m->id }}">{{ $seen['text'] }}</p>@endif

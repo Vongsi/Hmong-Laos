@@ -32,6 +32,15 @@ return [
     'feed' => [
         'announcements' => 'Tshaj tawm',
     ],
+    // Times: shown in Laos time, and in the visitor's own time when that's different (public/js/site.js,
+    // App\Support\ViewerTime).
+    'time' => [
+        'laos' => 'sij hawm Nplog Teb',
+        'yours' => 'Koj lub sij hawm: :time (:zone)',
+        'laos_at' => 'Sij hawm Nplog Teb: :time',
+        'schedule' => 'Cov sij hawm no yog sij hawm Nplog Teb (UTC+7).',
+        'entered' => 'Raws li koj lub sij hawm: :time (:zone)',
+    ],
     'members' => [
         // Marks the member's own card on the Members page.
         'you' => 'Koj',
