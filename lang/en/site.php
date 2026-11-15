@@ -125,6 +125,15 @@ return [
     'footer' => [
         'project' => 'Community project',
     ],
+    // Times: shown in Laos time, and in the visitor's own time when that's different (public/js/site.js,
+    // App\Support\ViewerTime).
+    'time' => [
+        'laos' => 'Laos time',
+        'yours' => 'Your time: :time (:zone)',
+        'laos_at' => 'Laos time: :time',
+        'schedule' => 'Times are in Laos time (UTC+7).',
+        'entered' => 'In your time: :time (:zone)',
+    ],
     'members' => [
         // Marks the member's own card on the Members page.
         'you' => 'You',

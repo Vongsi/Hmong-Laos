@@ -24,6 +24,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Members sign in on the Join page (there is no separate login route).
         $middleware->redirectGuestsTo('/join');
         $middleware->web(append: [TrackLastSeen::class, OAuthErrorsToJoinPage::class, SignInWithMobileNumber::class]);
+        // The visitor's time zone, which public/js/site.js writes (App\Support\ViewerTime): plain, not encrypted.
+        $middleware->encryptCookies(except: ['tz']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

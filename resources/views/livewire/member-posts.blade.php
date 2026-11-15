@@ -49,10 +49,12 @@
             @if ($type === 'event')
                 <div class="sell-row">
                     <label class="field">{{ __('site.contribute.starts') }}
-                        <input type="datetime-local" wire:model="starts">
+                        <input type="datetime-local" wire:model="starts" data-laos-input>
+                        <small class="time-hint" wire:ignore></small>
                     </label>
                     <label class="field">{{ __('site.contribute.ends') }}
-                        <input type="datetime-local" wire:model="ends">
+                        <input type="datetime-local" wire:model="ends" data-laos-input>
+                        <small class="time-hint" wire:ignore></small>
                     </label>
                 </div>
                 @error('starts') <p class="error small">{{ $message }}</p> @enderror

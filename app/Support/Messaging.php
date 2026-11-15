@@ -741,8 +741,9 @@ class Messaging
         return (bool) preg_match('/^(?:(?:\p{Extended_Pictographic}|\p{Regional_Indicator})[\x{FE0F}\x{200D}\x{20E3}\p{Extended_Pictographic}\p{Emoji_Modifier}\p{Regional_Indicator}\x{E0020}-\x{E007F}]*)+$/u', $text);
     }
 
+    /** A message's time on the Messages page: in the member's own time zone (App\Support\ViewerTime), Laos time by default. */
     public static function time(CarbonInterface $at): CarbonInterface
     {
-        return $at->copy()->timezone(self::TIMEZONE);
+        return ViewerTime::in($at);
     }
 }

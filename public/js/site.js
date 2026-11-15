@@ -485,3 +485,85 @@ function photoViewer(t, onClose) {
   // Sending closes it.
   window.addEventListener('chat-sent', close);
 })();
+
+// Times. The site shows Laos time; members around the world also see event times in their own time, from their
+// browser's time zone (or its offset from UTC, when the browser doesn't name the zone). The zone goes to the server in
+// the "tz" cookie too, for chats on the Messages page (App\Support\ViewerTime). The words come from <html data-time-*>.
+(function () {
+  var root = document.documentElement;
+  var labels = { laos: root.dataset.timeLaos, yours: root.dataset.timeYours, schedule: root.dataset.timeSchedule, entered: root.dataset.timeEntered };
+  var zone = '';
+  try { zone = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+  if (zone) {
+    var sent = (document.cookie.match(/(?:^|; )tz=([^;]*)/) || [])[1];
+    if (!sent || decodeURIComponent(sent) !== zone) {
+      document.cookie = 'tz=' + encodeURIComponent(zone) + '; path=/; max-age=31536000; samesite=lax' + (location.protocol === 'https:' ? '; secure' : '');
+    }
+  }
+  if (!labels.yours || !window.Intl || !Intl.DateTimeFormat) return;
+
+  var LAOS = 420; // minutes ahead of UTC; Laos has no summer time
+  var fmt = function (options) { return new Intl.DateTimeFormat('en-GB', Object.assign({ hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }, options)); };
+  var short = fmt({ weekday: 'short' }), long = fmt({ weekday: 'short', day: 'numeric', month: 'short' }), clock = fmt({});
+  // True when the visitor's clock shows something other than Laos time at that moment.
+  function elsewhere(d) { return -d.getTimezoneOffset() !== LAOS; }
+  function sameDay(a, b) { return a.toDateString() === b.toDateString(); }
+  // "Paris, UTC+1"; just "UTC+1" when the browser doesn't name its zone.
+  function zoneName(d) {
+    var off = -d.getTimezoneOffset(), a = Math.abs(off);
+    var utc = 'UTC' + (off ? (off < 0 ? '−' : '+') + Math.floor(a / 60) + (a % 60 ? ':' + String(a % 60).padStart(2, '0') : '') : '');
+    var city = zone.indexOf('/') > 0 ? zone.split('/').pop().replace(/_/g, ' ') : '';
+    return city ? city + ', ' + utc : utc;
+  }
+  function words(template, time, d) {
+    return template.replace(':time', function () { return time; }).replace(':zone', function () { return zoneName(d); });
+  }
+
+  // <time datetime="…" data-time="short|long" [data-end="…"]>: "(Laos time)" after it and a line in their own time.
+  function localize() {
+    document.querySelectorAll('time[data-time]:not([data-local])').forEach(function (t) {
+      t.setAttribute('data-local', '');
+      var d = new Date(t.getAttribute('datetime')), end = t.dataset.end ? new Date(t.dataset.end) : null;
+      if (isNaN(d) || !elsewhere(d)) return;
+      var text = t.dataset.time === 'short' ? short.format(d) : long.format(d);
+      if (end && !isNaN(end)) text += ' – ' + (sameDay(d, end) ? clock.format(end) : long.format(end));
+      var tag = document.createElement('span');
+      tag.className = 'laos-label';
+      tag.textContent = ' (' + labels.laos + ')';
+      t.after(tag);
+      var line = document.createElement('span');
+      line.className = 'your-time';
+      line.textContent = words(labels.yours, text, d);
+      t.parentNode.appendChild(line);
+    });
+    // An event's schedule is typed in by the team as Laos times.
+    document.querySelectorAll('[data-laos-times]:not([data-local])').forEach(function (s) {
+      s.setAttribute('data-local', '');
+      if (!elsewhere(new Date())) return;
+      var note = document.createElement('p');
+      note.className = 'muted small laos-note';
+      note.textContent = labels.schedule;
+      s.before(note);
+    });
+  }
+
+  // Share an event: the start and end are typed in Laos time; under each, what that is in their own time.
+  function hint(input) {
+    var out = input.parentNode.querySelector('.time-hint');
+    var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(input.value || '');
+    if (!out) return;
+    var d = m ? new Date(Date.UTC(+m[1], m[2] - 1, +m[3], m[4] - 7, +m[5])) : null;
+    var text = d && elsewhere(d) ? words(labels.entered, long.format(d), d) : '';
+    // Only when it changes: writing it is a change the watcher below would see.
+    if (out.textContent !== text) out.textContent = text;
+  }
+  ['input', 'change'].forEach(function (type) {
+    document.addEventListener(type, function (e) { if (e.target.matches && e.target.matches('[data-laos-input]')) hint(e.target); });
+  });
+
+  function all() { localize(); document.querySelectorAll('[data-laos-input]').forEach(hint); }
+  all();
+  // Livewire draws new times later (more events, the Share form).
+  var again;
+  new MutationObserver(function () { clearTimeout(again); again = setTimeout(all, 120); }).observe(document.body, { childList: true, subtree: true });
+})();

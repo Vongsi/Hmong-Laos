@@ -126,6 +126,15 @@ return [
     'footer' => [
         'project' => 'ໂຄງການຊຸມຊົນ',
     ],
+    // Times: shown in Laos time, and in the visitor's own time when that's different (public/js/site.js,
+    // App\Support\ViewerTime).
+    'time' => [
+        'laos' => 'ເວລາລາວ',
+        'yours' => 'ເວລາຂອງທ່ານ: :time (:zone)',
+        'laos_at' => 'ເວລາລາວ: :time',
+        'schedule' => 'ເວລາທັງໝົດແມ່ນເວລາລາວ (UTC+7).',
+        'entered' => 'ຕາມເວລາຂອງທ່ານ: :time (:zone)',
+    ],
     'members' => [
         // Marks the member's own card on the Members page.
         'you' => 'ທ່ານ',
