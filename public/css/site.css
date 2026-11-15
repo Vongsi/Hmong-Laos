@@ -5,6 +5,15 @@
   --bg:#F5F6FA; --surface:#FFFFFF; --surface-2:#ECEEF5;
   --ink:#171A2E; --ink-2:#4C5170; --line:#DCDFEA;
   --on-accent:#FFFFFF; --chip:#E9EBF6;
+  /* Hover (see "hover and press" at the end): card shadows at rest and lifted (with a soft indigo glow in dark mode,
+     where a dark shadow barely shows), a button's shadow, and the shade laid over a solid button (darker here; lighter
+     in dark mode, where button text is dark). */
+  --shadow-rest:0 1px 2px rgba(16,19,42,.05);
+  --shadow-lift:0 20px 40px -12px rgba(16,19,42,.38),0 6px 16px -6px rgba(16,19,42,.2);
+  --shadow-btn:0 6px 16px -6px rgba(16,19,42,.45);
+  --tint:rgba(0,0,0,.12);
+  /* The paj ntaub band's shadow colours: a close one under each stitch and a soft one under the whole line. */
+  --band-shadow-near:rgba(16,19,42,.42); --band-shadow-far:rgba(16,19,42,.3);
   --display:"Alegreya", "Noto Sans Lao", Georgia, serif;
   --body:"Figtree", "Noto Sans Lao", system-ui, -apple-system, sans-serif;
 }
@@ -15,6 +24,11 @@
     --ink:#ECEEF8; --ink-2:#A7ACC9; --line:#2E3460; --chip:#262C58;
     --indigo:#9AA6F0; --indigo-2:#B8C1FF; --red:#EE6A80; --pink:#F08BB0; --green:#5CC596; --gold:#E9BD63;
     --on-accent:#10132A;
+    --shadow-rest:0 1px 2px rgba(0,0,0,.3);
+    --shadow-lift:0 20px 40px -12px rgba(0,0,0,.8),0 0 28px -6px rgba(154,166,240,.35);
+    --shadow-btn:0 6px 18px -6px rgba(0,0,0,.7);
+    --tint:rgba(255,255,255,.16);
+    --band-shadow-near:rgba(0,0,0,.75); --band-shadow-far:rgba(0,0,0,.6);
   }
 }
 :root[data-theme="dark"]{
@@ -23,6 +37,11 @@
   --ink:#ECEEF8; --ink-2:#A7ACC9; --line:#2E3460; --chip:#262C58;
   --indigo:#9AA6F0; --indigo-2:#B8C1FF; --red:#EE6A80; --pink:#F08BB0; --green:#5CC596; --gold:#E9BD63;
   --on-accent:#10132A;
+  --shadow-rest:0 1px 2px rgba(0,0,0,.3);
+  --shadow-lift:0 20px 40px -12px rgba(0,0,0,.8),0 0 28px -6px rgba(154,166,240,.35);
+  --shadow-btn:0 6px 18px -6px rgba(0,0,0,.7);
+  --tint:rgba(255,255,255,.16);
+  --band-shadow-near:rgba(0,0,0,.75); --band-shadow-far:rgba(0,0,0,.6);
 }
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
@@ -31,8 +50,16 @@ a{color:var(--indigo)}
 :focus-visible{outline:2px solid var(--pink);outline-offset:2px;border-radius:4px}
 
 /* ---------- site header ---------- */
-.site-head{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+/* The header's white stops above the paj ntaub band (its last 8px), so the page shows through between the stitches. */
+.site-head{background:linear-gradient(var(--surface),var(--surface)) top/100% calc(100% - 8px) no-repeat;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
 .head-in{max-width:1080px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+/* Rows of whole multiples of 4px (with the 12px or 10px padding above and below), so the paj ntaub band under them starts
+   on a whole screen pixel at 125%, 150% and 175% display scales and on 3× phone screens, and stays sharp. Left to their
+   content the rows came out 47.5px, 41.25px or 34.14px tall and the band was soft. */
+.head-in > .brand,.head-in > .head-actions{min-height:48px}
+.head-in > .nav{min-height:40px}
+@media (max-width:640px){.head-in > .brand,.head-in > .head-actions{min-height:44px}}
+@media (max-width:520px){.head-in > .brand,.head-in > .head-actions{min-height:36px}}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);cursor:pointer;background:none;border:0;padding:0}
 .brand svg{width:40px;height:40px;flex:none}
 .brand-name{font-family:var(--display);font-weight:800;font-size:21px;line-height:1}
@@ -77,12 +104,19 @@ body:has(.modal-backdrop){overflow:hidden}
 
 /* paj ntaub stitched band: the one decorative flourish. The bottom half of the stepped pattern at the centre of the
    logo, drawn on a grid and joined to the next one, with its inner pieces in red. In the theme's colours, so it follows
-   dark mode: each <i> is one colour, cut out by a mask. Keep the tile's width and height multiples of 4 and start it at
-   the left edge: otherwise it misses whole screen pixels on 125%, 150% and 175% displays and comes out blurred. */
-.pajntaub{position:relative;height:8px;background:var(--surface)}
-.pajntaub i{position:absolute;inset:0;-webkit-mask:var(--m) repeat-x 0 0/12px 8px;mask:var(--m) repeat-x 0 0/12px 8px}
-.pajntaub i:nth-child(1){background:var(--indigo);--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath shape-rendering='crispEdges' d='M0 1h2v1h-2zM9 1h3v1h-3zM1 2h1v1h-1zM9 2h1v1h-1zM1 3h2v1h-2zM8 3h2v1h-2zM2 4h3v1h-3zM6 4h3v1h-3zM4 5h1v1h-1zM6 5h1v1h-1z'/%3E%3C/svg%3E")}
-.pajntaub i:nth-child(2){background:var(--red);--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath shape-rendering='crispEdges' d='M3 1h2v1h-2zM6 1h2v1h-2zM4 2h1v1h-1zM6 2h1v1h-1z'/%3E%3C/svg%3E")}
+   dark mode: each <i> is one colour, cut out by a mask (--m1 navy, --m2 red). No background, so the page shows between
+   the stitches. Keep the tile's width and height multiples of 4, start it at the left edge and keep the header rows above
+   it multiples of 4px tall: otherwise it misses whole screen pixels on 125%, 150% and 175% displays and comes out blurred.
+   Its shadow (a close one and a soft one further down) comes from a copy of the stitches in the <span> underneath,
+   hidden by them. A shadow filter on the band itself, or blurring or moving the copy, softened the stitches at 125%. */
+.pajntaub{position:relative;height:8px;
+  --m1:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath shape-rendering='crispEdges' d='M0 1h2v1h-2zM9 1h3v1h-3zM1 2h1v1h-1zM9 2h1v1h-1zM1 3h2v1h-2zM8 3h2v1h-2zM2 4h3v1h-3zM6 4h3v1h-3zM4 5h1v1h-1zM6 5h1v1h-1z'/%3E%3C/svg%3E");
+  --m2:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath shape-rendering='crispEdges' d='M3 1h2v1h-2zM6 1h2v1h-2zM4 2h1v1h-1zM6 2h1v1h-1z'/%3E%3C/svg%3E")}
+.pajntaub i,.pajntaub span{position:absolute;inset:0}
+.pajntaub i{-webkit-mask:var(--m) repeat-x 0 0/12px 8px;mask:var(--m) repeat-x 0 0/12px 8px}
+.pajntaub i:nth-of-type(1){--m:var(--m1);background:var(--indigo)}
+.pajntaub i:nth-of-type(2){--m:var(--m2);background:var(--red)}
+.pajntaub span{filter:drop-shadow(0 1px .5px var(--band-shadow-near)) drop-shadow(0 3px 2px var(--band-shadow-far))}
 
 main{max-width:1080px;width:100%;margin:0 auto;padding:24px 16px 64px;flex:1 0 auto}
 .view[hidden]{display:none}
@@ -986,3 +1020,87 @@ button.chat-head-text{cursor:pointer}
 .member-you{flex:none;padding:1px 8px;font-size:11.5px;font-weight:800;color:var(--on-accent);background:var(--green);border-radius:999px}
 .member.member-me{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
 .member-list .member.member-me{background:color-mix(in srgb,var(--green) 7%,var(--surface))}
+
+/* ---------- hover and press ----------
+   Everything you can click answers the pointer. Cards lift a little, with a deeper shadow and an indigo edge (a
+   product's photo zooms in slightly). Solid buttons turn a shade darker (lighter in dark mode) and lift; outline
+   buttons, chips, menu links and the header's round buttons fill with a light indigo. All of it only on devices with
+   a mouse, so a card tapped on a phone doesn't stay raised; on phones a press shrinks it slightly instead. The
+   shadow colours are the --shadow-* tokens at the top of this file. */
+.card,.feature,.product-card,.hero-card,.sso,.share-type,.post{box-shadow:var(--shadow-rest);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.btn,.share-btn,.chip,.cart-btn,.online-pill,.theme-btn,.lang,.size span,.member-msg,.view-switch button,.gallery-thumbs button,.like,.link,.nav a,.tabbar a,.order-row,.sub-row,.chat-item,.person-pick{transition:background-color .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease,transform .15s ease}
+.product-card img,.feature .portrait img{transition:transform .35s ease}
+@media (hover:hover){
+  /* cards */
+  .card:hover,.feature:hover,.product-card:hover,.sso:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift);border-color:var(--indigo)}
+  .hero-card:hover,.share-type:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift)}
+  .product-card:hover img,.feature:hover .portrait img{transform:scale(1.04)}
+  /* News posts aren't one link (the title, photo and comments are), so they only take the shadow, without lifting. */
+  .post:hover{box-shadow:var(--shadow-lift)}
+  /* buttons */
+  .btn:not(:disabled,.page-current):hover{transform:translateY(-1px);box-shadow:var(--shadow-btn)}
+  .btn:not(.ghost,:disabled,.page-current):hover{background-image:linear-gradient(var(--tint),var(--tint))}
+  .btn.ghost:not(:disabled,.page-current):hover{border-color:var(--indigo);color:var(--indigo);background:color-mix(in srgb,var(--indigo) 8%,transparent)}
+  .share-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-btn)}
+  .share-btn.fb:hover,.share-btn.wa:hover{background-image:linear-gradient(var(--tint),var(--tint))}
+  .share-btn:not(.fb,.wa):hover,.cart-btn:hover,.online-pill:hover,.theme-btn:hover,.member-msg:hover{border-color:var(--indigo);color:var(--indigo);background-color:color-mix(in srgb,var(--indigo) 8%,var(--surface))}
+  .lang:hover{border-color:var(--indigo)}
+  .chip:not([aria-current="true"],[aria-pressed="true"]):hover{border-color:var(--indigo);color:var(--indigo);background:color-mix(in srgb,var(--indigo) 8%,var(--surface))}
+  .size:hover input:not(:checked)+span{border-color:var(--indigo);color:var(--indigo)}
+  .view-switch button:not([aria-pressed="true"]):hover{color:var(--ink);background:var(--surface-2)}
+  .gallery-thumbs button:not([aria-current="true"]):hover{border-color:color-mix(in srgb,var(--indigo) 45%,transparent)}
+  .like:not(.on):hover{color:var(--ink);background:var(--surface-2)}
+  .like.on:hover{background:color-mix(in srgb,var(--red) 10%,transparent)}
+  /* links */
+  .link:hover{color:var(--indigo-2);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}
+  .nav a:not([aria-current="page"]):hover{color:var(--ink);background:var(--surface-2)}
+  .tabbar a:not([aria-current="page"]):hover{color:var(--ink)}
+}
+/* A press: buttons and cards sink back slightly (phones too). */
+.btn:not(:disabled,.page-current):active,.share-btn:active{transform:scale(.97);box-shadow:none}
+.card:active,.feature:active,.product-card:active,.hero-card:active,.sso:active,.share-type:active{transform:scale(.985)}
+@media (prefers-reduced-motion:reduce){
+  .card,.feature,.product-card,.hero-card,.sso,.share-type,.btn,.share-btn,.product-card img,.feature .portrait img{transform:none!important}
+}
+
+/* Members page: each card opens the member's profile. The name is the link, and it covers the whole card (::after),
+   with the Message button on top of it. */
+.member{position:relative}
+.member-link{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;color:inherit;text-decoration:none}
+.member-link::after{content:"";position:absolute;inset:0}
+.member-link:focus-visible{outline:none}
+.member:has(.member-link:focus-visible){outline:2px solid var(--pink);outline-offset:2px}
+.member-list .member:has(.member-link:focus-visible){outline-offset:-3px}
+.member-msg{position:relative;z-index:1}
+.member:has(.member-link){transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background-color .15s ease}
+@media (hover:hover){
+  .member-grid .member:has(.member-link):hover{transform:translateY(-3px);box-shadow:var(--shadow-lift);border-color:var(--indigo)}
+  .member-grid .member.member-me:hover{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green),var(--shadow-lift)}
+  .member-list .member:has(.member-link):hover{background:var(--surface-2)}
+  .member:has(.member-link):hover .member-link{color:var(--indigo)}
+}
+.member-grid .member:has(.member-link):active{transform:scale(.985)}
+@media (prefers-reduced-motion:reduce){.member-grid .member{transform:none!important}}
+
+/* A member's profile (resources/views/livewire/member-profile.blade.php): photo, name, where they live, when they were
+   online and Message, then their news posts. Centred on phones. */
+.profile-back{align-self:flex-start}
+.member.profile-head{flex-wrap:wrap;gap:20px;padding:22px;border-radius:18px}
+.profile-head .avatar{width:112px;height:112px;font-size:36px}
+.profile-head .presence{right:4px;bottom:4px;width:20px;height:20px;border-width:3px}
+.profile-info{display:flex;flex-direction:column;gap:6px;flex:1 1 220px;min-width:0}
+.profile-name{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:clamp(26px,4vw,36px);overflow-wrap:anywhere}
+.profile-name .member-you{font-family:var(--body);font-size:12.5px}
+.profile-place{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--ink-2)}
+.profile-place svg{flex:none;color:var(--red)}
+.profile-actions{display:flex;flex-wrap:wrap;gap:10px}
+.profile-actions .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.profile-more{align-self:center}
+@media (max-width:560px){
+  .member.profile-head{flex-direction:column;gap:12px;padding:20px 16px;text-align:center}
+  .profile-head .avatar{width:96px;height:96px;font-size:30px}
+  .profile-info{flex:none;align-items:center;width:100%}
+  .profile-name,.profile-place{justify-content:center}
+  .profile-actions{width:100%;flex-direction:column}
+  .profile-actions .btn{width:100%;padding:12px 16px}
+}

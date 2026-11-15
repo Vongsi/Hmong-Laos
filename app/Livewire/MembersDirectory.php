@@ -114,6 +114,8 @@ class MembersDirectory extends Component
             'filtered' => $search !== '' || $this->place !== '',
             // "Message" on members who accept new messages (App\Livewire\Messages, ?to=).
             'messagesUrl' => route('messages.'.$this->site),
+            // Each card opens the member's profile (App\Livewire\MemberProfile).
+            'profileRoute' => 'members.show.'.$this->site,
             'myId' => (int) Auth::id(),
         ]);
     }
@@ -121,9 +123,7 @@ class MembersDirectory extends Component
     /** Under each name: their province in Laos, or their country elsewhere. */
     public function placeOf(User $member): ?string
     {
-        return $member->country && $member->country !== Countries::LAOS
-            ? (Countries::name($member->country, $this->site) ?? $member->country)
-            : ($member->province ?: null);
+        return $member->placeName($this->site);
     }
 
     private function wherePlace(Builder $query): Builder

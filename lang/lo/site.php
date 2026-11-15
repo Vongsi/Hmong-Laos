@@ -150,6 +150,16 @@ return [
         'everywhere' => 'ທຸກບ່ອນ',
         'all_laos' => 'ທົ່ວປະເທດລາວ',
         'abroad' => 'ປະເທດອື່ນ',
+        // A member's profile (App\Livewire\MemberProfile).
+        'profile' => 'ໂປຣໄຟລ໌ສະມາຊິກ',
+        'back' => 'ກັບໄປລາຍຊື່ສະມາຊິກ',
+        'profile_join' => 'ເຂົ້າຮ່ວມ ຫຼື ເຂົ້າສູ່ລະບົບ ເພື່ອເບິ່ງໂປຣໄຟລ໌ຂອງສະມາຊິກ.',
+        'posts' => 'ຂ່າວສານ',
+        'no_posts' => 'ຍັງບໍ່ມີຂ່າວ.',
+        'more_posts' => 'ເບິ່ງເພີ່ມເຕີມ',
+        'own_profile' => 'ນີ້ແມ່ນໂປຣໄຟລ໌ຂອງທ່ານ ຕາມທີ່ສະມາຊິກຄົນອື່ນເຫັນ.',
+        'own_profile_hidden' => 'ທ່ານບໍ່ໄດ້ຢູ່ໃນລາຍຊື່ສະມາຊິກ, ສະມາຊິກຄົນອື່ນຈຶ່ງເປີດໜ້ານີ້ບໍ່ໄດ້. ເປີດ "ສະແດງຂ້ອຍໃນລາຍຊື່ສະມາຊິກ" ຢູ່ໜ້າສະມາຊິກ.',
+        'edit_profile' => 'ແກ້ໄຂຂໍ້ມູນຂອງຂ້ອຍ',
     ],
     // Private messages between members (App\Support\Messaging).
     'messages' => [
