@@ -43,7 +43,7 @@ return [
         'metals_note' => 'Nqi thoob ntiaj teb hnub :date. 1 baht = :grams g.',
         'metals_source' => 'Qhov chaw: Exchange API',
         'oil' => 'Roj nyoos',
-        'per_barrel' => 'ib thoob',
+        'per_barrel' => 'ib kas tham',
         'per_litre' => 'ib liv',
         'oil_note' => 'Nqi thoob ntiaj teb hnub :date, ua ntej muab ua roj, thauj thiab them se.',
         'oil_source' => 'Qhov chaw: U.S. EIA',
