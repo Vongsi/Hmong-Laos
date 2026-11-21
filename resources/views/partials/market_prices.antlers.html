@@ -1,0 +1,61 @@
+{{# World prices of gold, silver and crude oil, for information (App\Support\MarketPrices): a card for each kind that is
+    up to date, under a heading that says they are world prices only. Nothing shows until there are some. #}}
+{{ market_prices }}
+<section class="sec market" aria-labelledby="market-title">
+    <div class="sec-head">
+        <h2 id="market-title">{{ trans key="site.prices.section" }}</h2>
+        <p class="world-only">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span><b>{{ trans key="site.prices.world_only" }}</b> {{ trans key="site.prices.world_only_more" }}</span>
+        </p>
+    </div>
+    <div class="market-cards">
+        {{ if metals }}
+        <div class="panel market-card">
+            <div class="market-head">
+                <h3>{{ trans key="site.prices.metals" }}</h3>
+                <p class="market-note muted">
+                    {{ trans key="site.prices.metals_note" :date="metals:date" :grams="baht_grams" }}
+                    <a href="{{ metals_source }}" target="_blank" rel="noopener">{{ trans key="site.prices.metals_source" }}</a>
+                </p>
+            </div>
+            <dl class="market-list">
+                <div class="market-item gold">
+                    <dt>{{ trans key="site.prices.gold" }}</dt>
+                    <dd><b>{{ metals:gold:baht | kip }}</b> <span class="muted">{{ trans key="site.prices.per_baht" }}</span></dd>
+                    <dd class="more muted">{{ metals:gold:gram | kip }} {{ trans key="site.prices.per_gram" }} · {{ metals:gold:ounce_usd }} {{ trans key="site.prices.per_ounce" }}</dd>
+                </div>
+                <div class="market-item silver">
+                    <dt>{{ trans key="site.prices.silver" }}</dt>
+                    <dd><b>{{ metals:silver:baht | kip }}</b> <span class="muted">{{ trans key="site.prices.per_baht" }}</span></dd>
+                    <dd class="more muted">{{ metals:silver:gram | kip }} {{ trans key="site.prices.per_gram" }} · {{ metals:silver:ounce_usd }} {{ trans key="site.prices.per_ounce" }}</dd>
+                </div>
+            </dl>
+        </div>
+        {{ /if }}
+        {{ if oil }}
+        <div class="panel market-card">
+            <div class="market-head">
+                <h3>{{ trans key="site.prices.oil" }}</h3>
+                <p class="market-note muted">
+                    {{ trans key="site.prices.oil_note" :date="oil:date" }}
+                    <a href="{{ oil_source }}" target="_blank" rel="noopener">{{ trans key="site.prices.oil_source" }}</a>
+                </p>
+            </div>
+            <dl class="market-list">
+                <div class="market-item brent">
+                    <dt>Brent</dt>
+                    <dd><b>{{ oil:brent:barrel_usd }}</b> <span class="muted">{{ trans key="site.prices.per_barrel" }}</span></dd>
+                    {{ if oil:brent:litre }}<dd class="more muted">≈ {{ oil:brent:litre | kip }} {{ trans key="site.prices.per_litre" }}</dd>{{ /if }}
+                </div>
+                <div class="market-item wti">
+                    <dt>WTI</dt>
+                    <dd><b>{{ oil:wti:barrel_usd }}</b> <span class="muted">{{ trans key="site.prices.per_barrel" }}</span></dd>
+                    {{ if oil:wti:litre }}<dd class="more muted">≈ {{ oil:wti:litre | kip }} {{ trans key="site.prices.per_litre" }}</dd>{{ /if }}
+                </div>
+            </dl>
+        </div>
+        {{ /if }}
+    </div>
+</section>
+{{ /market_prices }}
