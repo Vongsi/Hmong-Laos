@@ -1,0 +1,52 @@
+{{# The weather and air quality across Laos (App\Support\Weather), for information: a small panel in the home page's side
+    column, under the market prices. One row a town: the main towns, then the visitor's province (chosen in the
+    heading, remembered in their browser, else a member's own; site.js), highlighted. Nothing shows without readings. #}}
+{{ weather }}
+<section class="panel wx" aria-labelledby="wx-title" data-weather data-default="{{ member_place }}">
+    <svg class="wx-sprite" aria-hidden="true" focusable="false">
+        <symbol id="wx-sun" viewBox="0 0 24 24"><g stroke="#E0A11B"><circle cx="12" cy="12" r="4.5" fill="#F7C948"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></symbol>
+        <symbol id="wx-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="#F7DC8B" stroke="#C9A227"/></symbol>
+        <symbol id="wx-sun-cloud" viewBox="0 0 24 24"><g stroke="#E0A11B"><circle cx="8" cy="8" r="3.4" fill="#F7C948"/><path d="M8 1.5v1.5M1.5 8H3M3.4 3.4l1 1M12.6 3.4l-1 1M3.4 12.6l1-1"/></g><path transform="translate(7 8) scale(.72)" stroke-width="2.6" d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" style="fill:var(--surface)"/></symbol>
+        <symbol id="wx-moon-cloud" viewBox="0 0 24 24"><path transform="translate(0 0) scale(.6)" stroke-width="3.2" d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="#F7DC8B" stroke="#C9A227"/><path transform="translate(7 8) scale(.72)" stroke-width="2.6" d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" style="fill:var(--surface)"/></symbol>
+        <symbol id="wx-cloud" viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" style="fill:var(--surface)"/></symbol>
+        <symbol id="wx-fog" viewBox="0 0 24 24"><path transform="translate(3 0) scale(.75)" stroke-width="2.6" d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" style="fill:var(--surface)"/><path d="M3 18h18M6 22h12"/></symbol>
+        <symbol id="wx-drizzle" viewBox="0 0 24 24"><path d="M8 19v2M8 13v2M16 19v2M16 13v2M12 21v2M12 15v2" stroke="#4A90D9"/><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/></symbol>
+        <symbol id="wx-rain" viewBox="0 0 24 24"><path d="M16 13v8M8 13v8M12 15v8" stroke="#4A90D9"/><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/></symbol>
+        <symbol id="wx-storm" viewBox="0 0 24 24"><path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><path d="M13 11l-4 6h6l-4 6" stroke="#E0A11B"/></symbol>
+    </svg>
+    <div class="wx-top">
+        <h2 id="wx-title">{{ trans key="site.weather.section" }}</h2>
+        <select class="wx-pick" data-weather-pick aria-label="{{ trans key='site.weather.choose' }}" hidden>
+            <option value="">{{ trans key="site.weather.choose" }}</option>
+            {{ provinces }}<option value="{{ slug }}">{{ name }}</option>{{ /provinces }}
+        </select>
+    </div>
+    <table class="wx-table">
+        <thead>
+            <tr>
+                <th scope="col"><span class="sr-only">{{ trans key="site.weather.place" }}</span></th>
+                <th scope="col">{{ trans key="site.weather.now" }}</th>
+                <th scope="col">{{ trans key="site.weather.today" }}</th>
+                <th scope="col">{{ trans key="site.weather.rain" }}</th>
+                <th scope="col">AQI</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ places }}
+            <tr data-place="{{ slug }}"{{ if main }} data-main{{ else }} hidden{{ /if }}>
+                <th scope="row"><svg class="wx-icon" role="img" aria-label="{{ label }}"><title>{{ label }}</title><use href="#wx-{{ icon }}"/></svg>{{ name }}</th>
+                <td class="wx-now">{{ temp }}</td>
+                <td>{{ high_low }}</td>
+                <td>{{ rain }}</td>
+                <td>{{ if aqi }}<span class="aqi {{ aqi_level }}" title="{{ aqi_label }}">{{ aqi }}<span class="sr-only"> ({{ aqi_label }})</span></span>{{ /if }}</td>
+            </tr>
+            {{ /places }}
+        </tbody>
+    </table>
+    <p class="wx-foot">
+        <span class="wx-key">{{ trans key="site.weather.air.title" }} <span><i class="aqi good"></i>0–50 {{ trans key="site.weather.air.key_good" }}</span> <span><i class="aqi moderate"></i>51–100 {{ trans key="site.weather.air.key_moderate" }}</span> <span><i class="aqi unhealthy"></i>101+ {{ trans key="site.weather.air.key_bad" }}</span></span>
+        {{ trans key="site.weather.updated" :time="read_at" }}
+        {{ trans key="site.prices.sources" }} <a href="{{ weather_source }}" target="_blank" rel="noopener">Open-Meteo</a> · <a href="{{ air_source }}" target="_blank" rel="noopener">Copernicus CAMS</a>
+    </p>
+</section>
+{{ /weather }}
