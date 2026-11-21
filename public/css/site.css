@@ -1237,33 +1237,40 @@ button.chat-head-text{cursor:pointer}
 .product-meta{padding:12px 4px 4px}
 @media (max-width:640px){.product-card{padding:8px}.product-meta{padding:10px 2px 2px}}
 
-/* Home page: world prices (partials/market_prices). The heading says they are world prices only, on a marker-yellow
-   note; then a card for gold and silver and one for crude oil: the card's title and note, then each item with a
-   coloured dot, its main price, then the others. Stacked on phones. */
+/* Home page: the welcome and the world prices beside it start level at the top; without prices (none fetched yet),
+   the welcome has the row to itself. */
+.hero{align-items:start}
+.hero:not(:has(.hero-side .market)){grid-template-columns:minmax(0,1fr)}
+.hero-side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.hero-side:not(:has(.market)){display:none}
+
+/* World prices (partials/market_prices): a small panel under the next event. Its heading carries a marker-yellow
+   "World prices only" note; then, for each kind, a date line and one row a price: a coloured dot and the name, the
+   main price, and a second price in smaller type (a column of its own, so both groups line up). */
 :root{--highlight:#FFF0B3}
 :root[data-theme="dark"]{--highlight:#4A3F12}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--highlight:#4A3F12}}
-.market .sec-head{align-items:center}
-.world-only{display:inline-flex;align-items:center;gap:8px;margin:0;padding:5px 14px;font-size:13.5px;line-height:1.35;color:var(--ink);background:var(--highlight);border:2px solid var(--sketch);border-radius:var(--wobble-pill);box-shadow:2px 2px 0 var(--sketch)}
-.world-only svg{width:16px;height:16px;flex:none}
-.world-only b{font-family:var(--hand);font-size:15.5px;font-weight:400;letter-spacing:.02em;text-transform:uppercase}
+.market{gap:8px;padding:12px 16px}
+.market-top{display:flex;align-items:center;justify-content:space-between;gap:6px 10px;flex-wrap:wrap}
+.market h2{font-size:15px}
+.world-only{display:inline-flex;align-items:center;gap:5px;margin:0;padding:1px 8px;font-size:11px;line-height:1.3;color:var(--ink);background:var(--highlight);border:1.5px solid var(--sketch);border-radius:var(--wobble-pill);box-shadow:1.5px 1.5px 0 var(--sketch)}
+.world-only svg{width:11px;height:11px;flex:none}
+.world-only b{font-family:var(--hand);font-size:12px;font-weight:400;letter-spacing:.02em;text-transform:uppercase}
 :lang(lo) .world-only b{font-weight:700;font-synthesis:none}
-.market-cards{display:flex;flex-direction:column;gap:16px}
-.market-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:14px 28px;align-items:center;padding:18px 20px}
-.market-head{display:flex;flex-direction:column;gap:6px}
-.market-note{font-size:12.5px;line-height:1.5;margin:0}
-.market-note a{color:inherit;white-space:nowrap}
-.market-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0}
-.market-item{display:flex;flex-direction:column;gap:2px;padding-left:20px;border-left:1px solid var(--line);font-variant-numeric:tabular-nums}
-.market-item dt{display:flex;align-items:center;gap:8px;font-weight:700}
-.market-item dt::before{content:"";width:12px;height:12px;flex:none;border-radius:50%;background:var(--dot);border:2px solid var(--sketch)}
+.market-group{display:flex;flex-direction:column;gap:3px;border-top:1px solid var(--line);padding-top:7px}
+.market h3{font-family:var(--body);font-size:11px;font-weight:600;letter-spacing:.02em;color:var(--ink-2)}
+.market-list{display:flex;flex-direction:column;gap:2px;margin:0}
+.market-item{display:grid;grid-template-columns:minmax(0,1fr) auto 7.5em;gap:0 10px;align-items:baseline;font-variant-numeric:tabular-nums}
+.market-item dt{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700}
+.market-item dt::before{content:"";width:8px;height:8px;flex:none;border-radius:50%;background:var(--dot);border:1.5px solid var(--sketch)}
 .market-item.gold{--dot:#E5B83B}
 .market-item.silver{--dot:#C9CED6}
 .market-item.brent{--dot:#3B3F46}
 .market-item.wti{--dot:#9A6A3A}
-.market-item dd{margin:0}
-.market-item dd b{font-size:19px}
-.market-item dd.more{font-size:13px}
-@media (max-width:860px){.market-card{grid-template-columns:minmax(0,1fr)}.market-item:first-child{padding-left:0;border-left:0}}
-@media (max-width:520px){.market-list{grid-template-columns:minmax(0,1fr)}.market-item{padding:10px 0 0;border-left:0;border-top:1px solid var(--line)}.market-item:first-child{padding-top:0;border-top:0}}
-@media (max-width:640px){.world-only{border-radius:var(--wobble-box);align-items:flex-start}.world-only svg{margin-top:2px}}
+.market-item dd{margin:0;text-align:right;white-space:nowrap;font-size:11px;color:var(--ink-2)}
+.market-item dd b{font-size:13.5px;color:var(--ink)}
+.market-item dd.more{font-size:10.5px}
+.market-foot{margin:0;border-top:1px solid var(--line);padding-top:6px;font-size:10.5px;line-height:1.45;color:var(--ink-2)}
+.market-foot a{color:inherit;white-space:nowrap}
+/* Narrow phones: the second price goes under the main one. */
+@media (max-width:420px){.market-item{grid-template-columns:minmax(0,1fr) auto}.market-item dd.more{grid-column:2}}

@@ -10,14 +10,10 @@
             <a class="btn ghost" href="{{ base }}events">{{ trans key="site.hero.cta_events" }}</a>
         </div>
     </div>
-    {{ collection:events limit="1" start_date:is_after="now" }}
-        <a class="hero-card" href="{{ url }}" style="text-decoration:none">
-            <span class="eyebrow">{{ start_date format="j M Y" }}</span>
-            <h3>{{ title }}</h3>
-            {{ if summary }}<p style="opacity:.85">{{ summary }}</p>{{ /if }}
-            <span class="btn" style="background:#fff;color:#1E2656;align-self:flex-start">{{ trans key="site.home.all_events" }}</span>
-        </a>
-    {{ /collection:events }}
+    {{# Beside the welcome: the world market prices, for members' information (the events are listed just below). #}}
+    <div class="hero-side">
+        {{ partial:market_prices }}
+    </div>
 </section>
 
 <section class="sec">
@@ -28,9 +24,6 @@
         {{ /collection:events }}
     </div>
 </section>
-
-{{# World prices of gold, silver and crude oil: for members' information, so after the events. #}}
-{{ partial:market_prices }}
 
 {{ partial:app_panel }}
 

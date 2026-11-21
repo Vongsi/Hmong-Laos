@@ -22,7 +22,7 @@ class MarketPrices extends Tags
             return '';
         }
 
-        $dated = fn (?array $part) => $part ? [...$part, 'date' => CarbonImmutable::parse($part['date'])->format('j M Y')] : null;
+        $dated = fn (?array $part) => $part ? [...$part, 'date' => CarbonImmutable::parse($part['date'])->format('j M')] : null;
 
         return [
             'metals' => $dated($prices['metals'] ?? null),
