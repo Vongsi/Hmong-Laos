@@ -1,5 +1,5 @@
 title: Feed
-route: '/xov-xwm/{slug}'
+route: '/feed/{slug}'
 date: true
 sort_direction: desc
 date_behavior:
