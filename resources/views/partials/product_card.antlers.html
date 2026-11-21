@@ -1,9 +1,12 @@
 <a class="product-card" href="{{ url }}">
-    {{ if images }}
-        {{ images limit="1" }}<img src="{{ glide:url width='480' height='480' fit='crop_focal' }}" alt="{{ alt ?? '' }}" loading="lazy">{{ /images }}
-    {{ else }}
-        <span class="ph c product-ph"></span>
-    {{ /if }}
+    {{# The photo's frame: rounded, inside the card's margin; the photo zooms within it on hover (site.css). #}}
+    <span class="product-photo">
+        {{ if images }}
+            {{ images limit="1" }}<img src="{{ glide:url width='480' height='480' fit='crop_focal' }}" alt="{{ alt ?? '' }}" loading="lazy">{{ /images }}
+        {{ else }}
+            <span class="ph c product-ph"></span>
+        {{ /if }}
+    </span>
     <span class="product-meta">
         <b>{{ title }}</b>
         <span class="price">{{ price | kip }}</span>

@@ -1112,3 +1112,127 @@ button.chat-head-text{cursor:pointer}
 .laos-note{margin:0 0 6px}
 .time-hint{display:block;font-size:12.5px;font-weight:500;color:var(--ink-2)}
 .time-hint:empty{display:none}
+
+/* ---------- hand-drawn buttons and text boxes ----------
+   Buttons and the boxes people type in look drawn with a marker: a thick ink line, corners that aren't quite even, and
+   a hard ink shadow that makes the bottom and right edges heavier. Buttons and chips are lettered by hand (Patrick Hand,
+   in capitals; Lao falls back to Noto Sans Lao). Hovering lifts a button off its shadow and pressing pushes it down
+   onto it. In dark mode the ink is light, like chalk. What people type stays in the body font, so it's easy to read;
+   only the example text in an empty box is hand-lettered. In the header, keep the controls' heights as set here: its
+   rows must stay multiples of 4px tall (see .head-in), or the paj ntaub band under it blurs. */
+:root{
+  --hand:"Patrick Hand","Noto Sans Lao",var(--body);
+  --sketch:var(--ink);
+  --paper:#FFFDF8;
+  /* Uneven corners: buttons and chips, boxes, round buttons, pills. */
+  --wobble:11px 5px 10px 6px / 6px 10px 5px 11px;
+  --wobble-box:8px 14px 6px 12px / 12px 6px 14px 8px;
+  --wobble-round:50% 46% 52% 48% / 48% 53% 47% 50%;
+  --wobble-pill:999px 900px 999px 860px / 860px 999px 900px 999px;
+  --sketch-shadow:2px 3px 0 var(--sketch);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:var(--surface)}}
+:root[data-theme="dark"]{--paper:var(--surface)}
+
+/* Buttons */
+.btn{font-family:var(--hand);font-size:17px;font-weight:400;line-height:22px;letter-spacing:.04em;text-transform:uppercase;
+  padding:8px 18px;border:2px solid var(--sketch);border-radius:var(--wobble);box-shadow:var(--sketch-shadow)}
+.btn.ghost{background:var(--paper);border:2px solid var(--sketch);color:var(--ink)}
+.chip{font-family:var(--hand);font-size:15.5px;font-weight:400;letter-spacing:.03em;text-transform:uppercase;padding:4px 13px;
+  background:var(--paper);border:2px solid var(--sketch);border-radius:var(--wobble);box-shadow:1.5px 2px 0 var(--sketch)}
+/* The chosen one: a light tint with a red outline. */
+.chip[aria-current="true"],.chip[aria-pressed="true"]{color:var(--red);background:color-mix(in srgb,var(--red) 13%,var(--paper));border-color:var(--red);box-shadow:1.5px 2px 0 var(--red)}
+.share-btn,.member-msg,.online-pill,.theme-btn,.lang,.view-switch,.size span{border:2px solid var(--sketch);box-shadow:1.5px 2px 0 var(--sketch)}
+.share-btn{font-family:var(--hand);font-size:15.5px;font-weight:400;letter-spacing:.03em;text-transform:uppercase;border-radius:var(--wobble)}
+.member-msg,.view-switch,.size span{border-radius:var(--wobble)}
+.theme-btn{border-radius:var(--wobble-round)}
+.lang,.online-pill{border-radius:var(--wobble-pill)}
+.online-pill{line-height:20px}
+.lang select{font-family:var(--hand);font-size:15px;font-weight:400;line-height:20px;letter-spacing:.03em}
+.size span{font-family:var(--hand);font-size:16px;font-weight:400}
+.size input:checked+span{border-color:var(--sketch)}
+/* The cart has no outline on phones, where it's just an icon in the header. */
+@media (min-width:641px){.cart-btn{line-height:20px;border:2px solid var(--sketch);border-radius:var(--wobble-pill);box-shadow:1.5px 2px 0 var(--sketch)}}
+/* Choices drawn as boxes: sign-in options, what to share. */
+.sso,.share-type{border:2px solid var(--sketch);border-radius:var(--wobble-box);box-shadow:var(--sketch-shadow)}
+.share-type b{font-family:var(--hand);font-size:19px;font-weight:400;letter-spacing:.02em}
+.receipt-form input[type=file]::file-selector-button{font-family:var(--hand);font-size:15px;font-weight:400;text-transform:uppercase;border:2px solid var(--sketch);border-radius:var(--wobble);box-shadow:1.5px 2px 0 var(--sketch)}
+
+/* Text boxes */
+.field input,.field select,.field textarea,.members-filters input,.members-filters select,.cmt-form textarea,.qty input,
+.chat-compose textarea,.people-picker input[type=search],.composer .fake-input,.rte{
+  background:var(--paper);border:2px solid var(--sketch);border-radius:var(--wobble-box);box-shadow:var(--sketch-shadow)}
+.prov select{background:var(--paper);border:2px solid var(--sketch);border-radius:var(--wobble-pill);box-shadow:1.5px 2px 0 var(--sketch);font-family:var(--hand);font-size:15px;font-weight:400}
+.composer .fake-input{font-family:var(--hand);font-size:17px}
+:is(.field input,.field textarea,.members-filters input,.cmt-form textarea,.chat-compose textarea,.people-picker input)::placeholder{font-family:var(--hand);font-size:1.08em;letter-spacing:.02em;color:var(--ink-2);opacity:.9}
+:is(.field input,.field select,.field textarea,.members-filters input,.members-filters select,.cmt-form textarea,.qty input,.chat-compose textarea,.people-picker input[type=search],.prov select):focus{outline:none;border-color:var(--indigo);box-shadow:2px 3px 0 var(--indigo)}
+.rte:focus-within{border-color:var(--indigo);box-shadow:2px 3px 0 var(--indigo)}
+.rte-toolbar{border-bottom:2px solid var(--sketch);border-radius:inherit;border-bottom-left-radius:0;border-bottom-right-radius:0}
+
+/* Hover and press: lift off the shadow, then push down onto it (replaces the soft lift in "hover and press"). */
+@media (hover:hover){
+  .btn:not(:disabled,.page-current):hover,.share-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 4px 0 var(--sketch)}
+  .btn.ghost:not(:disabled,.page-current):hover{border-color:var(--sketch)}
+  .chip:not([aria-current="true"],[aria-pressed="true"]):hover,.member-msg:hover,.online-pill:hover,.theme-btn:hover,.lang:hover,.cart-btn:hover{border-color:var(--sketch);transform:translate(-1px,-1px);box-shadow:2.5px 3px 0 var(--sketch)}
+  .sso:hover,.share-type:hover{border-color:var(--sketch);transform:translate(-1px,-2px);box-shadow:3px 5px 0 var(--sketch)}
+  .composer .fake-input:hover{transform:translate(-1px,-1px);box-shadow:3px 4px 0 var(--sketch)}
+}
+.btn:not(:disabled,.page-current):active,.share-btn:active,.chip:active,.sso:active,.share-type:active,.member-msg:active,.theme-btn:active{transform:translate(2px,3px);box-shadow:0 0 0 var(--sketch)}
+.composer .fake-input{transition:transform .15s ease,box-shadow .15s ease}
+@media (prefers-reduced-motion:reduce){.chip,.member-msg,.online-pill,.theme-btn,.lang,.cart-btn,.composer .fake-input{transform:none!important}}
+
+/* Cards and panels, hand-drawn too: the same ink line and uneven corners, with a slightly bigger shadow than buttons
+   since they are bigger boxes. Card titles are hand-lettered. Hovering a card you can open lifts it off its shadow;
+   pressing pushes it down (replaces the soft lift in "hover and press"). Menus and chat bubbles keep their own look. */
+.card,.feature,.product-card,.hero-card,.post,.panel,.join-card,.app-panel,.composer,.cult,.group,.person,.branch,
+.contact-sec,.site-tree,.cart-line,.choice,.chat,.member-list,.member-grid .member,.member.profile-head{
+  border:2px solid var(--sketch);border-radius:var(--wobble-box);box-shadow:3px 4px 0 var(--sketch)}
+.cmt-bubble{border:2px solid var(--sketch);border-radius:var(--wobble-box);box-shadow:1.5px 2px 0 var(--sketch)}
+.pay-box{border-radius:var(--wobble-box);box-shadow:3px 4px 0 var(--indigo)}
+.card h3,.feature h3{font-family:var(--hand);font-weight:400;letter-spacing:.02em}
+/* The member's own card: green ink. */
+.member-grid .member.member-me,.member.profile-head.member-me{border-color:var(--green);box-shadow:3px 4px 0 var(--green)}
+@media (hover:hover){
+  .card:hover,.feature:hover,.product-card:hover,.hero-card:hover,.member-grid .member:has(.member-link):hover{border-color:var(--sketch);transform:translate(-1px,-2px);box-shadow:5px 6px 0 var(--sketch)}
+  .member-grid .member.member-me:hover{border-color:var(--green);box-shadow:5px 6px 0 var(--green)}
+  .post:hover{box-shadow:4px 5px 0 var(--sketch)}
+}
+.card:active,.feature:active,.product-card:active,.hero-card:active,.member-grid .member:has(.member-link):active{transform:translate(2px,3px);box-shadow:1px 1px 0 var(--sketch)}
+/* Patrick Hand has no Lao letters and only one weight, so on the Lao site the hand-lettered labels and card titles
+   would come out in thin Lao letters: keep them semi-bold there (Noto Sans Lao has the weight). */
+:lang(lo) :is(.btn,.chip,.share-btn,.share-type b,.lang select,.prov select,.size span){font-weight:600;font-synthesis:none}
+:lang(lo) :is(.card h3,.feature h3){font-weight:700;font-synthesis:none}
+
+/* Pop-ups, menus and chats in the same hand-drawn style. Pop-ups float highest, so their ink shadow is the biggest. */
+.popup,.modal,.crop-dialog{border:2px solid var(--sketch);border-radius:var(--wobble-box);box-shadow:6px 7px 0 var(--sketch)}
+.popup-close{color:var(--ink);background:var(--paper);border:2px solid var(--sketch);border-radius:var(--wobble-round);box-shadow:1.5px 2px 0 var(--sketch)}
+/* On phones the confirmation slides up from the bottom: an ink line along its top only. */
+@media (max-width:560px){.modal{border-width:2px 0 0;border-radius:22px 14px 0 0 / 14px 22px 0 0;box-shadow:none}}
+.account-menu .menu,.chat-menu .menu,.bubble-menu .menu,.emoji-panel,.rte-photomenu{border:2px solid var(--sketch);border-radius:var(--wobble-box);box-shadow:3px 4px 0 var(--sketch)}
+.people-list,.group-members{border:2px solid var(--sketch);border-radius:var(--wobble-box);box-shadow:2px 3px 0 var(--sketch)}
+/* Chats: ink lines inside the Messages box too, bubbles drawn with a small tail corner, and hand-lettered day headings
+   and notes. A message of just emojis stays without a bubble. */
+.chat-list{border-right:2px solid var(--sketch)}
+.chat-head{border-bottom:2px solid var(--sketch)}
+.chat-compose,.chat-note,.chat-request{border-top:2px solid var(--sketch)}
+.chat-item[aria-current="true"]{box-shadow:inset 0 0 0 2px var(--sketch);border-radius:var(--wobble)}
+.bubble{border:2px solid var(--sketch);box-shadow:1.5px 2px 0 var(--sketch)}
+.bubble.mine{border-radius:14px 18px 5px 16px / 16px 14px 6px 18px}
+.bubble.theirs{border:2px solid var(--sketch);border-radius:18px 14px 16px 5px / 14px 18px 18px 6px}
+.bubble.emoji-only{background:none;border:0;box-shadow:none}
+.chat-day span{display:inline-block;padding:1px 12px;font-family:var(--hand);font-size:14.5px;font-weight:400;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);background:var(--paper);border:2px solid var(--sketch);border-radius:var(--wobble);box-shadow:1.5px 2px 0 var(--sketch)}
+.chat-system{font-family:var(--hand);font-size:14.5px;letter-spacing:.02em;background:var(--paper);border:2px dashed var(--sketch);border-radius:var(--wobble-pill)}
+:lang(lo) :is(.chat-day span,.chat-system){font-weight:600;font-synthesis:none}
+
+/* Pages (Community rules, Privacy, Delete my data, Site map) use the page's full width like About and Members; the text
+   in them keeps its reading width (.prose). News posts and Inspire stories stay a centred column. */
+.article.page-wide{max-width:none;margin:0}
+.article.page-wide .lede{max-width:60ch}
+
+/* Product cards: a margin round the photo, which has rounded corners like the photos on news cards. It still zooms a
+   little on hover, inside its frame (.product-photo), which has a light line round it so photos on white show it too. */
+.product-card{padding:10px}
+.product-photo{display:block;overflow:hidden;border-radius:10px;box-shadow:0 0 0 1px var(--line)}
+.product-card .product-photo img,.product-card .product-photo .product-ph{display:block;border-radius:0}
+.product-meta{padding:12px 4px 4px}
+@media (max-width:640px){.product-card{padding:8px}.product-meta{padding:10px 2px 2px}}
