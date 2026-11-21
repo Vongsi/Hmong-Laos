@@ -60,6 +60,33 @@
   setTimeout(function () { dialog.showModal(); }, 600);
 })();
 
+// Home page weather (partials/weather): the visitor's province, chosen in the panel's heading and remembered on this
+// device (else a signed-in member's own), shows under the main towns, highlighted; one of the main towns' provinces
+// is just highlighted. Without this script, the picker stays hidden and only the main towns show.
+(function () {
+  var box = document.querySelector('[data-weather]');
+  if (!box) return;
+  var pick = box.querySelector('[data-weather-pick]');
+  var key = 'hl-weather-province';
+  function show(slug) {
+    box.querySelectorAll('tr[data-place]').forEach(function (row) {
+      var on = !!slug && row.getAttribute('data-place') === slug;
+      row.classList.toggle('chosen', on);
+      if (!row.hasAttribute('data-main')) row.hidden = !on;
+    });
+    pick.value = slug;
+    if (pick.value !== slug) pick.value = '';
+  }
+  var stored = null;
+  try { stored = localStorage.getItem(key); } catch (e) {}
+  show(stored !== null ? stored : (box.getAttribute('data-default') || ''));
+  pick.hidden = false;
+  pick.addEventListener('change', function () {
+    show(pick.value);
+    try { localStorage.setItem(key, pick.value); } catch (e) {}
+  });
+})();
+
 // "Track on Anousith" also copies the tracking number, ready to paste into the courier's tracking box.
 document.addEventListener('click', function (e) {
   var link = e.target.closest('[data-copy-also]');

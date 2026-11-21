@@ -6,6 +6,7 @@ use App\Shop\OnePay;
 use App\Shop\Shop;
 use App\Support\Calls;
 use App\Support\MarketPrices;
+use App\Support\Weather;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -55,6 +56,24 @@ Artisan::command('market-prices:update', function () {
 })->purpose('Fetch the world prices of gold, silver and crude oil for the home page');
 
 Schedule::command('market-prices:update')->everySixHours()->withoutOverlapping();
+
+// The weather and air quality across Laos for the home page (App\Support\Weather): Open-Meteo updates them every
+// quarter of an hour; two requests every half hour stay far within its free use.
+Artisan::command('weather:update', function () {
+    ['weather' => $weather, 'air' => $air] = Weather::refresh();
+    $kept = 'the last readings stay up for up to '.Weather::MAX_AGE_HOURS.' hours.';
+
+    $weather
+        ? $this->info('Weather of '.count($weather['places'])." towns at {$weather['time']} Lao time (Vientiane {$weather['places']['vientiane-capital']['temp']}°C).")
+        : $this->error("Could not get the weather; {$kept}");
+    $air
+        ? $this->info('Air quality of '.count($air['places'])." towns at {$air['time']} Lao time (Vientiane AQI ".($air['places']['vientiane-capital']['aqi'] ?? '–').').')
+        : $this->error("Could not get the air quality; {$kept}");
+
+    return $weather && $air ? 0 : 1;
+})->purpose('Fetch the weather and air quality across Laos for the home page');
+
+Schedule::command('weather:update')->everyThirtyMinutes()->withoutOverlapping();
 
 // Calls nobody answered, or left open when a browser closed (App\Support\Calls).
 Schedule::call(fn () => Calls::expireStale())->everyMinute()->name('calls:expire')->withoutOverlapping();

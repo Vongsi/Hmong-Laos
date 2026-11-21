@@ -10,9 +10,11 @@
             <a class="btn ghost" href="{{ base }}events">{{ trans key="site.hero.cta_events" }}</a>
         </div>
     </div>
-    {{# Beside the welcome: the world market prices, for members' information (the events are listed just below). #}}
+    {{# Beside the welcome, for members' information: the world market prices, then the weather across Laos (the events
+        are listed just below). #}}
     <div class="hero-side">
         {{ partial:market_prices }}
+        {{ partial:weather }}
     </div>
 </section>
 
