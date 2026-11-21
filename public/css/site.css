@@ -1236,3 +1236,34 @@ button.chat-head-text{cursor:pointer}
 .product-card .product-photo img,.product-card .product-photo .product-ph{display:block;border-radius:0}
 .product-meta{padding:12px 4px 4px}
 @media (max-width:640px){.product-card{padding:8px}.product-meta{padding:10px 2px 2px}}
+
+/* Home page: world prices (partials/market_prices). The heading says they are world prices only, on a marker-yellow
+   note; then a card for gold and silver and one for crude oil: the card's title and note, then each item with a
+   coloured dot, its main price, then the others. Stacked on phones. */
+:root{--highlight:#FFF0B3}
+:root[data-theme="dark"]{--highlight:#4A3F12}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--highlight:#4A3F12}}
+.market .sec-head{align-items:center}
+.world-only{display:inline-flex;align-items:center;gap:8px;margin:0;padding:5px 14px;font-size:13.5px;line-height:1.35;color:var(--ink);background:var(--highlight);border:2px solid var(--sketch);border-radius:var(--wobble-pill);box-shadow:2px 2px 0 var(--sketch)}
+.world-only svg{width:16px;height:16px;flex:none}
+.world-only b{font-family:var(--hand);font-size:15.5px;font-weight:400;letter-spacing:.02em;text-transform:uppercase}
+:lang(lo) .world-only b{font-weight:700;font-synthesis:none}
+.market-cards{display:flex;flex-direction:column;gap:16px}
+.market-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:14px 28px;align-items:center;padding:18px 20px}
+.market-head{display:flex;flex-direction:column;gap:6px}
+.market-note{font-size:12.5px;line-height:1.5;margin:0}
+.market-note a{color:inherit;white-space:nowrap}
+.market-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0}
+.market-item{display:flex;flex-direction:column;gap:2px;padding-left:20px;border-left:1px solid var(--line);font-variant-numeric:tabular-nums}
+.market-item dt{display:flex;align-items:center;gap:8px;font-weight:700}
+.market-item dt::before{content:"";width:12px;height:12px;flex:none;border-radius:50%;background:var(--dot);border:2px solid var(--sketch)}
+.market-item.gold{--dot:#E5B83B}
+.market-item.silver{--dot:#C9CED6}
+.market-item.brent{--dot:#3B3F46}
+.market-item.wti{--dot:#9A6A3A}
+.market-item dd{margin:0}
+.market-item dd b{font-size:19px}
+.market-item dd.more{font-size:13px}
+@media (max-width:860px){.market-card{grid-template-columns:minmax(0,1fr)}.market-item:first-child{padding-left:0;border-left:0}}
+@media (max-width:520px){.market-list{grid-template-columns:minmax(0,1fr)}.market-item{padding:10px 0 0;border-left:0;border-top:1px solid var(--line)}.market-item:first-child{padding-top:0;border-top:0}}
+@media (max-width:640px){.world-only{border-radius:var(--wobble-box);align-items:flex-start}.world-only svg{margin-top:2px}}
