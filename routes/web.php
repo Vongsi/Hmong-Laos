@@ -3,6 +3,7 @@
 use App\Http\Controllers\CallsController;
 use App\Http\Controllers\MemberProfileController;
 use App\Http\Controllers\MessagesController;
+use App\Http\Controllers\OldFeedAddressController;
 use App\Http\Controllers\OrderReceiptController;
 use App\Http\Controllers\PwaController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,9 @@ Route::middleware('statamic.web')->group(function () {
             ->whereNumber('member')
             ->defaults('site', $site->handle())
             ->name('members.show.'.$site->handle());
+        // The news feed's old Hmong address (/xov-xwm, /lo/xov-xwm/{post}…): links shared before it moved to /feed.
+        Route::get(ltrim($prefix.'/xov-xwm/{post?}', '/'), OldFeedAddressController::class)
+            ->name('feed.old.'.$site->handle());
         // Privacy policy and how to have your data deleted (/privacy, /lo/delete-my-data…): their text is in
         // resources/views/partials/legal/, one file per language, so it is deployed and reviewed like code. Facebook
         // and Google ask for both addresses when the site uses their sign-in.

@@ -271,7 +271,7 @@ class SampleContentSeeder extends Seeder
     {
         $pages = [
             'home' => ['template' => 'home', 'title' => ['hm' => 'Tsev', 'lo' => 'ໜ້າຫຼັກ', 'en' => 'Home']],
-            'xov-xwm' => ['template' => 'posts/index', 'title' => ['hm' => 'Xov Xwm', 'lo' => 'ຂ່າວສານ', 'en' => 'Feed']],
+            'feed' => ['template' => 'posts/index', 'title' => ['hm' => 'Xov Xwm', 'lo' => 'ຂ່າວສານ', 'en' => 'Feed']],
             'events' => ['template' => 'events/index', 'title' => ['hm' => 'Kev tshwm sim', 'lo' => 'ກິດຈະກຳ', 'en' => 'Events']],
             'inspire' => ['template' => 'interviews/index', 'title' => ['hm' => 'Tshoov Siab', 'lo' => 'ແຮງບັນດານໃຈ', 'en' => 'Inspire']],
             'about' => [
