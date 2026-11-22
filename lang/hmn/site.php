@@ -40,6 +40,7 @@ return [
         'per_baht' => 'ib baht',
         'per_ounce' => 'ib ounce',
         'oil' => 'Roj nyoos',
+        'oil_weekly' => 'hloov tshiab ib lub lim tiam ib zaug',
         'per_barrel' => 'ib kas tham',
         'per_litre' => 'ib liv',
         'baht_grams' => '1 baht = :grams g.',

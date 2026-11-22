@@ -29,7 +29,8 @@
     {{ /if }}
     {{ if oil }}
     <div class="market-group">
-        <h3>{{ trans key="site.prices.oil" }} · {{ oil:date }}</h3>
+        {{# The EIA publishes the oil prices once a week, so they are often several days old. #}}
+        <h3>{{ trans key="site.prices.oil" }} · {{ oil:date }} · {{ trans key="site.prices.oil_weekly" }}</h3>
         <dl class="market-list">
             <div class="market-item brent">
                 <dt>Brent</dt>

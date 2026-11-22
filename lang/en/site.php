@@ -47,6 +47,7 @@ return [
         'per_baht' => 'per baht',
         'per_ounce' => 'per ounce',
         'oil' => 'Crude oil',
+        'oil_weekly' => 'updated weekly',
         'per_barrel' => 'per barrel',
         'per_litre' => 'per litre',
         'baht_grams' => '1 baht = :grams g.',

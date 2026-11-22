@@ -48,6 +48,7 @@ return [
         'per_baht' => 'ຕໍ່ບາດ',
         'per_ounce' => 'ຕໍ່ອອນສ໌',
         'oil' => 'ນ້ຳມັນດິບ',
+        'oil_weekly' => 'ອັບເດດອາທິດລະເທື່ອ',
         'per_barrel' => 'ຕໍ່ບາເຣວ',
         'per_litre' => 'ຕໍ່ລິດ',
         'baht_grams' => '1 ບາດ = :grams ກຣາມ.',
