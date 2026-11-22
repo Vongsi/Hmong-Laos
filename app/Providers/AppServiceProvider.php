@@ -9,9 +9,11 @@ use App\Bard\VideoBlock;
 use App\Http\Controllers\CP\SellerPayoutController;
 use App\Http\Controllers\CP\WhatsAppController;
 use App\Listeners\NotifyEntryByPush;
+use App\Listeners\ReadCopiesBack;
 use App\Listeners\SendOrderWhatsApp;
 use App\Listeners\ShareEntryToFacebook;
 use App\Listeners\SkipPlaceholderEmails;
+use App\Listeners\SyncCopiesPublished;
 use App\Listeners\TrackCashHandIn;
 use App\Listeners\TrackMemberSubmission;
 use App\Listeners\TrackOrderDelivery;
@@ -66,6 +68,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // First: a copy in another language that was just saved holds only its own values from here on.
+        Event::listen(EntrySaved::class, ReadCopiesBack::class);
         Event::listen(EntrySaved::class, ShareEntryToFacebook::class);
         Event::listen(EntrySaved::class, NotifyEntryByPush::class);
         Event::listen(EntrySaving::class, [TrackOrderDelivery::class, 'saving']);
@@ -79,6 +83,8 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(EntrySaving::class, [TrackCashHandIn::class, 'saving']);
         Event::listen(EntrySaving::class, [TrackMemberSubmission::class, 'saving']);
         Event::listen(EntrySaved::class, [TrackMemberSubmission::class, 'saved']);
+        Event::listen(EntrySaving::class, [SyncCopiesPublished::class, 'saving']);
+        Event::listen(EntrySaved::class, [SyncCopiesPublished::class, 'saved']);
 
         // Photos in Bard text keep a size and position (app/Bard/PhotoLayout.php). In the control panel,
         // public/vendor/app/js/cp.js and css/cp.css show them and add buttons to change them.

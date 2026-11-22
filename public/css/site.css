@@ -283,6 +283,9 @@ p{margin:0}
 .phase .panel .eyebrow{color:var(--indigo)}
 .note{background:var(--surface-2);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--ink-2)}
 .note.warn{border-left:4px solid var(--red);color:var(--ink)}
+/* A post, event or story shown in its original language because nobody has translated it yet (partials/translation_note). */
+.translation-note{display:flex;align-items:center;gap:8px;margin:0;padding:8px 12px;font-size:13px}
+.translation-note svg{flex:none;width:16px;height:16px}
 
 /* join / sign in, Share, Sell with us: the page's full width, like the other pages. On the sign-in pages the
    cards sit side by side (sign in | create an account; a single card takes the left half), stacked on phones. */

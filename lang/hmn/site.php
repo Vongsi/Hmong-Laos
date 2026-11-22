@@ -87,6 +87,10 @@ return [
         'not_embeddable' => 'Video no tsis pub tso rau lwm lub vev xaib: nws yog video ntiag tug, los yog tus tswv tsis pub.',
         'not_found' => 'Nrhiav tsis tau video no. Thov kuaj xyuas qhov link: video tej zaum yog ntiag tug los yog raug rho tawm lawm.',
     ],
+    'translation' => [
+        'languages' => ['hm' => 'lus Hmoob', 'lo' => 'lus Nplog', 'en' => 'lus Askiv'],
+        'note' => 'Tseem tsis tau txhais ua :language, yog li qhia ua :from.',
+    ],
     'feed' => [
         'announcements' => 'Tshaj tawm',
     ],

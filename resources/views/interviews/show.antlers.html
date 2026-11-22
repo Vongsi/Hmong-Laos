@@ -2,6 +2,7 @@
 {{# data-photos: tap a photo to see it large (public/js/site.js). #}}
 <article class="article" data-photos {{ partial:photo_viewer_labels }}>
     <a class="link" href="{{ base }}inspire">← {{ trans key="site.inspire.back" }}</a>
+    {{ partial:translation_note }}
     {{ topics }}<span class="tag">{{ title }}</span>{{ /topics }}
     <h1 style="font-size:clamp(28px,4.5vw,42px)">{{ title }}</h1>
     <div class="interview-head">

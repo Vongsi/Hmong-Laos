@@ -14,7 +14,8 @@ use Statamic\Facades\User;
  * "Working in" panel does one at a time: each copy starts with the text and photos of the entry it was made
  * from and keeps following it until someone changes a field there (to translate it).
  *
- * Products are left out: they get every language automatically when they are created.
+ * News, events, stories and pages get every language automatically when they are created, so this is for entries
+ * made before that, or a language whose copy was deleted. Products are left out: they have always had every language.
  */
 class CopyToLanguages extends Action
 {

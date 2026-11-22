@@ -384,8 +384,9 @@ class SampleContentSeeder extends Seeder
                 'categories' => [$p['category']], 'provinces' => [$p['province']],
             ]);
             $entry->save();
-            $entry->makeLocalization('lo')->date($date)->data(['title' => $p['lo'][0], 'excerpt' => $p['lo'][1], 'content' => $p['lo'][2]])->save();
-            $entry->makeLocalization('en')->date($date)->data(['title' => $p['en'][0], 'excerpt' => $p['en'][1], 'content' => $p['en'][2]])->save();
+            // Posts, events and stories propagate, so saving the origin has already made the other sites' versions.
+            ($entry->in('lo') ?? $entry->makeLocalization('lo'))->date($date)->data(['title' => $p['lo'][0], 'excerpt' => $p['lo'][1], 'content' => $p['lo'][2]])->save();
+            ($entry->in('en') ?? $entry->makeLocalization('en'))->date($date)->data(['title' => $p['en'][0], 'excerpt' => $p['en'][1], 'content' => $p['en'][2]])->save();
         }
     }
 
@@ -416,8 +417,8 @@ class SampleContentSeeder extends Seeder
                 'title' => $e['en'][0], 'summary' => $e['en'][1], 'content' => $e['en'][2], 'schedule' => $e['schedule'],
             ], fn ($v) => $v !== null && $v !== []));
             $entry->save();
-            $entry->makeLocalization('lo')->data(['title' => $e['lo'][0], 'summary' => $e['lo'][1], 'content' => $e['lo'][2]])->save();
-            $entry->makeLocalization('en')->data(['title' => $e['en'][0], 'summary' => $e['en'][1], 'content' => $e['en'][2]])->save();
+            ($entry->in('lo') ?? $entry->makeLocalization('lo'))->data(['title' => $e['lo'][0], 'summary' => $e['lo'][1], 'content' => $e['lo'][2]])->save();
+            ($entry->in('en') ?? $entry->makeLocalization('en'))->data(['title' => $e['en'][0], 'summary' => $e['en'][1], 'content' => $e['en'][2]])->save();
         }
     }
 
@@ -456,8 +457,8 @@ class SampleContentSeeder extends Seeder
                 'qa' => $i['qa'], 'topics' => [$i['topic']], 'provinces' => [$i['province']], 'featured' => $i['featured'],
             ]);
             $entry->save();
-            $entry->makeLocalization('lo')->date($date)->data(['title' => $i['lo'][0], 'intro' => $i['lo'][1]])->save();
-            $entry->makeLocalization('en')->date($date)->data(['title' => $i['en'][0], 'intro' => $i['en'][1]])->save();
+            ($entry->in('lo') ?? $entry->makeLocalization('lo'))->date($date)->data(['title' => $i['lo'][0], 'intro' => $i['lo'][1]])->save();
+            ($entry->in('en') ?? $entry->makeLocalization('en'))->date($date)->data(['title' => $i['en'][0], 'intro' => $i['en'][1]])->save();
         }
     }
 }

@@ -94,6 +94,10 @@ return [
         'not_embeddable' => 'This video cannot be shown on other websites: it is private, or its owner does not allow it.',
         'not_found' => 'We could not find this video. Check the link: the video may be private or removed.',
     ],
+    'translation' => [
+        'languages' => ['hm' => 'Hmong', 'lo' => 'Lao', 'en' => 'English'],
+        'note' => 'Not translated into :language yet, so it is shown in :from.',
+    ],
     'share' => [
         'label' => 'Share',
         'copy' => 'Copy link',

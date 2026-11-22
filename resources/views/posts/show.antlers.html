@@ -2,6 +2,7 @@
 {{# data-photos: tap a photo to see it large (public/js/site.js). #}}
 <article class="article" data-photos {{ partial:photo_viewer_labels }}>
     <a class="link" href="{{ base }}feed">← {{ trans key="site.feed.back" }}</a>
+    {{ partial:translation_note }}
     {{ categories }}<span class="tag {{ slug }}">{{ title }}</span>{{ /categories }}
     <h1 style="font-size:clamp(28px,4.5vw,42px)">{{ title }}</h1>
     <div class="post-head">
