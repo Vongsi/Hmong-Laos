@@ -8,6 +8,8 @@
     {{# The site's name first, then the page's own title: "Daim Av Hlub | Events". The home pages show the name only. #}}
     <title>{{ trans key="site.brand" }}{{ if title && segment_1 != '' && !(is_homepage) }} | {{ title | sanitize }}{{ /if }}</title>
     {{ if noindex }}<meta name="robots" content="noindex">{{ /if }}
+    {{# A post, event or story not translated into this language yet: search engines go to the original (App\Tags\Translation). #}}
+    {{ translation }}{{ if translation_original }}<link rel="canonical" href="{{ translation_original }}">{{ /if }}{{ /translation }}
     <meta name="description" content="{{ if meta_desc }}{{ meta_desc | strip_tags | safe_truncate(160) | sanitize }}{{ else }}{{ settings:home_title | sanitize }}{{ /if }}">
     {{# Link preview for Facebook, WhatsApp and others #}}
     <meta property="og:site_name" content="{{ trans key='site.brand' }}">
@@ -40,7 +42,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&family=Figtree:wght@400;500;600;700&family=Noto+Sans+Lao:wght@400;600;700&family=Patrick+Hand&display=swap">
-    <link rel="stylesheet" href="/css/site.css?v=91">
+    <link rel="stylesheet" href="/css/site.css?v=92">
     {{# Background photo from Globals → Appearance (a planned season's, or the default) #}}
     {{ page_background }}<style>:root{--page-bg:url("{{ bg:large }}");--page-veil:{{ bg:veil }}%}@media (max-width:640px){:root{--page-bg:url("{{ bg:small }}")}}</style>{{ /page_background }}
     {{ livewire:styles }}

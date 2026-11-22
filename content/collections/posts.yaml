@@ -7,7 +7,7 @@ date_behavior:
   future: private
 taxonomies: [categories, provinces]
 sites: [hm, lo, en]
-propagate: false
+propagate: true
 template: posts/show
 layout: layout
 revisions: false
