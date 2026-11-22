@@ -40,7 +40,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&family=Figtree:wght@400;500;600;700&family=Noto+Sans+Lao:wght@400;600;700&family=Patrick+Hand&display=swap">
-    <link rel="stylesheet" href="/css/site.css?v=87">
+    <link rel="stylesheet" href="/css/site.css?v=89">
     {{# Background photo from Globals → Appearance (a planned season's, or the default) #}}
     {{ page_background }}<style>:root{--page-bg:url("{{ bg:large }}");--page-veil:{{ bg:veil }}%}@media (max-width:640px){:root{--page-bg:url("{{ bg:small }}")}}</style>{{ /page_background }}
     {{ livewire:styles }}
@@ -202,6 +202,8 @@ window.HL_LIVE = {
 {{# Voice and video calls between members: the call screen, on every page so a call can ring anywhere. #}}
 {{ call_labels }}
 <script src="/js/calls.js?v=4"></script>
+{{# Voice messages on the Messages page: the recorder and the players (App\Livewire\Messages). #}}
+<script src="/js/voice.js?v=2"></script>
 {{ /if }}
 </body>
 </html>

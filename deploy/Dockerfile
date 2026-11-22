@@ -4,9 +4,10 @@
 FROM dunglas/frankenphp:1-php8.4-bookworm
 
 # PHP extensions: MariaDB, intl (country names in Lao), GD (photo sizes), the rest for Laravel, Statamic and phone
-# notifications. libcap lets the web server use ports 80 and 443 without running as root.
+# notifications. libcap lets the web server use ports 80 and 443 without running as root. ffmpeg converts voice
+# messages in chats to one format every phone plays (App\Support\MessageVoice).
 RUN apt-get update \
- && apt-get install -y --no-install-recommends unzip libcap2-bin \
+ && apt-get install -y --no-install-recommends unzip libcap2-bin ffmpeg \
  && rm -rf /var/lib/apt/lists/* \
  && install-php-extensions pdo_mysql intl gd exif zip bcmath gmp pcntl opcache
 
