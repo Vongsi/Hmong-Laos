@@ -3,14 +3,16 @@
     Starts the site on a Windows dev machine: database, web server, Reverb and the scheduler.
 
 .DESCRIPTION
-    1. Puts PHP 8.4 first on PATH for this window and sets OPENSSL_CONF (needed to send phone notifications).
+    1. Puts PHP 8.4 first on PATH for this window and sets OPENSSL_CONF (needed to send phone notifications),
+       and ffmpeg when there's a copy (voice messages in chats; without it, chats have no record button).
     2. Starts MariaDB in the background if it isn't running yet, and waits until it accepts connections.
     3. Applies new database migrations.
     4. Runs `php artisan dev`: the web server, Reverb (live features) and the scheduler, in this window.
        Ctrl+C stops them; MariaDB keeps running for next time (stop it with -StopDatabase).
 
     Paths default to the portable installs in %USERPROFILE%\.config; override them with the
-    DAH_PHP_DIR and DAH_MARIADB_DIR environment variables.
+    DAH_PHP_DIR, DAH_MARIADB_DIR and DAH_FFMPEG_DIR environment variables (ffmpeg: the folder with
+    ffmpeg.exe and ffprobe.exe).
 
 .PARAMETER Lan
     Also serve on this computer's Wi-Fi address, to open the site on a phone on the same network.
@@ -32,6 +34,7 @@ $phpDir = if ($env:DAH_PHP_DIR) { $env:DAH_PHP_DIR } else { Join-Path $env:USERP
 $mariaDir = if ($env:DAH_MARIADB_DIR) { $env:DAH_MARIADB_DIR } else { Join-Path $env:USERPROFILE '.config\mariadb' }
 $mariaBin = Join-Path $mariaDir '11.4\bin'
 $mariaIni = Join-Path $mariaDir 'data\my.ini'
+$ffmpegDir = if ($env:DAH_FFMPEG_DIR) { $env:DAH_FFMPEG_DIR } else { Join-Path $env:USERPROFILE '.config\ffmpeg\bin' }
 
 function Test-Port([int]$port) {
     $client = New-Object Net.Sockets.TcpClient
@@ -52,6 +55,9 @@ if ($StopDatabase) {
 if (Test-Path (Join-Path $phpDir 'php.exe')) {
     $env:Path = "$phpDir;$env:Path"
     $env:OPENSSL_CONF = Join-Path $phpDir 'extras\ssl\openssl.cnf'
+}
+if (Test-Path (Join-Path $ffmpegDir 'ffmpeg.exe')) {
+    $env:Path = "$ffmpegDir;$env:Path"
 }
 $version = & php -r 'echo PHP_VERSION;'
 if ([version]$version -lt [version]'8.4.1') { throw "PHP $version found; this site needs PHP 8.4.1 or newer (set DAH_PHP_DIR)." }

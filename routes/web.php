@@ -50,9 +50,10 @@ Route::middleware(['auth', 'throttle:20,1'])->group(function () {
     Route::delete('push/subscriptions', [PwaController::class, 'unsubscribe']);
 });
 
-// Private messages: a photo (its two members only) and the unread count for the badge.
+// Private messages: a photo or voice message (the conversation's members only) and the unread count for the badge.
 Route::middleware(['auth', 'throttle:240,1'])->group(function () {
     Route::get('messages/photo/{message}', [MessagesController::class, 'photo'])->whereNumber('message')->name('messages.photo');
+    Route::get('messages/voice/{message}', [MessagesController::class, 'voice'])->whereNumber('message')->name('messages.voice');
     Route::get('messages/unread', [MessagesController::class, 'unread'])->name('messages.unread');
 });
 

@@ -1305,3 +1305,43 @@ button.chat-head-text{cursor:pointer}
 .aqi.hazardous{--aqi:#7E2340;color:#fff}
 .wx-key{display:flex;flex-wrap:wrap;align-items:center;gap:0 8px}
 .wx-key i.aqi{min-width:0;width:7px;height:7px;margin-right:3px;padding:0;vertical-align:0}
+
+/* Voice messages in chats (public/js/voice.js). With nothing written and no photo, a round green 🎤 stands where
+   Send is, where this browser can record (html.can-record) and the server can convert recordings (the button is
+   there). Recording, a bar covers the box: Cancel, a pulsing red dot and the clock, what's happening, and Send. In
+   the chat, a voice message is a play button, a bar of how far it has played (tap to move), and its length. */
+.chat-mic-btn{display:none;flex:none;place-items:center;width:42px;height:42px;padding:0;color:#fff;cursor:pointer;background:var(--green);border:2px solid var(--sketch);border-radius:var(--wobble-round);box-shadow:2px 3px 0 var(--sketch);transition:transform .15s ease,box-shadow .15s ease}
+.can-record .chat-compose:has(textarea:placeholder-shown):not(:has(.chat-attach)) .chat-mic-btn{display:grid}
+.can-record .chat-compose:has(.chat-mic-btn):has(textarea:placeholder-shown):not(:has(.chat-attach)) .chat-send{display:none}
+@media (hover:hover){.chat-mic-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 4px 0 var(--sketch)}}
+.chat-mic-btn:active{transform:translate(2px,3px);box-shadow:0 0 0 var(--sketch)}
+.chat-compose{position:relative}
+.voice-rec:not([hidden]){position:absolute;inset:0;z-index:2;display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface)}
+.voice-rec-cancel{flex:none;display:grid;place-items:center;width:42px;height:42px;padding:0;color:var(--ink-2);cursor:pointer;background:none;border:0;border-radius:50%}
+.voice-rec-cancel:hover,.voice-rec-cancel:focus-visible{color:var(--red);background:color-mix(in srgb,var(--red) 10%,transparent)}
+.voice-rec-dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--red);animation:voice-pulse 1.2s ease-in-out infinite}
+@keyframes voice-pulse{50%{opacity:.25}}
+.voice-rec-clock{flex:none;font-weight:700;font-variant-numeric:tabular-nums}
+/* The level meter: five green bars that rise with the voice; grey and still when the microphone hears nothing. */
+.voice-rec-meter{flex:none;display:flex;align-items:center;gap:2px;height:18px}
+.voice-rec-meter i{display:block;width:3px;height:100%;background:var(--green);border-radius:2px;transform:scaleY(.15);transition:transform .08s linear}
+.voice-rec-status{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;color:var(--ink-2)}
+.voice-rec-send{flex:none}
+.voice-rec.voice-rec-quiet .voice-rec-status{color:var(--red)}
+.voice-rec.voice-rec-quiet .voice-rec-meter i{background:var(--ink-2)}
+.voice-rec.voice-rec-stopped .voice-rec-dot,.voice-rec.voice-rec-sending .voice-rec-dot{animation:none;opacity:.4}
+.voice-rec.voice-rec-sending :is(.voice-rec-cancel,.voice-rec-send){pointer-events:none;opacity:.5}
+.voice-rec:is(.voice-rec-problem,.voice-rec-sending) .voice-rec-meter{display:none}
+.voice-rec.voice-rec-problem .voice-rec-dot{display:none}
+.voice-rec.voice-rec-problem .voice-rec-status{white-space:normal;color:var(--red)}
+.voice-rec.voice-rec-problem .voice-rec-send{display:none}
+@media (prefers-reduced-motion:reduce){.voice-rec-dot{animation:none}.voice-rec-meter i{transition:none}.chat-mic-btn{transform:none!important}}
+
+.voice-msg{display:flex;align-items:center;gap:8px;width:min(260px,62vw);padding:2px 0}
+.voice-play{flex:none;display:grid;place-items:center;width:34px;height:34px;padding:0;color:inherit;cursor:pointer;background:transparent;border:2px solid currentColor;border-radius:var(--wobble-round)}
+.voice-play .i-pause,.voice-msg.playing .voice-play .i-play{display:none}
+.voice-msg.playing .voice-play .i-pause{display:block}
+.voice-track{position:relative;flex:1;height:6px;cursor:pointer;background:color-mix(in srgb,currentColor 28%,transparent);border-radius:999px}
+.voice-track::before{content:"";position:absolute;inset:-10px 0}
+.voice-fill{position:absolute;top:0;bottom:0;left:0;width:0;background:currentColor;border-radius:inherit}
+.voice-time{flex:none;min-width:2.8em;font-size:12px;font-variant-numeric:tabular-nums;text-align:right;opacity:.85}

@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Shop\Shop;
 use App\Support\Calls;
 use App\Support\MessagePhoto;
+use App\Support\MessageVoice;
 use App\Support\Messaging;
 use App\Support\ProfilePhoto;
 use App\Support\ViewerTime;
@@ -54,6 +55,9 @@ class Messages extends Component
     public string $body = '';
 
     public $photo = null;
+
+    /** A voice message, uploaded by the recorder (public/js/voice.js) before it calls sendVoice. */
+    public $voice = null;
 
     /** The message being edited (its text is in $body). */
     public ?int $editing = null;
@@ -128,26 +132,54 @@ class Messages extends Component
             return;
         }
 
-        $conversation = $this->conversation();
-        $photo = $this->photo instanceof TemporaryUploadedFile ? $this->photo : null;
-        if ($conversation) {
-            $result = Messaging::post($conversation, $me, $this->body, $photo);
-            $other = $conversation->isGroup() ? null : $conversation->other($me->id);
-        } else {
-            $other = $this->to ? User::find($this->to) : null;
-            abort_unless($other, 404);
-            $result = Messaging::send($me, $other, $this->body, $photo);
+        if ($this->deliver($me, $this->body, $this->photo instanceof TemporaryUploadedFile ? $this->photo : null)) {
+            $this->reset('body', 'photo');
         }
-        if (is_string($result)) {
-            $this->addError('body', __($result, ['name' => $this->nameOf($other)]));
+    }
+
+    /** Sends the recording the recorder has just uploaded (public/js/voice.js): a voice message on its own. */
+    public function sendVoice(): void
+    {
+        $me = $this->me();
+        $this->resetErrorBag();
+        $voice = $this->voice instanceof TemporaryUploadedFile ? $this->voice : null;
+        $this->voice = null;
+        if (! $voice || $voice->getSize() > MessageVoice::MAX_KB * 1024 || $this->editing) {
+            $this->addError('voice', __('site.messages.voice_error'));
 
             return;
         }
 
+        try {
+            $this->deliver($me, '', null, $voice);
+        } finally {
+            $voice->delete();
+        }
+    }
+
+    /** Sends a message in the open conversation, or starts one with $to. Shows why not under the box; true once sent. */
+    private function deliver(User $me, string $body, ?TemporaryUploadedFile $photo, ?TemporaryUploadedFile $voice = null): bool
+    {
+        $conversation = $this->conversation();
+        if ($conversation) {
+            $result = Messaging::post($conversation, $me, $body, $photo, $voice);
+            $other = $conversation->isGroup() ? null : $conversation->other($me->id);
+        } else {
+            $other = $this->to ? User::find($this->to) : null;
+            abort_unless($other, 404);
+            $result = Messaging::send($me, $other, $body, $photo, $voice);
+        }
+        if (is_string($result)) {
+            $this->addError($voice ? 'voice' : 'body', __($result, ['name' => $this->nameOf($other), 'minutes' => MessageVoice::MAX_SECONDS / 60]));
+
+            return false;
+        }
+
         $this->open = $result->conversation_id;
         $this->to = null;
-        $this->reset('body', 'photo');
         $this->dispatch('chat-sent');
+
+        return true;
     }
 
     public function removePhoto(): void
@@ -376,6 +408,8 @@ class Messages extends Component
             'title' => $conversation?->isGroup() ? $conversation->name : $this->nameOf($other),
             'members' => $members,
             'isAdmin' => $conversation ? Messaging::isAdmin($conversation, $me) : false,
+            // The voice message recorder (public/js/voice.js), where the server can convert recordings.
+            'canRecord' => MessageVoice::available(),
             // Voice and video call buttons (public/js/calls.js): accepted chats between two members.
             'canCall' => $conversation && ! $conversation->isGroup() && Calls::cannotCall($conversation, $me) === null,
             'typingNames' => $conversation ? ($members->isNotEmpty() ? $members->mapWithKeys(fn ($m) => [$m->user_id => $this->nameOf($m->user)])->all() : [($other?->id ?? 0) => $this->nameOf($other)]) : [],
@@ -422,10 +456,13 @@ class Messages extends Component
                 'tone' => $m->user_id % 4,
                 'body' => $m->isDeleted() ? null : $m->body,
                 'photo' => $m->isDeleted() ? null : MessagePhoto::url($m),
+                'voice' => $m->isDeleted() ? null : MessageVoice::url($m),
+                'voiceSeconds' => (int) $m->voice_seconds,
+                'voiceLength' => MessageVoice::length($m->voice_seconds),
                 'deleted' => $m->isDeleted(),
                 'edited' => $m->edited_at !== null && ! $m->isDeleted(),
                 // Just an emoji or three: shown big.
-                'emoji' => ! $m->isDeleted() && ! $m->photo && Messaging::emojiOnly($m->body),
+                'emoji' => ! $m->isDeleted() && ! $m->photo && ! $m->voice && Messaging::emojiOnly($m->body),
                 'canChange' => Messaging::canChange($m, $me),
                 'time' => Messaging::time($m->created_at)->format('H:i'),
                 // Its time in Laos too, shown on hover, when the member's clock says something else.
@@ -486,6 +523,7 @@ class Messages extends Component
             $text = match (true) {
                 $last->isDeleted() => __('site.messages.deleted_preview'),
                 $last->body !== null => Str::limit(preg_replace('/\s+/u', ' ', $last->body), 70),
+                $last->voice !== null => '🎤 '.__('site.messages.voice').' · '.MessageVoice::length($last->voice_seconds),
                 default => '📷 '.__('site.messages.photo'),
             };
             $who = match (true) {
@@ -559,7 +597,7 @@ class Messages extends Component
 
     private function resetChat(): void
     {
-        $this->reset('body', 'photo', 'shown', 'notice', 'editing');
+        $this->reset('body', 'photo', 'voice', 'shown', 'notice', 'editing');
         $this->resetErrorBag();
     }
 }

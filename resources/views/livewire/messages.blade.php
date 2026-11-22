@@ -191,6 +191,19 @@
                                                 @if ($m->photo)
                                                     <button type="button" class="chat-photo" aria-label="{{ __('site.messages.photo_open') }}"><img src="{{ $m->photo }}" alt="" loading="lazy"></button>
                                                 @endif
+                                                @if ($m->voice)
+                                                    {{-- A voice message's player (public/js/voice.js); Livewire's redraws leave it alone while it plays. --}}
+                                                    <div class="voice-msg" wire:ignore wire:key="voice-{{ $m->id }}" data-voice-player data-seconds="{{ $m->voiceSeconds }}">
+                                                        <button type="button" class="voice-play" data-voice-toggle aria-label="{{ __('site.messages.voice_play') }}"
+                                                                data-t-play="{{ __('site.messages.voice_play') }}" data-t-pause="{{ __('site.messages.voice_pause') }}">
+                                                            <svg class="i-play" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+                                                            <svg class="i-pause" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+                                                        </button>
+                                                        <span class="voice-track" data-voice-seek aria-hidden="true"><span class="voice-fill"></span></span>
+                                                        <span class="voice-time" data-voice-time>{{ $m->voiceLength }}</span>
+                                                        <audio preload="none" src="{{ $m->voice }}"></audio>
+                                                    </div>
+                                                @endif
                                                 @if ($m->body !== null)<p>{!! nl2br(e($m->body)) !!}</p>@endif
                                             @endif
                                             {{-- In the member's own time zone; on hover, Laos time when that's different (App\Support\ViewerTime). --}}
@@ -259,12 +272,38 @@
                                     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5a4.5 4.5 0 0 0 7 0"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>
                                 </button>
                                 <textarea wire:model="body" rows="1" maxlength="{{ \App\Support\Messaging::MAX_LENGTH }}" placeholder="{{ __('site.messages.write') }}" aria-label="{{ __('site.messages.write') }}" data-chat-input></textarea>
-                                <button class="btn green" type="submit" wire:loading.attr="disabled" wire:target="send,photo">{{ $editing ? __('site.messages.save') : __('site.messages.send') }}</button>
+                                @if ($canRecord && ! $editing)
+                                    {{-- With nothing written, 🎤 stands where Send is (where the browser can record; public/js/voice.js). --}}
+                                    <button type="button" class="chat-mic-btn" data-voice-record title="{{ __('site.messages.voice_record') }}" aria-label="{{ __('site.messages.voice_record') }}">
+                                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>
+                                    </button>
+                                @endif
+                                <button class="btn green chat-send" type="submit" wire:loading.attr="disabled" wire:target="send,photo">{{ $editing ? __('site.messages.save') : __('site.messages.send') }}</button>
+                                @if ($canRecord && ! $editing)
+                                    {{-- The recorder, over the box while recording; Livewire's redraws leave it alone. --}}
+                                    <div class="voice-rec" wire:ignore wire:key="voice-rec-{{ $conversation?->id ?? 'new-'.$other?->id }}" hidden
+                                         data-voice-rec data-max="{{ \App\Support\MessageVoice::MAX_SECONDS }}"
+                                         data-t-recording="{{ __('site.messages.voice_recording') }}" data-t-sending="{{ __('site.messages.voice_sending') }}"
+                                         data-t-short="{{ __('site.messages.voice_too_short') }}" data-t-mic="{{ __('site.messages.voice_mic') }}"
+                                         data-t-silent="{{ __('site.messages.voice_silent') }}" data-t-no-sound="{{ __('site.messages.voice_no_sound') }}"
+                                         data-t-error="{{ __('site.messages.voice_error') }}" data-t-limit="{{ __('site.messages.voice_limit', ['minutes' => \App\Support\MessageVoice::MAX_SECONDS / 60]) }}">
+                                        <button type="button" class="voice-rec-cancel" data-voice-cancel title="{{ __('site.messages.voice_cancel') }}" aria-label="{{ __('site.messages.voice_cancel') }}">
+                                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+                                        </button>
+                                        <span class="voice-rec-dot" aria-hidden="true"></span>
+                                        <span class="voice-rec-clock" data-voice-clock>0:00</span>
+                                        {{-- How loud the microphone hears it, right now: still bars mean no sound. --}}
+                                        <span class="voice-rec-meter" data-voice-meter aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                                        <span class="voice-rec-status" data-voice-status role="status"></span>
+                                        <button type="button" class="btn green voice-rec-send" data-voice-send>{{ __('site.messages.send') }}</button>
+                                    </div>
+                                @endif
                             </form>
                             <p class="muted small chat-uploading" wire:loading wire:target="photo">{{ __('site.messages.uploading') }}</p>
                         @endif
                         @error('body')<p class="error small chat-error" role="alert">{{ $message }}</p>@enderror
                         @error('photo')<p class="error small chat-error" role="alert">{{ $message }}</p>@enderror
+                        @error('voice')<p class="error small chat-error" role="alert">{{ $message }}</p>@enderror
                     @endif
                 @endif
             </section>

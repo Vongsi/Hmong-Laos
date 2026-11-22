@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * One private message: text (encrypted in the database with the app key), a photo, or both. Or a system note in a
- * group ("Alice added Bob": kind system, what happened in meta). The sender can edit it (edited_at) or delete it
- * for everyone (deleted_at; the text and photo are removed) for a while (App\Support\Messaging::CHANGE_HOURS).
+ * One private message: text (encrypted in the database with the app key), a photo, or both; or a voice message
+ * (App\Support\MessageVoice: the file and its length). Or a system note in a group ("Alice added Bob": kind system,
+ * what happened in meta). The sender can edit its text (edited_at) or delete it for everyone (deleted_at; the text,
+ * photo and voice are removed) for a while (App\Support\Messaging::CHANGE_HOURS).
  */
 class Message extends Model
 {
@@ -21,7 +22,7 @@ class Message extends Model
     // A missed call (App\Support\Calls): a note, but unread for whoever was called.
     const CALL = 'call';
 
-    protected $fillable = ['conversation_id', 'user_id', 'kind', 'body', 'photo', 'meta', 'edited_at', 'deleted_at'];
+    protected $fillable = ['conversation_id', 'user_id', 'kind', 'body', 'photo', 'voice', 'voice_seconds', 'meta', 'edited_at', 'deleted_at'];
 
     protected function casts(): array
     {
@@ -30,6 +31,7 @@ class Message extends Model
             'meta' => 'array',
             'conversation_id' => 'integer',
             'user_id' => 'integer',
+            'voice_seconds' => 'integer',
             'edited_at' => 'datetime',
             'deleted_at' => 'datetime',
         ];

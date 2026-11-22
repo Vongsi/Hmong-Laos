@@ -82,4 +82,11 @@ return [
         'secret' => env('TURN_SECRET'),
     ],
 
+    // Voice messages in chats are converted to one format every phone plays (App\Support\MessageVoice). The server
+    // image has ffmpeg (deploy/Dockerfile); on a computer, scripts/dev.ps1 puts a portable copy on PATH.
+    'ffmpeg' => [
+        'ffmpeg' => env('FFMPEG_BINARY', 'ffmpeg'),
+        'ffprobe' => env('FFPROBE_BINARY', 'ffprobe'),
+    ],
+
 ];

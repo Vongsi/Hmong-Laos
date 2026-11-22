@@ -38,8 +38,8 @@ use Throwable;
  * Senders can edit their messages, or delete them for everyone, for CHANGE_HOURS. Either member of a chat can block
  * or report the other (a report also blocks, and emails the team the latest messages); anyone in a group can report
  * it. The team can stop a member from sending (the user's "Stopped from sending messages"). Text is encrypted in the
- * database; photos are private files (MessagePhoto). New messages reach the others live (Reverb, public/js/live.js)
- * and as a phone notification.
+ * database; photos and voice messages are private files (MessagePhoto, MessageVoice). New messages reach the others
+ * live (Reverb, public/js/live.js) and as a phone notification.
  */
 class Messaging
 {
@@ -179,9 +179,9 @@ class Messaging
      * Sends a message from $from to $to, starting their conversation if there isn't one yet.
      * Returns the message, or a translation key saying why it wasn't sent.
      */
-    public static function send(User $from, User $to, string $body, ?UploadedFile $photo = null): Message|string
+    public static function send(User $from, User $to, string $body, ?UploadedFile $photo = null, ?UploadedFile $voice = null): Message|string
     {
-        if (trim($body) === '' && ! $photo) {
+        if (trim($body) === '' && ! $photo && ! $voice) {
             return 'site.messages.empty_message';
         }
         $conversation = self::between($from->id, $to->id);
@@ -196,14 +196,20 @@ class Messaging
             RateLimiter::hit('messages-new:'.$from->id, 86400);
         }
 
-        return self::post($conversation, $from, $body, $photo);
+        return self::post($conversation, $from, $body, $photo, $voice);
     }
 
-    /** Sends a message in a conversation $from is in. Returns the message, or a translation key saying why not. */
-    public static function post(Conversation $conversation, User $from, string $body, ?UploadedFile $photo = null): Message|string
+    /**
+     * Sends a message in a conversation $from is in: text, a photo or both, or a voice message (a recording, on its
+     * own). Returns the message, or a translation key saying why not.
+     */
+    public static function post(Conversation $conversation, User $from, string $body, ?UploadedFile $photo = null, ?UploadedFile $voice = null): Message|string
     {
         $body = trim($body);
-        if ($body === '' && ! $photo) {
+        if ($voice) {
+            [$body, $photo] = ['', null];
+        }
+        if ($body === '' && ! $photo && ! $voice) {
             return 'site.messages.empty_message';
         }
         if (RateLimiter::tooManyAttempts('messages:'.$from->id, self::PER_MINUTE)) {
@@ -214,8 +220,24 @@ class Messaging
         }
         RateLimiter::hit('messages:'.$from->id, 60);
 
+        $recording = $voice ? MessageVoice::store($voice, $conversation->id) : null;
+        if (is_string($recording)) {
+            return $recording;
+        }
         $path = $photo ? MessagePhoto::store($photo, $conversation->id) : null;
-        $message = self::record($conversation, $from, ['body' => $body !== '' ? $body : null, 'photo' => $path]);
+        try {
+            $message = self::record($conversation, $from, [
+                'body' => $body !== '' ? $body : null,
+                'photo' => $path,
+                'voice' => $recording['path'] ?? null,
+                'voice_seconds' => $recording['seconds'] ?? null,
+            ]);
+        } catch (Throwable $e) {
+            // Not saved: no files left without a message.
+            $path && MessagePhoto::forget($path);
+            $recording && MessageVoice::forget($recording['path']);
+            throw $e;
+        }
         self::tellNew($conversation, $from);
 
         return $message;
@@ -244,16 +266,21 @@ class Messaging
         }
     }
 
-    /** Saves a message (text, or a system note) as the conversation's latest, read by whoever wrote it. */
+    /**
+     * Saves a message (text, or a system note) as the conversation's latest, read by whoever wrote it. One at a time
+     * per conversation: messages saved at the same moment (two members in a group) would otherwise deadlock in the
+     * database; if it happens anyway, it's tried again.
+     */
     private static function record(Conversation $conversation, User $user, array $attributes): Message
     {
         return DB::transaction(function () use ($conversation, $user, $attributes) {
+            Conversation::whereKey($conversation->id)->lockForUpdate()->value('id');
             $message = $conversation->messages()->create(['user_id' => $user->id] + $attributes);
             $conversation->forceFill(['last_message_id' => $message->id, 'last_message_at' => $message->created_at])->save();
             ConversationMember::where('conversation_id', $conversation->id)->where('user_id', $user->id)->update(['last_read_id' => $message->id]);
 
             return $message;
-        });
+        }, 3);
     }
 
     /** A note in a group ("Alice added Bob"), shown in each reader's language (systemText). */
@@ -508,7 +535,7 @@ class Messaging
 
     /**
      * A member deleting their account: their chats with one other member go, and they leave their groups (the
-     * database then removes their messages there; their photos are deleted here, as files).
+     * database then removes their messages there; their photos and voice messages are deleted here, as files).
      */
     public static function forgetMember(User $user): void
     {
@@ -519,6 +546,7 @@ class Messaging
                 continue;
             }
             $conversation->messages()->where('user_id', $user->id)->whereNotNull('photo')->pluck('photo')->each(fn ($path) => MessagePhoto::forget($path));
+            $conversation->messages()->where('user_id', $user->id)->whereNotNull('voice')->pluck('voice')->each(fn ($path) => MessageVoice::forget($path));
             self::leave($conversation, $user);
         }
     }
@@ -536,11 +564,11 @@ class Messaging
             && $message->created_at && $message->created_at->gt(now()->subHours(self::CHANGE_HOURS));
     }
 
-    /** Changes the text of one's own message. Returns why not (a translation key), or null. */
+    /** Changes the text of one's own message (a voice message has none). Returns why not (a translation key), or null. */
     public static function edit(Message $message, User $user, string $body): ?string
     {
         $body = trim($body);
-        if (! self::canChange($message, $user)) {
+        if (! self::canChange($message, $user) || $message->voice) {
             return 'site.messages.cannot_change';
         }
         if ($user->messages_disabled) {
@@ -557,7 +585,7 @@ class Messaging
         return null;
     }
 
-    /** "Delete for everyone": the text and photo are removed; everyone sees that a message was deleted. */
+    /** "Delete for everyone": the text, photo and voice are removed; everyone sees that a message was deleted. */
     public static function unsend(Message $message, User $user): ?string
     {
         if (! self::canChange($message, $user)) {
@@ -566,7 +594,10 @@ class Messaging
         if ($message->photo) {
             MessagePhoto::forget($message->photo);
         }
-        $message->forceFill(['body' => null, 'photo' => null, 'deleted_at' => now()])->save();
+        if ($message->voice) {
+            MessageVoice::forget($message->voice);
+        }
+        $message->forceFill(['body' => null, 'photo' => null, 'voice' => null, 'voice_seconds' => null, 'deleted_at' => now()])->save();
         self::changed($message->conversation, $user->id);
 
         return null;
@@ -590,7 +621,7 @@ class Messaging
     {
         $lines = $conversation->messages()->with('user')->where('kind', Message::TEXT)->latest('id')->limit(self::REPORT_EXCERPT)->get()->reverse()
             ->map(fn (Message $m) => '['.self::time($m->created_at)->format('Y-m-d H:i').'] '.($m->user?->name ?: '#'.$m->user_id).': '
-                .($m->isDeleted() ? '(deleted)' : trim(($m->body ?? '').($m->photo ? ' (photo)' : '').($m->edited_at ? ' (edited)' : ''))))
+                .($m->isDeleted() ? '(deleted)' : trim(($m->body ?? '').($m->photo ? ' (photo)' : '').($m->voice ? ' (voice message, '.MessageVoice::length($m->voice_seconds).')' : '').($m->edited_at ? ' (edited)' : ''))))
             ->values()->all();
         $reported = $conversation->isGroup() ? null : $conversation->otherId($reporter->id);
 
