@@ -1,7 +1,7 @@
 <a class="card evt" href="{{ url }}">
     <div class="date"><span>{{ start_date format="M" }}</span><b>{{ start_date format="d" }}</b></div>
     <div class="stack" style="gap:4px">
-        <h3>{{ title }}</h3>
+        <h3>{{ title }}{{ if video_url }} <span class="video-mark" title="{{ trans key='site.video.mark' }}" aria-label="{{ trans key='site.video.mark' }}">▶</span>{{ /if }}</h3>
         <p class="muted"><time datetime="{{ start_date format='c' }}" data-time="short">{{ start_date format="D H:i" }}</time>{{ if venue }} · {{ venue }}{{ /if }}{{ provinces }} · {{ title }}{{ /provinces }}</p>
     </div>
 </a>

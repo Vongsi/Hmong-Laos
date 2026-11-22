@@ -1345,3 +1345,22 @@ button.chat-head-text{cursor:pointer}
 .voice-track::before{content:"";position:absolute;inset:-10px 0}
 .voice-fill{position:absolute;top:0;bottom:0;left:0;width:0;background:currentColor;border-radius:inherit}
 .voice-time{flex:none;min-width:2.8em;font-size:12px;font-variant-numeric:tabular-nums;text-align:right;opacity:.85}
+
+/* Videos on posts, events and interviews (partials/video; public/js/site.js loads YouTube's player on a tap). Until
+   then: the video's picture, framed like the site's cards, with a round red play button; a Short is tall. Cards
+   with a video get a round ▶ on their picture (.has-video), and event cards a small ▶ after the title. */
+.video{display:flex;flex-direction:column;gap:6px;margin:0}
+.video-poster,.video-frame{position:relative;display:block;width:100%;aspect-ratio:16/9;overflow:hidden;background:#000;border:2px solid var(--sketch);border-radius:var(--wobble-box);box-shadow:3px 4px 0 var(--sketch)}
+.video.vertical :is(.video-poster,.video-frame){width:min(340px,100%);aspect-ratio:9/16;margin:0 auto}
+.video-poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
+.video-button{position:absolute;top:50%;left:50%;display:grid;place-items:center;width:68px;height:68px;color:#fff;background:var(--red);border:2px solid #fff;border-radius:var(--wobble-round);box-shadow:2px 3px 0 rgba(0,0,0,.35);transform:translate(-50%,-50%);transition:transform .15s ease}
+.video-button svg{margin-left:4px}
+@media (hover:hover){.video-poster:hover img{transform:scale(1.03)}.video-poster:hover .video-button{transform:translate(-50%,-50%) scale(1.08)}}
+.video-poster:focus-visible{outline:3px solid var(--indigo);outline-offset:3px}
+.video figcaption{font-size:12px;text-align:right}
+.video figcaption a{color:var(--ink-2)}
+.media{position:relative;display:block}
+.media .cover{display:block}
+.has-video::after{content:"";position:absolute;top:50%;left:50%;width:46px;height:46px;margin:-23px 0 0 -23px;background:rgba(17,20,46,.72) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M9 6v12l9.5-6z'/%3E%3C/svg%3E") center/22px no-repeat;border:2px solid #fff;border-radius:50%;pointer-events:none}
+.video-mark{display:inline-block;margin-left:2px;font-size:.75em;color:var(--red);vertical-align:2px}
+@media (prefers-reduced-motion:reduce){.video-poster img,.video-button{transition:none}}

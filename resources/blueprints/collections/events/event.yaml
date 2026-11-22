@@ -17,6 +17,14 @@ tabs:
           container: assets
           max_files: 1
           localizable: true
+      - handle: video_url
+        field:
+          type: video
+          display: Video
+          instructions: 'A YouTube link: it plays on the page, and only loads when someone taps play. A Facebook video link shows as a "Watch on Facebook" button.'
+          localizable: true
+          validate:
+            - 'new App\Rules\VideoLink'
       - handle: summary
         field:
           type: textarea

@@ -34,7 +34,10 @@
     <div class="grid3">
         {{ collection:posts limit="3" }}
             <a class="card" href="{{ url }}">
-                {{ if image }}{{ image }}<img class="cover" src="{{ glide:url width='600' height='375' fit='crop_focal' }}" alt="{{ alt ?? '' }}" loading="lazy">{{ /image }}{{ else }}<div class="ph b"></div>{{ /if }}
+                {{# The photo, else the YouTube video's picture, else a pattern; ▶ on it when there's a video. #}}
+                {{ if image }}<span class="media{{ if video_url }} has-video{{ /if }}">{{ image }}<img class="cover" src="{{ glide:url width='600' height='375' fit='crop_focal' }}" alt="{{ alt ?? '' }}" loading="lazy">{{ /image }}</span>
+                {{ elseif video_url }}{{ video_player :url="video_url" }}{{ if video_youtube }}<span class="media has-video"><img class="cover" src="{{ video_thumb }}" alt="" loading="lazy" referrerpolicy="no-referrer"></span>{{ else }}<div class="ph b"></div>{{ /if }}{{ /video_player }}
+                {{ else }}<div class="ph b"></div>{{ /if }}
                 {{ categories }}<span class="tag {{ slug }}">{{ title }}</span>{{ /categories }}
                 <h3>{{ title }}</h3>
                 <p class="muted">{{ date format="j M Y" }}{{ provinces }} · {{ title }}{{ /provinces }}</p>
@@ -58,7 +61,7 @@
 <section class="sec">
     <div class="sec-head"><h2>{{ trans key="site.home.inspire" }}</h2><a class="link" href="{{ base }}inspire">{{ trans key="site.home.all_interviews" }}</a></div>
     <a class="feature" href="{{ url }}" style="text-decoration:none;color:inherit">
-        <div class="portrait p1">{{ portrait }}<img src="{{ glide:url width='520' height='650' fit='crop_focal' }}" alt="{{ alt ?? '' }}">{{ /portrait }}</div>
+        <div class="portrait p1{{ if video_url }} has-video{{ /if }}">{{ portrait }}<img src="{{ glide:url width='520' height='650' fit='crop_focal' }}" alt="{{ alt ?? '' }}">{{ /portrait }}</div>
         <div class="stack" style="gap:8px">
             {{ topics }}<span class="tag">{{ title }}</span>{{ /topics }}
             <h3 style="font-size:22px">{{ title }}</h3>

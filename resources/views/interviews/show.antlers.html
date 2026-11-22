@@ -9,7 +9,7 @@
         <div class="stack" style="gap:2px"><b style="font-size:17px">{{ person_name }}</b>{{ if person_role }}<span class="muted">{{ person_role }}</span>{{ /if }}</div>
     </div>
     {{ if intro }}<p class="lede">{{ intro }}</p>{{ /if }}
-    {{ if video_url }}<p><a class="btn ghost" href="{{ video_url }}" target="_blank" rel="noopener">▶ Video</a></p>{{ /if }}
+    {{ partial:video }}
     <div class="qa">
         {{ qa }}
             {{ if type == 'question_answer' }}<p class="q">{{ question }}</p><p>{{ answer | nl2br }}</p>{{ /if }}

@@ -1,0 +1,17 @@
+{{# The entry's video (its video_url; App\Tags\VideoPlayer). A YouTube video is its picture with a play button: a tap
+    loads YouTube's player in its place (public/js/site.js), in privacy mode; without the script, the tap opens it on
+    YouTube. A Short is tall. Under it, a link to watch it on YouTube. Another link (Facebook's) is a button. #}}
+{{ video_player :url="video_url" }}
+{{ if video_youtube }}
+<figure class="video{{ if video_vertical }} vertical{{ /if }}">
+    <a class="video-poster" href="{{ video_watch }}" target="_blank" rel="noopener" data-video="{{ video_embed }}"
+       data-video-title="{{ trans key='site.video.player' }}" aria-label="{{ trans key='site.video.play' }}">
+        <img src="{{ video_thumb }}" alt="" loading="lazy" referrerpolicy="no-referrer">
+        <span class="video-button" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg></span>
+    </a>
+    <figcaption><a href="{{ video_watch }}" target="_blank" rel="noopener">{{ trans key="site.video.watch_youtube" }} ↗</a></figcaption>
+</figure>
+{{ else }}
+<p><a class="btn ghost" href="{{ video_link }}" target="_blank" rel="noopener">▶ {{ if video_facebook }}{{ trans key="site.video.watch_facebook" }}{{ else }}{{ trans key="site.video.watch" }}{{ /if }}</a></p>
+{{ /if }}
+{{ /video_player }}

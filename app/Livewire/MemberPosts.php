@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Appearance\Background;
 use App\Livewire\Concerns\ManagesSubmissions;
+use App\Rules\VideoLink;
 use App\Shop\Shop;
 use App\Support\PlainText;
 use App\Support\RichText;
@@ -153,6 +154,7 @@ class MemberPosts extends Component
         $this->summary = (string) $entry->get($config['summary']);
         $this->province = (string) self::first($entry->get('provinces'));
         $this->keepPhoto = (bool) self::first($entry->get($config['photo']));
+        $this->videoUrl = (string) $entry->get('video_url');
 
         if ($type === 'post') {
             $this->body = $this->bodyLoaded = RichText::toHtml($entry->get('content'));
@@ -170,7 +172,6 @@ class MemberPosts extends Component
         } else {
             $this->person = (string) $entry->get('person_name');
             $this->role = (string) $entry->get('person_role');
-            $this->videoUrl = (string) $entry->get('video_url');
             $this->topic = (string) self::first($entry->get('topics'));
             $this->qa = collect((array) $entry->get('qa'))->where('type', 'question_answer')
                 ->map(fn ($row) => ['question' => (string) ($row['question'] ?? ''), 'answer' => (string) ($row['answer'] ?? '')])
@@ -292,6 +293,7 @@ class MemberPosts extends Component
             'Sent by: '.$data['submitted_by_name'],
             'Language: '.Site::get($entry->locale())->name(),
             $this->type === 'event' ? 'Starts: '.$this->starts.' (Laos time)' : null,
+            trim($this->videoUrl) !== '' ? 'Video: '.PlainText::link($this->videoUrl) : null,
         ]));
 
         $this->resetForm();
@@ -319,6 +321,8 @@ class MemberPosts extends Component
             'summary' => ['nullable', 'string', 'max:500'],
             'province' => ['nullable', Rule::in($this->options('provinces')->keys()->all())],
             'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
+            // A YouTube video that may be shown on other sites, or a Facebook video.
+            'videoUrl' => ['nullable', 'url:http,https', 'max:500', new VideoLink],
         ];
 
         return $rules + match ($this->type) {
@@ -348,7 +352,6 @@ class MemberPosts extends Component
             'story' => [
                 'person' => ['required', 'string', 'max:120', $filled],
                 'role' => ['nullable', 'string', 'max:150'],
-                'videoUrl' => ['nullable', 'url:http,https', 'max:500'],
                 'topic' => ['nullable', Rule::in($this->options('topics')->keys()->all())],
                 'qa' => ['array', 'max:'.self::MAX_QUESTIONS, function ($attribute, $value, $fail) {
                     if (! collect($value)->contains(fn ($pair) => ! self::halfAnswered($pair) && PlainText::line($pair['question'] ?? '') !== '')) {
@@ -426,11 +429,13 @@ class MemberPosts extends Component
         return match ($this->type) {
             'post' => [
                 'content' => $this->richContent($entry),
+                'video_url' => PlainText::link($this->videoUrl),
                 'categories' => $this->category ? [$this->category] : [],
                 'author' => (string) $userId,
             ],
             'event' => [
                 'content' => $this->richContent($entry),
+                'video_url' => PlainText::link($this->videoUrl),
                 'start_date' => self::parseLocal($this->starts)?->utc()->format('Y-m-d H:i'),
                 'end_date' => self::parseLocal($this->ends)?->utc()->format('Y-m-d H:i'),
                 'venue' => PlainText::line($this->venue),
