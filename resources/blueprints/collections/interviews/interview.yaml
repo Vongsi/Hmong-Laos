@@ -82,6 +82,17 @@ tabs:
                     field:
                       type: text
                       display: Caption
+                video:
+                  display: Video
+                  instructions: 'A YouTube video (it plays on the page when tapped) or a Facebook video link (a button).'
+                  fields:
+                  - handle: video_url
+                    field:
+                      type: video
+                      display: Video
+                      validate:
+                        - required
+                        - 'new App\Rules\VideoLink'
   sidebar:
     display: Sidebar
     sections:

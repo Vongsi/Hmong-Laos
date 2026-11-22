@@ -1,0 +1,9 @@
+{{# A post's or event's text, with the videos placed between its paragraphs (its "video" blocks, from the control panel or
+    a member's Share page; partials/video, which reads each block's video_url). Older text saved as HTML shows as it is. #}}
+<div class="prose">
+    {{ if content | is_array }}
+        {{ content }}{{ if type == 'video' }}{{ partial:video }}{{ else }}{{ text }}{{ /if }}{{ /content }}
+    {{ else }}
+        {{ content }}
+    {{ /if }}
+</div>

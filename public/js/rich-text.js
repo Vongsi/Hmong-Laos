@@ -5,11 +5,18 @@
  *        …toolbar buttons calling toggle('bold') / link() / pickPhotos()… <div x-ref="area"></div></div>
  * Photos: chosen with the Photo button, pasted or dropped, shrunk in the browser, uploaded to the Livewire
  * property `photoProperty`, then `storeMethod` saves them and returns their address.
+ * Videos: a YouTube or Facebook link, added with the Video button or pasted on an empty line, as a block of its own
+ * between paragraphs (shown here as the video's picture; tapped, a menu moves or removes it). The page shows it as
+ * a player (partials/video).
  * The server keeps only what this toolbar offers (App\Support\RichText), whatever the browser sends.
  */
 (function () {
     const PHOTO_SIZE = 1600; // longest side, in pixels
     const PHOTO_TYPES = /^image\/(jpeg|png|webp)$/;
+    // Video links as App\Support\VideoLinks reads them: YouTube (watch, youtu.be, Shorts, live, embed) and Facebook.
+    const YOUTUBE = /^https?:\/\/(?:(?:www\.|m\.|music\.)?youtube(?:-nocookie)?\.com\/(?:watch\?(?:[^#]*&)?v=|shorts\/|live\/|embed\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})(?:[?&#\/]\S*)?$/i;
+    const FACEBOOK = /^https?:\/\/(?:(?:www\.|m\.|web\.)?facebook\.com|(?:www\.)?fb\.watch)\/\S*$/i;
+    const isVideoLink = (url) => YOUTUBE.test(url) || FACEBOOK.test(url);
 
     /** A smaller JPEG of a photo, made in the browser (phone photos are often 3-8 MB); the original if that fails. */
     async function shrink(file) {
@@ -50,6 +57,8 @@
             failed: false,
             // The selected photo's size and position, for the photo menu.
             photo: { size: null, align: null },
+            // Videos in the text work (this browser has the editor's block tools).
+            videos: false,
 
             init() {
                 // The editor script loads with `defer`; wait for it if Alpine got here first.
@@ -62,7 +71,7 @@
 
             start() {
                 if (editor || !window.Tiptap || !this.$refs.area) return;
-                const { Editor, StarterKit, Image, BubbleMenu, NodeSelection } = window.Tiptap;
+                const { Editor, StarterKit, Image, BubbleMenu, NodeSelection, Node, mergeAttributes } = window.Tiptap;
                 const photoPrefix = this.$root.dataset.photoPrefix || '/assets/';
                 // Only photos stored on this site; images pasted from other websites are left out.
                 const ownPhoto = (src) => {
@@ -101,6 +110,57 @@
                     })]
                     : [];
 
+                // A video between paragraphs: <div data-video-url="…"> (App\Bard\VideoBlock reads it), shown here as the
+                // YouTube video's picture, or a box for a Facebook video, with its link. A tap selects it, for the menu.
+                const videoSelected = (state) => state.selection instanceof NodeSelection && state.selection.node.type.name === 'videoBlock';
+                const Video = Node && mergeAttributes ? Node.create({
+                    name: 'videoBlock',
+                    group: 'block',
+                    atom: true,
+                    selectable: true,
+                    draggable: false,
+                    addAttributes() {
+                        return { url: { default: null, parseHTML: (element) => element.getAttribute('data-video-url'), renderHTML: (attributes) => ({ 'data-video-url': attributes.url }) } };
+                    },
+                    parseHTML() {
+                        return [{ tag: 'div[data-video-url]', getAttrs: (element) => (isVideoLink((element.getAttribute('data-video-url') || '').trim()) ? {} : false) }];
+                    },
+                    renderHTML({ HTMLAttributes }) {
+                        return ['div', mergeAttributes(HTMLAttributes)];
+                    },
+                    addNodeView() {
+                        return ({ node }) => {
+                            const url = node.attrs.url || '';
+                            const id = (url.match(YOUTUBE) || [])[1];
+                            const dom = document.createElement('div');
+                            dom.className = 'rte-video' + (id ? '' : ' rte-video-link');
+                            dom.contentEditable = 'false';
+                            if (id) {
+                                const picture = document.createElement('img');
+                                picture.src = 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg';
+                                picture.alt = '';
+                                picture.referrerPolicy = 'no-referrer';
+                                dom.appendChild(picture);
+                            }
+                            const label = document.createElement('span');
+                            label.className = 'rte-video-label';
+                            label.textContent = '▶ ' + url;
+                            dom.appendChild(label);
+                            return { dom };
+                        };
+                    },
+                }) : null;
+                this.videos = !!Video;
+                const videoMenu = Video && this.$refs.videoMenu
+                    ? [BubbleMenu.configure({
+                        element: this.$refs.videoMenu,
+                        pluginKey: 'videoMenu',
+                        updateDelay: 0,
+                        shouldShow: ({ editor: e, view, state }) => e.isEditable && videoSelected(state)
+                            && (view.hasFocus() || this.$refs.videoMenu.contains(document.activeElement)),
+                    })]
+                    : [];
+
                 editor = new Editor({
                     element: this.$refs.area,
                     extensions: [
@@ -120,6 +180,7 @@
                             },
                         }),
                         ...(photoProperty ? [Photo, ...photoMenu] : []),
+                        ...(Video ? [Video, ...videoMenu] : []),
                     ],
                     content: wire.get(property) || '',
                     editorProps: {
@@ -129,8 +190,9 @@
                             'aria-multiline': 'true',
                             'aria-label': this.$root.dataset.label || '',
                         },
-                        // Photos pasted or dropped from the phone or computer are uploaded like the Photo button.
-                        handlePaste: (view, event) => this.takePhotos(event.clipboardData?.files),
+                        // Photos pasted or dropped from the phone or computer are uploaded like the Photo button; a
+                        // video link pasted on an empty line becomes the video.
+                        handlePaste: (view, event) => this.takePhotos(event.clipboardData?.files) || this.pasteVideo(event.clipboardData?.getData('text/plain')),
                         handleDrop: (view, event, slice, moved) => !moved && this.takePhotos(event.dataTransfer?.files),
                     },
                     // Sent with the next action (Send), not on every key press.
@@ -245,6 +307,82 @@
 
             pickPhotos() {
                 this.$refs.photoInput?.click();
+            },
+
+            /** The Video button: asks for a YouTube or Facebook link and puts the video after the current paragraph. */
+            addVideo() {
+                if (!editor || !this.videos) return;
+                const answer = window.prompt(this.$root.dataset.videoPrompt || 'Video', 'https://');
+                if (answer === null) return;
+                const url = answer.trim();
+                if (url === '' || url === 'https://') return;
+                if (!isVideoLink(url)) {
+                    window.alert(this.$root.dataset.videoInvalid || '');
+                    return;
+                }
+                this.placeVideo(url);
+            },
+
+            /** A pasted video link on an empty line: the video in that line's place. True if handled. */
+            pasteVideo(text) {
+                const url = (text || '').trim();
+                if (!editor || !this.videos || !isVideoLink(url)) return false;
+                const { $from, empty } = editor.state.selection;
+                if (!empty || $from.depth !== 1 || $from.parent.type.name !== 'paragraph' || $from.parent.content.size !== 0) return false;
+                this.placeVideo(url);
+                return true;
+            },
+
+            /**
+             * Puts a video between paragraphs: in place of the current paragraph when it's empty, else after the
+             * current block (a list or quote included), with an empty paragraph after it to carry on writing.
+             */
+            placeVideo(url) {
+                const max = parseInt(this.$root.dataset.videoMax || '10', 10);
+                let count = 0;
+                editor.state.doc.forEach((node) => { if (node.type.name === 'videoBlock') count++; });
+                if (count >= max) {
+                    window.alert(this.$root.dataset.videoLimit || '');
+                    return;
+                }
+                const { doc, selection } = editor.state;
+                const index = Math.min(selection.$from.index(0), doc.childCount - 1);
+                let from = 0;
+                for (let k = 0; k < index; k++) from += doc.child(k).nodeSize;
+                const block = doc.child(index);
+                const blank = block.type.name === 'paragraph' && block.content.size === 0;
+                const range = blank ? { from, to: from + block.nodeSize } : from + block.nodeSize;
+                editor.chain().focus().insertContentAt(range, [{ type: 'videoBlock', attrs: { url } }, { type: 'paragraph' }]).run();
+                this.refresh();
+            },
+
+            /** Moves the selected video above the block before it (-1) or below the one after it (1). */
+            moveVideo(direction) {
+                if (!editor) return;
+                const { state, view } = editor;
+                const selection = state.selection;
+                if (!(selection instanceof NodeSel) || selection.node.type.name !== 'videoBlock') return;
+                const doc = state.doc;
+                const video = selection.node;
+                const index = doc.resolve(selection.from).index(0);
+                const target = index + direction;
+                if (target < 0 || target >= doc.childCount) return;
+                const start = (i) => { let pos = 0; for (let k = 0; k < i; k++) pos += doc.child(k).nodeSize; return pos; };
+                const at = direction < 0 ? start(target) : start(target) + doc.child(target).nodeSize;
+                let tr = state.tr.insert(at, video);
+                const from = tr.mapping.map(start(index));
+                tr = tr.delete(from, from + video.nodeSize);
+                const placed = direction < 0 ? at : at - video.nodeSize;
+                tr = tr.setSelection(NodeSel.create(tr.doc, placed)).scrollIntoView();
+                view.dispatch(tr);
+                view.focus();
+                this.refresh();
+            },
+
+            removeVideo() {
+                if (!editor || !editor.isActive('videoBlock')) return;
+                editor.chain().focus().deleteSelection().run();
+                this.refresh();
             },
 
             /** Starts uploading the image files among these; true if there were any (so the paste/drop is handled). */

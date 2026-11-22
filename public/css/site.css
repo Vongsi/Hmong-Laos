@@ -1364,3 +1364,12 @@ button.chat-head-text{cursor:pointer}
 .has-video::after{content:"";position:absolute;top:50%;left:50%;width:46px;height:46px;margin:-23px 0 0 -23px;background:rgba(17,20,46,.72) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M9 6v12l9.5-6z'/%3E%3C/svg%3E") center/22px no-repeat;border:2px solid #fff;border-radius:50%;pointer-events:none}
 .video-mark{display:inline-block;margin-left:2px;font-size:.75em;color:var(--red);vertical-align:2px}
 @media (prefers-reduced-motion:reduce){.video-poster img,.video-button{transition:none}}
+/* Videos placed in a post's or event's text (partials/content_blocks): on their own line, even after a photo with
+   text beside it. In the members' editor (public/js/rich-text.js) a video is its picture, or a box for a Facebook
+   link, with the link under it; tapped, it's outlined and its menu (move, remove) appears. */
+.prose .video{clear:both}
+.rte-video{display:flex;flex-direction:column;gap:4px;max-width:360px;margin:6px 0 .7em;padding:6px;cursor:pointer;background:var(--surface-2);border:1px solid var(--line);border-radius:10px}
+.rte-video img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px}
+.rte-video-label{overflow:hidden;font-size:12px;color:var(--ink-2);white-space:nowrap;text-overflow:ellipsis}
+.rte-video-link .rte-video-label{font-size:13px;font-weight:600;color:var(--ink)}
+.rte-video.ProseMirror-selectednode{outline:3px solid var(--indigo);outline-offset:2px}

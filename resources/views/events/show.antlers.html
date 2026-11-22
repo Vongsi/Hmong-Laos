@@ -8,7 +8,7 @@
             {{ if summary }}<p class="muted">{{ summary }}</p>{{ /if }}
         </div>
         {{ partial:video }}
-        <div class="prose">{{ content }}</div>
+        {{ partial:content_blocks }}
         {{ if schedule }}
             <div class="panel">
                 <h3>{{ trans key="site.events.schedule" }}</h3>

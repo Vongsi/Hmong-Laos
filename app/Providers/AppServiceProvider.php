@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Auth\SocialSignIn;
 use App\Bard\PhotoNode;
 use App\Bard\StatamicPhotoNode;
+use App\Bard\VideoBlock;
 use App\Http\Controllers\CP\SellerPayoutController;
 use App\Http\Controllers\CP\WhatsAppController;
 use App\Listeners\NotifyEntryByPush;
@@ -82,6 +83,8 @@ class AppServiceProvider extends ServiceProvider
         // Photos in Bard text keep a size and position (app/Bard/PhotoLayout.php). In the control panel,
         // public/vendor/app/js/cp.js and css/cp.css show them and add buttons to change them.
         Augmentor::replaceExtension('image', fn ($image) => $image instanceof StatamicImageNode ? new StatamicPhotoNode : new PhotoNode);
+        // Videos placed in members' texts on the Share page (App\Support\RichText), read from the editor's HTML.
+        Augmentor::addExtension('videoBlock', new VideoBlock);
         // An order's payment history for the team, read only (App\Shop\Payments): never saved from the control panel,
         // so a save there can't drop what the customer added meanwhile.
         Collection::computed('orders', 'payment_log', fn ($order) => Payments::historyText($order));

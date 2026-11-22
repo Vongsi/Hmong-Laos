@@ -47,6 +47,22 @@ tabs:
           - image
           container: assets
           save_html: false
+          # Blocks between paragraphs: videos (also placed by members on the Share page, App\Support\RichText).
+          sets:
+            main:
+              display: Blocks
+              sets:
+                video:
+                  display: Video
+                  instructions: 'A YouTube video (it plays on the page when tapped) or a Facebook video link (a button).'
+                  fields:
+                  - handle: video_url
+                    field:
+                      type: video
+                      display: Video
+                      validate:
+                        - required
+                        - 'new App\Rules\VideoLink'
       - handle: schedule
         field:
           type: grid
