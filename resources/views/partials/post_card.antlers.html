@@ -6,7 +6,9 @@
     </div>
     <h3><a href="{{ url }}" style="color:inherit;text-decoration:none">{{ title }}</a></h3>
     {{ if excerpt }}<p>{{ excerpt }}</p>{{ /if }}
-    {{ if image }}<a href="{{ url }}">{{ image }}<img class="cover" src="{{ watermarked:url width='900' height='560' fit='crop_focal' }}" alt="{{ alt ?? '' }}" loading="lazy">{{ /image }}</a>{{ /if }}
+    {{# The photo, else the YouTube video's picture; ▶ on it when there's a video (partials/video on the post). #}}
+    {{ if image }}<a href="{{ url }}" class="media{{ if video_url }} has-video{{ /if }}">{{ image }}<img class="cover" src="{{ watermarked:url width='900' height='560' fit='crop_focal' }}" alt="{{ alt ?? '' }}" loading="lazy">{{ /image }}</a>
+    {{ elseif video_url }}{{ video_player :url="video_url" }}{{ if video_youtube }}<a href="{{ url }}" class="media has-video"><img class="cover" src="{{ video_thumb }}" alt="" loading="lazy" referrerpolicy="no-referrer"></a>{{ /if }}{{ /video_player }}{{ /if }}
     <div class="post-actions">
         {{ livewire:like-button :entry-id="id" :key="id" }}
         <a class="like" href="{{ url }}#comments">💬 {{ trans key="site.feed.comments" }}</a>

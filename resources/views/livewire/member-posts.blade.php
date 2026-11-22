@@ -172,12 +172,14 @@
                     @endif
                     @error('qa') <p class="error small">{{ $message }}</p> @enderror
                 </fieldset>
-                <label class="field">{{ __('site.contribute.video') }}
-                    <input type="url" wire:model="videoUrl" maxlength="500" placeholder="https://" inputmode="url">
-                </label>
-                <p class="muted small">{{ __('site.contribute.video_help') }}</p>
-                @error('videoUrl') <p class="error small">{{ $message }}</p> @enderror
             @endif
+
+            {{-- Posts, events and interviews: a YouTube video plays on the page; a Facebook one is a button (partials/video). --}}
+            <label class="field">{{ __('site.contribute.video') }}
+                <input type="url" wire:model="videoUrl" maxlength="500" placeholder="https://youtu.be/…" inputmode="url">
+            </label>
+            <p class="muted small">{{ __('site.contribute.video_help') }}</p>
+            @error('videoUrl') <p class="error small">{{ $message }}</p> @enderror
 
             <div class="sell-row">
                 @if ($type === 'post')

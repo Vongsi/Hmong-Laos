@@ -594,3 +594,22 @@ function photoViewer(t, onClose) {
   var again;
   new MutationObserver(function () { clearTimeout(again); again = setTimeout(all, 120); }).observe(document.body, { childList: true, subtree: true });
 })();
+
+// Videos on posts, events and interviews (partials/video): YouTube's player is heavy, so the page shows the video's
+// picture, and a tap puts the player in its place, playing (privacy mode: youtube-nocookie.com). Without this script
+// the picture is a link to the video on YouTube.
+document.addEventListener('click', function (e) {
+  var poster = e.target.closest && e.target.closest('[data-video]');
+  if (!poster) return;
+  e.preventDefault();
+  var frame = document.createElement('iframe');
+  frame.className = 'video-frame';
+  frame.src = poster.getAttribute('data-video');
+  frame.title = poster.getAttribute('data-video-title') || '';
+  frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+  frame.allowFullscreen = true;
+  // YouTube's player needs to know which site it's on.
+  frame.referrerPolicy = 'strict-origin-when-cross-origin';
+  poster.replaceWith(frame);
+  frame.focus();
+});
