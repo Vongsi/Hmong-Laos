@@ -78,6 +78,8 @@
                          x-data="richText($wire, 'body', 'textPhoto', 'storeTextPhoto')"
                          data-label="{{ __('site.contribute.body_'.$type) }}"
                          data-link-prompt="{{ __('site.contribute.link_prompt') }}"
+                         data-video-prompt="{{ __('site.contribute.video_prompt') }}" data-video-invalid="{{ __('site.contribute.video_invalid') }}"
+                         data-video-limit="{{ __('site.contribute.video_limit', ['max' => \App\Livewire\MemberPosts::MAX_TEXT_VIDEOS]) }}" data-video-max="{{ \App\Livewire\MemberPosts::MAX_TEXT_VIDEOS }}"
                          data-photo-prefix="{{ $photoPrefix }}">
                         <div class="rte-toolbar" role="toolbar" aria-label="{{ __('site.contribute.formatting') }}">
                             @foreach ([
@@ -97,6 +99,9 @@
                             <button type="button" class="rte-btn rte-photo-btn" @mousedown.prevent @click="pickPhotos()" :disabled="!ready"
                                     title="{{ __('site.contribute.format_image') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h1.7l1.2-1.6h5.2L15.8 5h1.7A2.5 2.5 0 0 1 20 7.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5v-9Z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.3" stroke="currentColor" stroke-width="1.8" fill="none"/></svg><span>{{ __('site.contribute.format_image') }}</span></button>
                             <input class="sr" type="file" x-ref="photoInput" accept="image/jpeg,image/png,image/webp" multiple tabindex="-1" aria-hidden="true" @change="addPhotos([...$event.target.files])">
+                            {{-- A YouTube or Facebook video between paragraphs (shown once the editor can hold them). --}}
+                            <button type="button" class="rte-btn rte-photo-btn" @mousedown.prevent @click="addVideo()" :disabled="!ready" x-show="videos" x-cloak
+                                    title="{{ __('site.contribute.format_video') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="6" width="17" height="12" rx="3" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M10.5 9.5v5l4.5-2.5z" fill="currentColor"/></svg><span>{{ __('site.contribute.format_video') }}</span></button>
                         </div>
                         <div class="rte-body">
                             {{-- Example text while the editor is empty (the editor has no placeholder of its own). --}}
@@ -123,6 +128,14 @@
                                     <button type="button" class="rte-btn" @mousedown.prevent @click="movePhoto(-1)" title="{{ __('site.contribute.photo_up') }}" aria-label="{{ __('site.contribute.photo_up') }}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
                                     <button type="button" class="rte-btn" @mousedown.prevent @click="movePhoto(1)" title="{{ __('site.contribute.photo_down') }}" aria-label="{{ __('site.contribute.photo_down') }}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button>
                                     <button type="button" class="rte-btn danger" @mousedown.prevent @click="removePhoto()" title="{{ __('site.contribute.photo_remove') }}" aria-label="{{ __('site.contribute.photo_remove') }}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg></button>
+                                </div>
+                            </div>
+                            {{-- Shown next to a video when it is tapped: move it up or down, or remove it. --}}
+                            <div x-ref="videoMenu" class="rte-photomenu" role="toolbar" aria-label="{{ __('site.contribute.video_menu') }}" style="visibility:hidden">
+                                <div class="rte-group">
+                                    <button type="button" class="rte-btn" @mousedown.prevent @click="moveVideo(-1)" title="{{ __('site.contribute.photo_up') }}" aria-label="{{ __('site.contribute.photo_up') }}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+                                    <button type="button" class="rte-btn" @mousedown.prevent @click="moveVideo(1)" title="{{ __('site.contribute.photo_down') }}" aria-label="{{ __('site.contribute.photo_down') }}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button>
+                                    <button type="button" class="rte-btn danger" @mousedown.prevent @click="removeVideo()" title="{{ __('site.contribute.video_remove') }}" aria-label="{{ __('site.contribute.video_remove') }}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg></button>
                                 </div>
                             </div>
                         </div>

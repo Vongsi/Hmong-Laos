@@ -8,6 +8,7 @@ use App\Rules\VideoLink;
 use App\Shop\Shop;
 use App\Support\PlainText;
 use App\Support\RichText;
+use App\Support\VideoLinks;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -47,6 +48,9 @@ class MemberPosts extends Component
 
     // Photos in the text of one post or event, and uploads while writing it.
     const MAX_TEXT_PHOTOS = 12;
+
+    // Videos placed in the text of one post or event (besides the main video).
+    const MAX_TEXT_VIDEOS = 10;
 
     const MAX_TEXT_UPLOADS = 20;
 
@@ -377,6 +381,16 @@ class MemberPosts extends Component
                 $fail(__('site.contribute.too_long', ['max' => number_format($max)]));
             } elseif (count(RichText::imagePaths($nodes)) > self::MAX_TEXT_PHOTOS) {
                 $fail(__('site.contribute.too_many_photos', ['max' => self::MAX_TEXT_PHOTOS]));
+            } elseif (count($videos = RichText::videoLinks($nodes)) > self::MAX_TEXT_VIDEOS) {
+                $fail(__('site.contribute.too_many_videos', ['max' => self::MAX_TEXT_VIDEOS]));
+            } else {
+                // Each video in the text, as the main one: one YouTube may show on other sites, or Facebook's.
+                foreach ($videos as $i => $url) {
+                    if ($why = VideoLinks::problem($url)) {
+                        $fail(__('site.contribute.video_in_text', ['number' => $i + 1, 'problem' => __($why)]));
+                        break;
+                    }
+                }
             }
         };
     }

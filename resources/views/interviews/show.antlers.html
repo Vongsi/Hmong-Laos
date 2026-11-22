@@ -14,6 +14,7 @@
         {{ qa }}
             {{ if type == 'question_answer' }}<p class="q">{{ question }}</p><p>{{ answer | nl2br }}</p>{{ /if }}
             {{ if type == 'pull_quote' }}<blockquote class="pull">“{{ quote }}”</blockquote>{{ /if }}
+            {{ if type == 'video' }}{{ partial:video }}{{ /if }}
             {{ if type == 'photo' }}{{ photo }}<figure><img class="cover" src="{{ watermarked:url width='1000' }}" data-full="{{ watermarked:url width='2000' height='2000' fit='max' }}" alt="{{ alt ?? '' }}"><figcaption class="muted small">{{ caption }}</figcaption></figure>{{ /photo }}{{ /if }}
         {{ /qa }}
     </div>

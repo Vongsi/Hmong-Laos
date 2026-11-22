@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Facades\Statamic\Fieldtypes\RowId;
 use Statamic\Facades\Asset;
 use Statamic\Facades\AssetContainer;
 use Statamic\Fields\Field;
@@ -11,9 +12,11 @@ use Statamic\Fieldtypes\Bard\Augmentor;
  * Rich text that members write in the editor on the Share page (public/js/rich-text.js), stored as
  * Bard content. Browsers can send anything, so the HTML is read with Statamic's own Bard parser and then
  * rebuilt keeping only what the editor's toolbar offers: paragraphs, two heading sizes, bold, italic,
- * lists, quotes, line breaks, web/email/phone links, and photos the caller allows (the member's own
- * uploads, stored as asset references like the control panel does). Other images, embeds, tables, styles
- * and scripts are dropped; their text is kept as paragraphs.
+ * lists, quotes, line breaks, web/email/phone links, photos the caller allows (the member's own
+ * uploads, stored as asset references like the control panel does), and videos between paragraphs (a
+ * YouTube or Facebook link, App\Bard\VideoBlock in the editor), stored as the text's "video" blocks as
+ * the control panel adds them. Other images, embeds, tables, styles and scripts are dropped; their text
+ * is kept as paragraphs.
  */
 class RichText
 {
@@ -49,7 +52,22 @@ class RichText
             self::$allowImage = null;
         }
 
-        return self::textLength($blocks) > 0 || self::imagePaths($blocks) ? $blocks : null;
+        return self::textLength($blocks) > 0 || self::imagePaths($blocks) || self::videoLinks($blocks) ? $blocks : null;
+    }
+
+    /**
+     * The links of the videos placed in Bard content, in order.
+     *
+     * @return list<string>
+     */
+    public static function videoLinks(?array $nodes): array
+    {
+        return collect($nodes ?? [])
+            ->filter(fn ($node) => ($node['type'] ?? null) === 'set' && ($node['attrs']['values']['type'] ?? null) === 'video')
+            ->map(fn ($node) => (string) ($node['attrs']['values']['video_url'] ?? ''))
+            ->filter()
+            ->values()
+            ->all();
     }
 
     /**
@@ -94,7 +112,20 @@ class RichText
     {
         $nodes = is_string($value) ? self::toBard($value) : (is_array($value) ? $value : null);
 
-        return $nodes ? self::augmentor()->renderProsemirrorToHtml(['type' => 'doc', 'content' => self::plainPhotoAddresses(array_values($nodes))]) : '';
+        return $nodes ? self::augmentor()->renderProsemirrorToHtml(['type' => 'doc', 'content' => self::plainPhotoAddresses(self::editorVideos(array_values($nodes)))]) : '';
+    }
+
+    /** The text's video blocks as the editor's videos (App\Bard\VideoBlock); other blocks have no place there. */
+    private static function editorVideos(array $nodes): array
+    {
+        return collect($nodes)
+            ->map(fn ($node) => ($node['type'] ?? null) !== 'set' ? $node
+                : (($node['attrs']['values']['type'] ?? null) === 'video' && ($node['attrs']['values']['video_url'] ?? '') !== ''
+                    ? ['type' => 'videoBlock', 'attrs' => ['url' => (string) $node['attrs']['values']['video_url']]]
+                    : null))
+            ->filter()
+            ->values()
+            ->all();
     }
 
     /**
@@ -189,6 +220,15 @@ class RichText
                 case 'blockquote':
                     if ($content = self::tidy(self::blocks($node['content'] ?? [], $depth + 1))) {
                         $blocks[] = ['type' => 'blockquote', 'content' => $content];
+                    }
+                    break;
+
+                case 'videoBlock':
+                    // Between paragraphs only (a list or quote can't hold one), and only YouTube or Facebook links;
+                    // whether the video may be shown is checked where it's sent (App\Rules\VideoLink).
+                    $url = trim((string) ($node['attrs']['url'] ?? ''));
+                    if ($depth === 0 && mb_strlen($url) <= 500 && (VideoLinks::youtube($url) || VideoLinks::isFacebook($url))) {
+                        $blocks[] = ['type' => 'set', 'attrs' => ['id' => RowId::generate(), 'values' => ['type' => 'video', 'video_url' => PlainText::link($url)]]];
                     }
                     break;
 
